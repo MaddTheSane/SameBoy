@@ -16,7 +16,7 @@
 }
 - (void)drawRect:(NSRect)dirtyRect
 {
-    CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
+	CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
     CGContextSetInterpolationQuality(context, kCGInterpolationNone);
     [super drawRect:dirtyRect];
     CGFloat y_ratio = self.frame.size.height / self.image.size.height;
@@ -76,19 +76,19 @@
 - (void)setHorizontalGrids:(NSArray *)horizontalGrids
 {
     self->_horizontalGrids = horizontalGrids;
-    [self setNeedsDisplay];
+	[self setNeedsDisplay:YES];
 }
 
 - (void)setVerticalGrids:(NSArray *)verticalGrids
 {
     self->_verticalGrids = verticalGrids;
-    [self setNeedsDisplay];
+	[self setNeedsDisplay:YES];
 }
 
 - (void)setDisplayScrollRect:(bool)displayScrollRect
 {
     self->_displayScrollRect = displayScrollRect;
-    [self setNeedsDisplay];
+	[self setNeedsDisplay:YES];
 }
 
 - (void)updateTrackingAreas

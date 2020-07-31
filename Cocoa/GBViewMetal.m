@@ -22,10 +22,10 @@ static const vector_float2 rect[] =
     vector_float2 output_resolution;
 }
 
-+ (bool)isSupported
++ (BOOL)isSupported
 {
     if (MTLCopyAllDevices) {
-        return [MTLCopyAllDevices() count];
+        return [MTLCopyAllDevices() count] != 0;
     }
     return false;
 }
