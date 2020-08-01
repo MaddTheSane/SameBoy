@@ -575,7 +575,7 @@ value_t debugger_evaluate(GB_gameboy_t *gb, const char *string,
         else if (string[i] == ']') depth--;
         else if (depth == 0) {
             for (unsigned j = 0; j < sizeof(operators) / sizeof(operators[0]); j++) {
-                unsigned operator_length = strlen(operators[j].string);
+                size_t operator_length = strlen(operators[j].string);
                 if (operator_length > length - i) continue; // Operator too long
                 
                 if (memcmp(string + i, operators[j].string, operator_length) == 0) {

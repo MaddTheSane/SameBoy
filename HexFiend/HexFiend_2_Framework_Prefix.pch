@@ -7,7 +7,7 @@
     #import <HexFiend/HFTypes.h>
 #endif
 
-#define PRIVATE_EXTERN __private_extern__
+#define PRIVATE_EXTERN __attribute__((visibility("hidden")))
 
 #include <assert.h>
 

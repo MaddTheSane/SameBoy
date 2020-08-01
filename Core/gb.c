@@ -539,7 +539,7 @@ error:
 
 void GB_load_rom_from_buffer(GB_gameboy_t *gb, const uint8_t *buffer, size_t size)
 {
-    gb->rom_size = (size + 0x3fff) & ~0x3fff;
+    gb->rom_size = (uint32_t)((size + 0x3fff) & ~0x3fff);
     while (gb->rom_size & (gb->rom_size - 1)) {
         gb->rom_size |= gb->rom_size >> 1;
         gb->rom_size++;

@@ -188,7 +188,7 @@
         return @"Select a new key...";
     }
     
-    NSNumber *key = [[NSUserDefaults standardUserDefaults] valueForKey:button_to_preference_name(row, self.playerListButton.selectedTag)];
+    NSNumber *key = [[NSUserDefaults standardUserDefaults] valueForKey:button_to_preference_name(row, (unsigned)self.playerListButton.selectedTag)];
     if (key) {
         if ([self usesForKey:[key unsignedIntValue]] > 1) {
             return [[NSAttributedString alloc] initWithString:[NSString displayStringForKeyCode: [key unsignedIntegerValue]]

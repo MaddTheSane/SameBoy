@@ -2,13 +2,13 @@
 #include <Core/gb.h>
 #import <JoyKit/JoyKit.h>
 
-typedef enum {
+typedef NS_ENUM(NSInteger, GB_frame_blending_mode_t) {
     GB_FRAME_BLENDING_MODE_DISABLED,
     GB_FRAME_BLENDING_MODE_SIMPLE,
     GB_FRAME_BLENDING_MODE_ACCURATE,
     GB_FRAME_BLENDING_MODE_ACCURATE_EVEN = GB_FRAME_BLENDING_MODE_ACCURATE,
     GB_FRAME_BLENDING_MODE_ACCURATE_ODD,
-} GB_frame_blending_mode_t;
+};
 
 @interface GBView : NSView<JOYListener>
 - (void) flip;

@@ -555,7 +555,7 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
     
     self.consoleOutput.textContainerInset = NSMakeSize(4, 4);
     [self.view becomeFirstResponder];
-    self.view.frameBlendingMode = [[NSUserDefaults standardUserDefaults] integerForKey:@"GBFrameBlendingMode"];
+    self.view.frameBlendingMode = (GB_frame_blending_mode_t)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBFrameBlendingMode"];
     CGRect window_frame = self.mainWindow.frame;
     window_frame.size.width  = MAX([[NSUserDefaults standardUserDefaults] integerForKey:@"LastWindowWidth"],
                                   window_frame.size.width);
@@ -695,7 +695,7 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
     return @"Document";
 }
 
-- (BOOL)readFromFile:(NSString *)fileName ofType:(NSString *)type
+- (BOOL)readFromURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError *__autoreleasing  _Nullable *)outError
 {
     return YES;
 }
