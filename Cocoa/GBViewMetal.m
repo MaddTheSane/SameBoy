@@ -2,7 +2,7 @@
 #pragma clang diagnostic ignored "-Wpartial-availability"
 
 
-static const vector_float2 rect[] =
+static const simd_float2 rect[] =
 {
     {-1, -1},
     { 1, -1},
@@ -19,7 +19,7 @@ static const vector_float2 rect[] =
     id<MTLCommandQueue> command_queue;
     id<MTLBuffer> frame_blending_mode_buffer;
     id<MTLBuffer> output_resolution_buffer;
-    vector_float2 output_resolution;
+    simd_float2 output_resolution;
 }
 
 + (BOOL)isSupported
@@ -58,7 +58,7 @@ static const vector_float2 rect[] =
                                    length:sizeof(rect)
                                   options:MTLResourceStorageModeShared];
     
-    static const GB_frame_blending_mode_t default_blending_mode = GB_FRAME_BLENDING_MODE_DISABLED;
+    static const GBFrameBlendingMode default_blending_mode = GBFrameBlendingModeDisabled;
     frame_blending_mode_buffer = [device newBufferWithBytes:&default_blending_mode
                                           length:sizeof(default_blending_mode)
                                          options:MTLResourceStorageModeShared];
@@ -125,7 +125,7 @@ static const vector_float2 rect[] =
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
-    output_resolution = (vector_float2){size.width, size.height};
+    output_resolution = (simd_float2){size.width, size.height};
     dispatch_async(dispatch_get_main_queue(), ^{
         [(MTKView *)self.internalView draw];
     });
@@ -160,8 +160,8 @@ static const vector_float2 rect[] =
     id<MTLCommandBuffer> command_buffer = [command_queue commandBuffer];
 
     if (render_pass_descriptor != nil) { 
-        *(GB_frame_blending_mode_t *)[frame_blending_mode_buffer contents] = [self frameBlendingMode];
-        *(vector_float2 *)[output_resolution_buffer contents] = output_resolution;
+        *(GBFrameBlendingMode *)[frame_blending_mode_buffer contents] = [self frameBlendingMode];
+        *(simd_float2 *)[output_resolution_buffer contents] = output_resolution;
 
         id<MTLRenderCommandEncoder> render_encoder =
             [command_buffer renderCommandEncoderWithDescriptor:render_pass_descriptor];

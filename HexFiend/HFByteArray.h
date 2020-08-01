@@ -7,7 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class HFByteSlice, HFFileReference, HFByteRangeAttributeArray;
+@class HFByteSlice, HFFileReference, HFByteRangeAttributeArray, HFRangeWrapper;
 
 typedef NS_ENUM(NSUInteger, HFByteArrayDataStringType) {
     HFHexDataStringType,
@@ -55,7 +55,7 @@ HFByteArray is an abstract class.  It will raise an exception if you attempt to 
 //@{
 
 /*! Returns the length of the HFByteArray as a 64 bit unsigned long long. This is an abstract method that concrete subclasses must override. */
-- (unsigned long long)length;
+@property (readonly) unsigned long long length;
 
 /*! Copies a range of bytes into a buffer.  This is an abstract method that concrete subclasses must override. */
 - (void)copyBytes:(unsigned char *)dst range:(HFRange)range;
@@ -66,7 +66,7 @@ HFByteArray is an abstract class.  It will raise an exception if you attempt to 
 */
 //@{
 /*! Returns the contents of the receiver as an array of byte slices.  This is an abstract method that concrete subclasses must override. */
-- (NSArray *)byteSlices;
+- (NSArray<HFByteSlice*> *)byteSlices;
 
 /*! Returns an NSEnumerator representing the byte slices of the receiver.  This is implemented as enumerating over the result of -byteSlices, but subclasses can override this to be more efficient. */
 - (NSEnumerator *)byteSliceEnumerator;
@@ -104,7 +104,7 @@ HFByteArray is an abstract class.  It will raise an exception if you attempt to 
 - (void)decrementChangeLockCounter;
 
 /*! Query if the changes are locked.  This method is KVO compliant. */
-- (BOOL)changesAreLocked;
+@property (readonly) BOOL changesAreLocked;
 //@}
 
 /* @name Generation count
@@ -115,7 +115,7 @@ HFByteArray is an abstract class.  It will raise an exception if you attempt to 
 - (void)incrementGenerationOrRaiseIfLockedForSelector:(SEL)sel;
 
 /*! Return the change generation count.  Every change to the ByteArray increments this by one or more.  This can be used for caching layers on top of HFByteArray, to known when to expire their cache. */
-- (NSUInteger)changeGenerationCount;
+@property (readonly) NSUInteger changeGenerationCount;
 
 //@}
 
@@ -153,7 +153,7 @@ HFByteArray is an abstract class.  It will raise an exception if you attempt to 
    @param reference An HFFileReference to the file to be modified
    @return An array of @link HFRangeWrapper HFRangeWrappers@endlink, representing the ranges of the file that would be affected.  If no range would be affected, the result is an empty array.
 */
-- (NSArray *)rangesOfFileModifiedIfSavedToFile:(HFFileReference *)reference;
+- (NSArray<HFRangeWrapper*> *)rangesOfFileModifiedIfSavedToFile:(HFFileReference *)reference;
 
 /*! Attempts to modify the receiver so that it no longer depends on any of the HFRanges in the array within the given file.  It is not necessary to perform this operation on the byte array that is being written to the file.
    @param ranges An array of HFRangeWrappers, representing ranges in the given file that the receiver should no longer depend on.
@@ -161,7 +161,7 @@ HFByteArray is an abstract class.  It will raise an exception if you attempt to 
    @param hint A dictionary that can be used to improve the efficiency of the operation, by allowing multiple byte arrays to share the same state.  If you plan to call this method on multiple byte arrays, pass the first one an empty NSMutableDictionary, and pass the same dictionary to subsequent calls.
    @return A YES return indicates the operation was successful, and the receiver no longer contains byte slices that source data from any of the ranges of the given file (or never did).  A NO return indicates that breaking the dependencies would require too much memory, and so the receiver still depends on some of those ranges.
 */
-- (BOOL)clearDependenciesOnRanges:(NSArray *)ranges inFile:(HFFileReference *)reference hint:(NSMutableDictionary *)hint;
+- (BOOL)clearDependenciesOnRanges:(NSArray<HFRangeWrapper*> *)ranges inFile:(HFFileReference *)reference hint:(NSMutableDictionary *)hint;
 
 @end
 

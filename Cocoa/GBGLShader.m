@@ -79,7 +79,7 @@ void main(void) {\n\
     return self;
 }
 
-- (void) renderBitmap: (void *)bitmap previous:(void*) previous sized:(NSSize)srcSize inSize:(NSSize)dstSize scale: (double) scale withBlendingMode:(GB_frame_blending_mode_t)blendingMode
+- (void) renderBitmap: (void *)bitmap previous:(void*) previous sized:(NSSize)srcSize inSize:(NSSize)dstSize scale: (double) scale withBlendingMode:(GBFrameBlendingMode)blendingMode
 {
     glUseProgram(program);
     glUniform2f(resolution_uniform, dstSize.width * scale, dstSize.height * scale);
@@ -87,7 +87,7 @@ void main(void) {\n\
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, srcSize.width, srcSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap);
     glUniform1i(texture_uniform, 0);
-    glUniform1i(frame_blending_mode_uniform, blendingMode);
+    glUniform1i(frame_blending_mode_uniform, (GLint)blendingMode);
     if (blendingMode) {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, previous_texture);

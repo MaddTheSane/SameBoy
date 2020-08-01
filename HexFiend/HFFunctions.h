@@ -459,19 +459,19 @@ NSString *HFDescribeByteCount(unsigned long long count);
 }
 
 /*! Returns the HFRange for this HFRangeWrapper. */
-- (HFRange)HFRange;
+@property (readonly) HFRange HFRange;
 
 /*! Creates an autoreleased HFRangeWrapper for this HFRange. */
 + (HFRangeWrapper *)withRange:(HFRange)range;
 
 /*! Creates an NSArray of HFRangeWrappers for this HFRange. */
-+ (NSArray *)withRanges:(const HFRange *)ranges count:(NSUInteger)count;
++ (NSArray<HFRangeWrapper*> *)withRanges:(const HFRange *)ranges count:(NSUInteger)count;
 
 /*! Given an NSArray of HFRangeWrappers, get all of the HFRanges into a C array. */
-+ (void)getRanges:(HFRange *)ranges fromArray:(NSArray *)array;
++ (void)getRanges:(HFRange *)ranges fromArray:(NSArray<HFRangeWrapper*> *)array;
 
 /*! Given an array of HFRangeWrappers, returns a "cleaned up" array of equivalent ranges.  This new array represents the same indexes, but overlapping ranges will have been merged, and the ranges will be sorted in ascending order. */
-+ (NSArray *)organizeAndMergeRanges:(NSArray *)inputRanges;
++ (NSArray<HFRangeWrapper*> *)organizeAndMergeRanges:(NSArray<HFRangeWrapper*> *)inputRanges;
 
 @end
 
@@ -495,7 +495,7 @@ NSString *HFDescribeByteCount(unsigned long long count);
 + (HFRangeSet *)withRanges:(const HFRange *)ranges count:(NSUInteger)count;
 
 /*! Create a range set with an array of HFRangeWrappers. No prior sorting is necessary. */
-+ (HFRangeSet *)withRangeWrappers:(NSArray *)ranges;
++ (HFRangeSet *)withRangeWrappers:(NSArray<HFRangeWrapper*> *)ranges;
 
 /*! Create a range set as a copy of another. */
 + (HFRangeSet *)withRangeSet:(HFRangeSet *)rangeSet;
@@ -515,14 +515,14 @@ NSString *HFDescribeByteCount(unsigned long long count);
 
 
 - (BOOL)isEqualToRangeSet:(HFRangeSet *)rangeSet; /*!< Test if two range sets are equivalent. */
-- (BOOL)isEmpty;                                  /*!< Test if range set is empty. */
+@property (readonly, getter=isEmpty) BOOL empty;  /*!< Test if range set is empty. */
 
 - (BOOL)containsAllRange:(HFRange)range;             /*!< Check if the range set covers all of a range. Always true if 'range' is zero length. */
 - (BOOL)overlapsAnyRange:(HFRange)range;             /*!< Check if the range set covers any of a range. Never true if 'range' is zero length. */
 - (BOOL)containsAllRangeSet:(HFRangeSet *)rangeSet;  /*!< Check if this range is a superset of another. */
 - (BOOL)overlapsAnyRangeSet:(HFRangeSet *)rangeSet;  /*!< Check if this range has a nonempty intersection with another. */
 
-- (HFRange)spanningRange;  /*!< Return a single range that covers the entire range set */
+@property (readonly) HFRange spanningRange;  /*!< Return a single range that covers the entire range set */
 
 - (void)assertIntegrity;
 

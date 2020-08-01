@@ -7,6 +7,6 @@
 @property (readonly, getter=isPlaying) bool playing;
 -(void) start;
 -(void) stop;
--(id) initWithRendererBlock:(void (^)(UInt32 sampleRate, UInt32 nFrames, GB_sample_t *buffer)) block
-              andSampleRate:(UInt32) rate;
+-(instancetype) initWithRendererBlock:(void (^)(UInt32 sampleRate, UInt32 nFrames, GB_sample_t *buffer)) block
+                        andSampleRate:(UInt32) rate;
 @end

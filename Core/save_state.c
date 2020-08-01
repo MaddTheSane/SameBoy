@@ -287,7 +287,7 @@ int GB_load_state(GB_gameboy_t *gb, const char *path)
     
     size_t orig_ram_size = gb->ram_size;
     memcpy(gb, &save, sizeof(save));
-    gb->ram_size = orig_ram_size;
+    gb->ram_size = (uint32_t)orig_ram_size;
 
     errno = 0;
     

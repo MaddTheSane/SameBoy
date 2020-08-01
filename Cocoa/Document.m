@@ -555,7 +555,7 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
     
     self.consoleOutput.textContainerInset = NSMakeSize(4, 4);
     [self.view becomeFirstResponder];
-    self.view.frameBlendingMode = (GB_frame_blending_mode_t)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBFrameBlendingMode"];
+    self.view.frameBlendingMode = (GBFrameBlendingMode)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBFrameBlendingMode"];
     CGRect window_frame = self.mainWindow.frame;
     window_frame.size.width  = MAX([[NSUserDefaults standardUserDefaults] integerForKey:@"LastWindowWidth"],
                                   window_frame.size.width);
@@ -1704,7 +1704,7 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
 
 - (void) updateFrameBlendingMode
 {
-    self.view.frameBlendingMode = (GB_frame_blending_mode_t) [[NSUserDefaults standardUserDefaults] integerForKey:@"GBFrameBlendingMode"];
+    self.view.frameBlendingMode = (GBFrameBlendingMode) [[NSUserDefaults standardUserDefaults] integerForKey:@"GBFrameBlendingMode"];
 }
 
 - (void) updateRewindLength

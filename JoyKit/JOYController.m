@@ -27,6 +27,10 @@ static NSString const *JOYActivationReport = @"JOYActivationReport";
 static NSString const *JOYIgnoredReports = @"JOYIgnoredReports";
 static NSString const *JOYIsDualShock3 = @"JOYIsDualShock3";
 
+NSString const *JOYAxesEmulateButtonsKey = @"JOYAxesEmulateButtons";
+NSString const *JOYAxes2DEmulateButtonsKey = @"JOYAxes2DEmulateButtons";
+NSString const *JOYHatsEmulateButtonsKey = @"JOYHatsEmulateButtons";
+
 static NSMutableDictionary<id, JOYController *> *controllers; // Physical controllers
 static NSMutableArray<JOYController *> *exposedControllers; // Logical controllers
 

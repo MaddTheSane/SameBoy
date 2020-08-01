@@ -22,7 +22,7 @@
     bool analogClockMultiplierValid;
     NSEventModifierFlags previousModifiers;
     JOYController *lastController;
-    GB_frame_blending_mode_t _frameBlendingMode;
+    GBFrameBlendingMode _frameBlendingMode;
 }
 
 + (instancetype)alloc
@@ -83,20 +83,20 @@
     [self setFrame:self.superview.frame];
 }
 
-- (void) setFrameBlendingMode:(GB_frame_blending_mode_t)frameBlendingMode
+- (void) setFrameBlendingMode:(GBFrameBlendingMode)frameBlendingMode
 {
     _frameBlendingMode = frameBlendingMode;
     [self setNeedsDisplay:YES];
 }
 
 
-- (GB_frame_blending_mode_t)frameBlendingMode
+- (GBFrameBlendingMode)frameBlendingMode
 {
-    if (_frameBlendingMode == GB_FRAME_BLENDING_MODE_ACCURATE) {
+    if (_frameBlendingMode == GBFrameBlendingModeAccurate) {
         if (!_gb || GB_is_sgb(_gb)) {
-            return GB_FRAME_BLENDING_MODE_SIMPLE;
+            return 	GBFrameBlendingModeSimple;
         }
-        return GB_is_odd_frame(_gb)? GB_FRAME_BLENDING_MODE_ACCURATE_ODD : GB_FRAME_BLENDING_MODE_ACCURATE_EVEN;
+        return GB_is_odd_frame(_gb)? GBFrameBlendingModeOdd : GBFrameBlendingModeAccurateEven;
     }
     return _frameBlendingMode;
 }

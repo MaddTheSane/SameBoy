@@ -4,9 +4,9 @@
 #import "JOYAxes2D.h"
 #import "JOYHat.h"
 
-static NSString const *JOYAxesEmulateButtonsKey = @"JOYAxesEmulateButtons";
-static NSString const *JOYAxes2DEmulateButtonsKey = @"JOYAxes2DEmulateButtons";
-static NSString const *JOYHatsEmulateButtonsKey = @"JOYHatsEmulateButtons";
+extern NSString const *JOYAxesEmulateButtonsKey;
+extern NSString const *JOYAxes2DEmulateButtonsKey;
+extern NSString const *JOYHatsEmulateButtonsKey;
 
 @class JOYController;
 
@@ -23,7 +23,7 @@ static NSString const *JOYHatsEmulateButtonsKey = @"JOYHatsEmulateButtons";
 @end
 
 @interface JOYController : NSObject
-+ (void)startOnRunLoop:(NSRunLoop *)runloop withOptions: (NSDictionary *)options;
++ (void)startOnRunLoop:(NSRunLoop *)runloop withOptions: (NSDictionary<NSString*,id> *)options;
 + (NSArray<JOYController *> *) allControllers;
 + (void) registerListener:(id<JOYListener>)listener;
 + (void) unregisterListener:(id<JOYListener>)listener;

@@ -38,7 +38,7 @@
                                                               @"GBColorCorrection": @(GB_COLOR_CORRECTION_EMULATE_HARDWARE),
                                                               @"GBHighpassFilter": @(GB_HIGHPASS_REMOVE_DC_OFFSET),
                                                               @"GBRewindLength": @(10),
-                                                              @"GBFrameBlendingMode": @([defaults boolForKey:@"DisableFrameBlending"]? GB_FRAME_BLENDING_MODE_DISABLED : GB_FRAME_BLENDING_MODE_ACCURATE),
+                                                              @"GBFrameBlendingMode": @([defaults boolForKey:@"DisableFrameBlending"]? GBFrameBlendingModeDisabled : GBFrameBlendingModeAccurate),
                                                               
                                                               @"GBDMGModel": @(GB_MODEL_DMG_B),
                                                               @"GBCGBModel": @(GB_MODEL_CGB_E),
