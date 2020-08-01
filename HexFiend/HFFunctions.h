@@ -1,5 +1,6 @@
 /* Functions and convenience methods for working with HFTypes */
 
+#import <Cocoa/Cocoa.h>
 #import <HexFiend/HFTypes.h>
 #import <libkern/OSAtomic.h>
 
