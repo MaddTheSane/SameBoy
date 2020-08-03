@@ -19,6 +19,9 @@ NSImage *HFImageNamed(NSString *name) {
     HFASSERT(name != NULL);
     NSImage *image = [NSImage imageNamed:name];
     if (image == NULL) {
+        image = [[NSBundle bundleForClass:[HFController class]] imageForResource:name];
+    }
+    if (image == NULL) {
         NSString *imagePath = [[NSBundle bundleForClass:[HFController class]] pathForResource:name ofType:@"tiff"];
         if (! imagePath) {
             NSLog(@"Unable to find image named %@.tiff", name);
@@ -40,7 +43,7 @@ NSImage *HFImageNamed(NSString *name) {
 
 @implementation HFRangeWrapper
 
-- (HFRange)HFRange { return range; }
+@synthesize HFRange=range;
 
 + (HFRangeWrapper *)withRange:(HFRange)range {
     HFRangeWrapper *result = [[self alloc] init];
@@ -129,7 +132,7 @@ static int hfrange_compare(const void *ap, const void *bp) {
 // is even in length, sorted, duplicate free, and considered to include the ranges
 // [array[0], array[1]), [array[2], array[3]), ..., [array[2n], array[2n+1])
 
-CFComparisonResult uintptrComparator(const void *val1, const void *val2, void *context) {
+static CFComparisonResult uintptrComparator(const void *val1, const void *val2, void *context) {
     (void)context;
     uintptr_t a = (uintptr_t)val1;
     uintptr_t b = (uintptr_t)val2;

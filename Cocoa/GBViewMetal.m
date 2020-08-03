@@ -75,16 +75,16 @@ static const simd_float2 rect[] =
 - (void) loadShader
 {
     NSError *error = nil;
-    NSString *shader_source = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"MasterShader"
-                                                                                                 ofType:@"metal"
-                                                                                            inDirectory:@"Shaders"]
+    NSString *shader_source = [NSString stringWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"MasterShader"
+                                                                                        withExtension:@"metal"
+                                                                                         subdirectory:@"Shaders"]
                                                         encoding:NSUTF8StringEncoding
                                                            error:nil];
     
-    NSString *shader_name = [[NSUserDefaults standardUserDefaults] objectForKey:@"GBFilter"];
-    NSString *scaler_source = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:shader_name
-                                                                                                 ofType:@"fsh"
-                                                                                            inDirectory:@"Shaders"]
+    NSString *shader_name = [[NSUserDefaults standardUserDefaults] stringForKey:@"GBFilter"];
+    NSString *scaler_source = [NSString stringWithContentsOfURL:[[NSBundle mainBundle] URLForResource:shader_name
+                                                                                        withExtension:@"fsh"
+                                                                                         subdirectory:@"Shaders"]
                                                         encoding:NSUTF8StringEncoding
                                                            error:nil];
     
@@ -208,7 +208,7 @@ static const simd_float2 rect[] =
 {
     [super flip];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [(MTKView *)self.internalView setNeedsDisplay:YES];
+        [self.internalView setNeedsDisplay:YES];
     });
 }
 

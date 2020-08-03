@@ -31,9 +31,9 @@ void main(void) {\n\
 
 + (NSString *) shaderSourceForName:(NSString *) name
 {
-    return [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:name
-                                                                              ofType:@"fsh"
-                                                                         inDirectory:@"Shaders"]
+    return [NSString stringWithContentsOfURL:[[NSBundle mainBundle] URLForResource:name
+                                                                     withExtension:@"fsh"
+                                                                      subdirectory:@"Shaders"]
                                      encoding:NSUTF8StringEncoding
                                         error:nil];
 }
