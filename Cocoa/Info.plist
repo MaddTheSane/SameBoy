@@ -71,8 +71,6 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>SameBoy</string>
-	<key>CFBundleIconFile</key>
-	<string>AppIcon.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.github.liji32.sameboy</string>
 	<key>CFBundleInfoDictionaryVersion</key>
