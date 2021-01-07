@@ -394,7 +394,7 @@ static void trigger_sweep_calculation(GB_gameboy_t *gb)
         
         /* Recalculation and overflow check only occurs after a delay */
         gb->apu.square_sweep_calculate_countdown = (gb->io_registers[GB_IO_NR10] & 0x7) * 2 + 5 - gb->apu.lf_div;
-        
+        gb->apu.unshifted_sweep = !(gb->io_registers[GB_IO_NR10] & 0x7);
         gb->apu.square_sweep_countdown = ((gb->io_registers[GB_IO_NR10] >> 4) & 7) ^ 7;
     }
 }
@@ -524,7 +524,7 @@ void GB_apu_run(GB_gameboy_t *gb)
         gb->apu.noise_channel.alignment += cycles;
 
         if (gb->apu.square_sweep_calculate_countdown &&
-            ((gb->io_registers[GB_IO_NR10] & 7) ||
+            (((gb->io_registers[GB_IO_NR10] & 7) || gb->apu.unshifted_sweep) ||
              gb->apu.square_sweep_calculate_countdown <= (gb->model > GB_MODEL_CGB_C? 3 : 1))) { // Calculation is paused if the lower bits
             if (gb->apu.square_sweep_calculate_countdown > cycles) {
                 gb->apu.square_sweep_calculate_countdown -= cycles;
@@ -821,7 +821,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
         case GB_IO_NR14:
         case GB_IO_NR24: {
             unsigned index = reg == GB_IO_NR24? GB_SQUARE_2: GB_SQUARE_1;
-            
+            bool was_active = gb->apu.is_active[index];
             /* TODO: When the sample length changes right before being updated, the countdown should change to the
                      old length, but the current sample should not change. Because our write timing isn't accurate to
                      the T-cycle, we hack around it by stepping the sample index backwards. */
@@ -836,6 +836,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                 }
             }
 
+            uint16_t old_sample_length = gb->apu.square_channels[index].sample_length;
             gb->apu.square_channels[index].sample_length &= 0xFF;
             gb->apu.square_channels[index].sample_length |= (value & 7) << 8;
             if (value & 0x80) {
@@ -845,8 +846,21 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                     gb->apu.square_channels[index].sample_countdown = (gb->apu.square_channels[index].sample_length ^ 0x7FF) * 2 + 6 - gb->apu.lf_div;
                 }
                 else {
+                    unsigned extra_delay = 0;
+                   if (gb->model == GB_MODEL_CGB_E /* || gb->model == GB_MODEL_CGB_D */) {
+                       if ((!(value & 4) && ((gb->io_registers[reg] & 4) || old_sample_length == 0x3FF)) ||
+                           (old_sample_length == 0x7FF && gb->apu.square_channels[index].sample_length != 0x7FF)) {
+                            gb->apu.square_channels[index].current_sample_index++;
+                            gb->apu.square_channels[index].current_sample_index &= 0x7;
+                       }
+                       else if (gb->apu.square_channels[index].sample_length == 0x7FF &&
+                                old_sample_length != 0x7FF &&
+                                (gb->apu.square_channels[index].current_sample_index & 0x80)) {
+                           extra_delay += 2;
+                       }
+                    }
                     /* Timing quirk: if already active, sound starts 2 (2MHz) ticks earlier.*/
-                    gb->apu.square_channels[index].sample_countdown = (gb->apu.square_channels[index].sample_length ^ 0x7FF) * 2 + 4 - gb->apu.lf_div;
+                    gb->apu.square_channels[index].sample_countdown = (gb->apu.square_channels[index].sample_length ^ 0x7FF) * 2 + 4 - gb->apu.lf_div + extra_delay;
                 }
                 gb->apu.square_channels[index].current_volume = gb->io_registers[index == GB_SQUARE_1 ? GB_IO_NR12 : GB_IO_NR22] >> 4;
 
@@ -875,7 +889,8 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                     if (gb->io_registers[GB_IO_NR10] & 7) {
                         /* APU bug: if shift is nonzero, overflow check also occurs on trigger */
                         gb->apu.square_sweep_calculate_countdown = (gb->io_registers[GB_IO_NR10] & 0x7) * 2 + 5 - gb->apu.lf_div;
-                        if (gb->model > GB_MODEL_CGB_C) {
+                        gb->apu.unshifted_sweep = false;
+                        if (gb->model > GB_MODEL_CGB_C && !was_active) {
                             gb->apu.square_sweep_calculate_countdown += 2;
                         }
                         gb->apu.sweep_length_addend = gb->apu.square_channels[GB_SQUARE_1].sample_length;
@@ -884,7 +899,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                     else {
                         gb->apu.sweep_length_addend = 0;
                     }
-                    gb->apu.channel_1_restart_hold = 4 - gb->apu.lf_div;
+                    gb->apu.channel_1_restart_hold = 2 - gb->apu.lf_div + GB_is_cgb(gb) * 2;
                     gb->apu.square_sweep_countdown = ((gb->io_registers[GB_IO_NR10] >> 4) & 7) ^ 7;
                 }
             }
