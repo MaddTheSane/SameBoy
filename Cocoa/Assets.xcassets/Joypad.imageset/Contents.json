@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "display-gamut" : "sRGB",
       "filename" : "Joypad.png",
       "idiom" : "universal",
       "scale" : "1x"
@@ -12,11 +13,31 @@
           "value" : "dark"
         }
       ],
+      "display-gamut" : "sRGB",
       "filename" : "Joypad~dark.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "display-gamut" : "display-P3",
+      "filename" : "Joypad~P3.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "display-gamut" : "display-P3",
+      "filename" : "Joypad~dark~P3.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "display-gamut" : "sRGB",
       "filename" : "Joypad@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
@@ -28,11 +49,31 @@
           "value" : "dark"
         }
       ],
+      "display-gamut" : "sRGB",
       "filename" : "Joypad~dark@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "display-gamut" : "display-P3",
+      "filename" : "Joypad~P3@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "display-gamut" : "display-P3",
+      "filename" : "Joypad~dark~P3@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "display-gamut" : "sRGB",
       "idiom" : "universal",
       "scale" : "3x"
     },
@@ -43,6 +84,23 @@
           "value" : "dark"
         }
       ],
+      "display-gamut" : "sRGB",
+      "idiom" : "universal",
+      "scale" : "3x"
+    },
+    {
+      "display-gamut" : "display-P3",
+      "idiom" : "universal",
+      "scale" : "3x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "display-gamut" : "display-P3",
       "idiom" : "universal",
       "scale" : "3x"
     }
