@@ -46,6 +46,13 @@ enum GB_CHANNELS {
     GB_N_CHANNELS
 };
 
+typedef struct
+{
+    bool locked:1;
+    bool clock:1; // Represents FOSY on channel 4
+    unsigned padding:6;
+} GB_envelope_clock_t;
+
 typedef void (*GB_sample_callback_t)(GB_gameboy_t *gb, GB_sample_t *sample);
 
 typedef struct
@@ -67,7 +74,7 @@ typedef struct
     uint16_t sweep_length_addend;
     uint16_t shadow_sweep_sample_length;
     bool unshifted_sweep;
-    GB_PADDING(bool, sweep_decreasing);
+    bool enable_zombie_calculate_stepping;
 
     struct {
         uint16_t pulse_length; // Reloaded from NRX1 (xorred), in 256Hz DIV ticks
@@ -125,6 +132,10 @@ typedef struct
     int8_t channel_4_delta;
     bool channel_4_countdown_reloaded;
     uint8_t channel_4_dmg_delayed_start;
+    uint16_t channel1_completed_addend;
+    
+    GB_envelope_clock_t square_envelope_clock[2];
+    GB_envelope_clock_t noise_envelope_clock;
 } GB_apu_t;
 
 typedef enum {
@@ -169,6 +180,7 @@ bool GB_apu_is_DAC_enabled(GB_gameboy_t *gb, unsigned index);
 void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value);
 uint8_t GB_apu_read(GB_gameboy_t *gb, uint8_t reg);
 void GB_apu_div_event(GB_gameboy_t *gb);
+void GB_apu_div_secondary_event(GB_gameboy_t *gb);
 void GB_apu_init(GB_gameboy_t *gb);
 void GB_apu_run(GB_gameboy_t *gb);
 void GB_apu_update_cycles_per_sample(GB_gameboy_t *gb);

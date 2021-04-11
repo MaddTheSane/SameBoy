@@ -31,16 +31,19 @@
 #define GB_MODEL_DMG_FAMILY 0x000
 #define GB_MODEL_MGB_FAMILY 0x100
 #define GB_MODEL_CGB_FAMILY 0x200
-#define GB_MODEL_PAL_BIT 0x1000
-#define GB_MODEL_NO_SFC_BIT 0x2000
+#define GB_MODEL_PAL_BIT 0x40
+#define GB_MODEL_NO_SFC_BIT 0x80
+
+#define GB_MODEL_PAL_BIT_OLD 0x1000
+#define GB_MODEL_NO_SFC_BIT_OLD 0x2000
 
 #ifdef GB_INTERNAL
 #if __clang__
-#define UNROLL _Pragma("unroll")
+#define unrolled _Pragma("unroll")
 #elif __GNUC__ >= 8
-#define UNROLL _Pragma("GCC unroll 8")
+#define unrolled _Pragma("GCC unroll 8")
 #else
-#define UNROLL
+#define unrolled
 #endif
 
 #endif
@@ -249,6 +252,11 @@ typedef enum {
     GB_BOOT_ROM_AGB,
 } GB_boot_rom_t;
 
+typedef enum {
+    GB_RTC_MODE_SYNC_TO_HOST,
+    GB_RTC_MODE_ACCURATE,
+} GB_rtc_mode_t;
+
 #ifdef GB_INTERNAL
 #define LCDC_PERIOD 70224
 #define CPU_FREQUENCY 0x400000
@@ -433,10 +441,10 @@ struct GB_gameboy_internal_s {
         uint16_t mbc_rom0_bank; /* For some MBC1 wirings. */
         bool camera_registers_mapped;
         uint8_t camera_registers[0x36];
-        bool rumble_state;
+        uint8_t rumble_strength;
         bool cart_ir;
         
-        // TODO: move to huc3/mbc3 struct when breaking save compat
+        // TODO: move to huc3/mbc3/tpp1 struct when breaking save compat
         uint8_t huc3_mode;
         uint8_t huc3_access_index;
         uint16_t huc3_minutes, huc3_days;
@@ -445,6 +453,9 @@ struct GB_gameboy_internal_s {
         uint8_t huc3_read;
         uint8_t huc3_access_flags;
         bool mbc3_rtc_mapped;
+        uint16_t tpp1_rom_bank;
+        uint8_t tpp1_ram_bank;
+        uint8_t tpp1_mode;
     );
 
 
@@ -476,6 +487,7 @@ struct GB_gameboy_internal_s {
         GB_rtc_time_t rtc_real, rtc_latched;
         uint64_t last_rtc_second;
         bool rtc_latch;
+        uint32_t rtc_cycles;
     );
 
     /* Video Display */
@@ -583,6 +595,7 @@ struct GB_gameboy_internal_s {
         /* Timing */
         uint64_t last_sync;
         uint64_t cycles_since_last_sync; // In 8MHz units
+        GB_rtc_mode_t rtc_mode;
 
         /* Audio */
         GB_apu_output_t apu_output;
@@ -793,6 +806,9 @@ void GB_disconnect_serial(GB_gameboy_t *gb);
 /* For cartridges with an alarm clock */
 unsigned GB_time_to_alarm(GB_gameboy_t *gb); // 0 if no alarm
     
+/* RTC emulation mode */
+void GB_set_rtc_mode(GB_gameboy_t *gb, GB_rtc_mode_t mode);
+    
 /* For integration with SFC/SNES emulators */
 void GB_set_joyp_write_callback(GB_gameboy_t *gb, GB_joyp_write_callback_t callback);
 void GB_set_icd_pixel_callback(GB_gameboy_t *gb, GB_icd_pixel_callback_t callback);
@@ -800,6 +816,7 @@ void GB_set_icd_hreset_callback(GB_gameboy_t *gb, GB_icd_hreset_callback_t callb
 void GB_set_icd_vreset_callback(GB_gameboy_t *gb, GB_icd_vreset_callback_t callback);
     
 uint32_t GB_get_clock_rate(GB_gameboy_t *gb);
+uint32_t GB_get_unmultiplied_clock_rate(GB_gameboy_t *gb);
 void GB_set_clock_multiplier(GB_gameboy_t *gb, double multiplier);
 
 unsigned GB_get_screen_width(GB_gameboy_t *gb);

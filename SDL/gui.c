@@ -482,11 +482,26 @@ static void toggle_bootrom(unsigned index)
     }
 }
 
+static void toggle_rtc_mode(unsigned index)
+{
+    configuration.rtc_mode = !configuration.rtc_mode;
+}
+
+const char *current_rtc_mode_string(unsigned index)
+{
+    switch (configuration.rtc_mode) {
+        case GB_RTC_MODE_SYNC_TO_HOST: return "Sync to System Clock";
+        case GB_RTC_MODE_ACCURATE: return "Accurate";
+    }
+    return "";
+}
+
 static const struct menu_item emulation_menu[] = {
     {"Emulated Model:", cycle_model, current_model_string, cycle_model_backwards},
     {"SGB Revision:", cycle_sgb_revision, current_sgb_revision_string, cycle_sgb_revision_backwards},
     {"Boot ROMs Folder:", toggle_bootrom, current_bootrom_string, toggle_bootrom},
     {"Rewind Length:", cycle_rewind, current_rewind_string, cycle_rewind_backwards},
+    {"Real Time Clock:", toggle_rtc_mode, current_rtc_mode_string, toggle_rtc_mode},
     {"Back", return_to_root_menu},
     {NULL,}
 };
@@ -519,28 +534,10 @@ const char *current_color_correction_mode(unsigned index)
 
 const char *current_color_temperature(unsigned index)
 {
-    return (const char *[]){"12000K",
-        "11450K",
-        "10900K",
-        "10350K",
-        "9800K",
-        "9250K",
-        "8700K",
-        "8150K",
-        "7600K",
-        "7050K",
-        "6500K (White)",
-        "5950K",
-        "5400K",
-        "4850K",
-        "4300K",
-        "3750K",
-        "3200K",
-        "2650K",
-        "2100K",
-        "1550K",
-        "1000K"}
-    [configuration.color_temperature];
+    static char ret[22];
+    strcpy(ret, SLIDER_STRING);
+    ret[configuration.color_temperature] = SELECTED_SLIDER_STRING[configuration.color_temperature];
+    return ret;
 }
 
 
