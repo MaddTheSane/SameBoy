@@ -29,6 +29,9 @@
     NSPopUpButton *_rumbleModePopupButton;
     NSSlider *_temperatureSlider;
     NSSlider *_interferenceSlider;
+    NSSlider *_volumeSlider;
+    NSButton *_autoUpdatesCheckbox;
+    NSButton *_OSDCheckbox;
 }
 
 + (NSArray *)filterList
@@ -120,6 +123,17 @@
 - (NSSlider *)interferenceSlider
 {
     return _interferenceSlider;
+}
+
+- (void)setVolumeSlider:(NSSlider *)volumeSlider
+{
+    _volumeSlider = volumeSlider;
+    [volumeSlider setDoubleValue:[[NSUserDefaults standardUserDefaults] doubleForKey:@"GBVolume"] * 256];
+}
+
+- (NSSlider *)volumeSlider
+{
+    return _volumeSlider;
 }
 
 - (void)setFrameBlendingModePopupButton:(NSPopUpButton *)frameBlendingModePopupButton
@@ -329,12 +343,17 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:@"GBLightTemperatureChanged" object:nil];
 }
 
-- (IBAction)volumeTemperatureChanged:(id)sender
+- (IBAction)interferenceVolumeChanged:(id)sender
 {
     [[NSUserDefaults standardUserDefaults] setObject:@([sender doubleValue] / 256.0)
                                               forKey:@"GBInterferenceVolume"];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"GBInterferenceVolumeChanged" object:nil];
+}
 
+- (IBAction)volumeChanged:(id)sender
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@([sender doubleValue] / 256.0)
+                                              forKey:@"GBVolume"];
 }
 
 - (IBAction)franeBlendingModeChanged:(id)sender
@@ -379,6 +398,12 @@
                                               forKey:@"GBRTCMode"];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"GBRTCModeChanged" object:nil];
 
+}
+
+- (IBAction)changeAutoUpdates:(id)sender
+{
+    [[NSUserDefaults standardUserDefaults] setBool: [(NSButton *)sender state] == NSOnState
+                                            forKey:@"GBAutoUpdatesEnabled"];
 }
 
 - (IBAction) configureJoypad:(id)sender
@@ -453,30 +478,37 @@
 
     
     static const unsigned gb_to_joykit[] = {
-    [GBRight]=JOYButtonUsageDPadRight,
-    [GBLeft]=JOYButtonUsageDPadLeft,
-    [GBUp]=JOYButtonUsageDPadUp,
-    [GBDown]=JOYButtonUsageDPadDown,
-    [GBA]=JOYButtonUsageA,
-    [GBB]=JOYButtonUsageB,
-    [GBSelect]=JOYButtonUsageSelect,
-    [GBStart]=JOYButtonUsageStart,
-    [GBTurbo]=JOYButtonUsageL1,
-    [GBRewind]=JOYButtonUsageL2,
-    [GBUnderclock]=JOYButtonUsageR1,
+    [GBRight] = JOYButtonUsageDPadRight,
+    [GBLeft] = JOYButtonUsageDPadLeft,
+    [GBUp] = JOYButtonUsageDPadUp,
+    [GBDown] = JOYButtonUsageDPadDown,
+    [GBA] = JOYButtonUsageA,
+    [GBB] = JOYButtonUsageB,
+    [GBSelect] = JOYButtonUsageSelect,
+    [GBStart] = JOYButtonUsageStart,
+    [GBTurbo] = JOYButtonUsageL1,
+    [GBRewind] = JOYButtonUsageL2,
+    [GBUnderclock] = JOYButtonUsageR1,
     };
     
     if (joystick_configuration_state == GBUnderclock) {
+        mapping[@"AnalogUnderclock"] = nil;
+        double max = 0;
         for (JOYAxis *axis in controller.axes) {
-            if (axis.value > 0.5) {
+            if ((axis.value > 0.5 || (axis.equivalentButtonUsage == button.usage)) && axis.value >= max) {
+                max = axis.value;
                 mapping[@"AnalogUnderclock"] = @(axis.uniqueID);
+                break;
             }
         }
     }
     
     if (joystick_configuration_state == GBTurbo) {
+        mapping[@"AnalogTurbo"] = nil;
+        double max = 0;
         for (JOYAxis *axis in controller.axes) {
-            if (axis.value > 0.5) {
+            if ((axis.value > 0.5 || (axis.equivalentButtonUsage == button.usage)) && axis.value >= max) {
+                max = axis.value;
                 mapping[@"AnalogTurbo"] = @(axis.uniqueID);
             }
         }
@@ -704,5 +736,34 @@
         default_joypads[player_string] = [[sender selectedItem] identifier];
     }
     [[NSUserDefaults standardUserDefaults] setObject:default_joypads forKey:@"JoyKitDefaultControllers"];
+}
+
+- (NSButton *)autoUpdatesCheckbox
+{
+    return _autoUpdatesCheckbox;
+}
+
+- (void)setAutoUpdatesCheckbox:(NSButton *)autoUpdatesCheckbox
+{
+    _autoUpdatesCheckbox = autoUpdatesCheckbox;
+    [_autoUpdatesCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:@"GBAutoUpdatesEnabled"]];
+}
+
+- (NSButton *)OSDCheckbox
+{
+    return _OSDCheckbox;
+}
+
+- (void)setOSDCheckbox:(NSButton *)OSDCheckbox
+{
+    _OSDCheckbox = OSDCheckbox;
+    [_OSDCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:@"GBOSDEnabled"]];
+}
+
+- (IBAction)changeOSDEnabled:(id)sender
+{
+    [[NSUserDefaults standardUserDefaults] setBool:[(NSButton *)sender state] == NSOnState
+                                            forKey:@"GBOSDEnabled"];
+
 }
 @end

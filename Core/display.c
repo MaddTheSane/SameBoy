@@ -126,7 +126,7 @@ static void display_vblank(GB_gameboy_t *gb)
     
     bool is_ppu_stopped = !GB_is_cgb(gb) && gb->stopped && gb->io_registers[GB_IO_LCDC] & 0x80;
     
-    if (!gb->disable_rendering  && ((!(gb->io_registers[GB_IO_LCDC] & 0x80) || is_ppu_stopped) || gb->cgb_repeated_a_frame)) {
+    if (!gb->disable_rendering && ((!(gb->io_registers[GB_IO_LCDC] & 0x80) || is_ppu_stopped) || gb->cgb_repeated_a_frame)) {
         /* LCD is off, set screen to white or black (if LCD is on in stop mode) */
         if (!GB_is_sgb(gb)) {
             uint32_t color = 0;
@@ -153,25 +153,25 @@ static void display_vblank(GB_gameboy_t *gb)
         }
     }
     
-    if (gb->border_mode == GB_BORDER_ALWAYS && !GB_is_sgb(gb)) {
+    if (!gb->disable_rendering && gb->border_mode == GB_BORDER_ALWAYS && !GB_is_sgb(gb)) {
         GB_borrow_sgb_border(gb);
         uint32_t border_colors[16 * 4];
         
         if (!gb->has_sgb_border && GB_is_cgb(gb) && gb->model != GB_MODEL_AGB) {
-            static uint16_t colors[] = {
+            uint16_t colors[] = {
                 0x2095, 0x5129, 0x1EAF, 0x1EBA, 0x4648,
                 0x30DA, 0x69AD, 0x2B57, 0x2B5D, 0x632C,
                 0x1050, 0x3C84, 0x0E07, 0x0E18, 0x2964,
             };
             unsigned index = gb->rom? gb->rom[0x14e] % 5 : 0;
-            gb->borrowed_border.palette[0] = colors[index];
-            gb->borrowed_border.palette[10] = colors[5 + index];
-            gb->borrowed_border.palette[14] = colors[10 + index];
+            gb->borrowed_border.palette[0] = LE16(colors[index]);
+            gb->borrowed_border.palette[10] = LE16(colors[5 + index]);
+            gb->borrowed_border.palette[14] = LE16(colors[10 + index]);
 
         }
         
         for (unsigned i = 0; i < 16 * 4; i++) {
-            border_colors[i] = GB_convert_rgb15(gb, gb->borrowed_border.palette[i], true);
+            border_colors[i] = GB_convert_rgb15(gb, LE16(gb->borrowed_border.palette[i]), true);
         }
         
         for (unsigned tile_y = 0; tile_y < 28; tile_y++) {
@@ -179,13 +179,18 @@ static void display_vblank(GB_gameboy_t *gb)
                 if (tile_x >= 6 && tile_x < 26 && tile_y >= 5 && tile_y < 23) {
                     continue;
                 }
-                uint16_t tile = gb->borrowed_border.map[tile_x + tile_y * 32];
-                uint8_t flip_x = (tile & 0x4000)? 0x7 : 0;
-                uint8_t flip_y = (tile & 0x8000)? 0x7 : 0;
+                uint16_t tile = LE16(gb->borrowed_border.map[tile_x + tile_y * 32]);
+                uint8_t flip_x = (tile & 0x4000)? 0:7;
+                uint8_t flip_y = (tile & 0x8000)? 7:0;
                 uint8_t palette = (tile >> 10) & 3;
                 for (unsigned y = 0; y < 8; y++) {
+                    unsigned base = (tile & 0xFF) * 32 + (y ^ flip_y) * 2;
                     for (unsigned x = 0; x < 8; x++) {
-                        uint8_t color = gb->borrowed_border.tiles[(tile & 0xFF) * 64 + (x ^ flip_x) + (y ^ flip_y) * 8] & 0xF;
+                        uint8_t bit = 1 << (x ^ flip_x);
+                        uint8_t color = ((gb->borrowed_border.tiles[base] & bit)      ? 1 : 0) |
+                                        ((gb->borrowed_border.tiles[base + 1] & bit)  ? 2 : 0) |
+                                        ((gb->borrowed_border.tiles[base + 16] & bit) ? 4 : 0) |
+                                        ((gb->borrowed_border.tiles[base + 17] & bit) ? 8 : 0);
                         uint32_t *output = gb->screen + tile_x * 8 + x + (tile_y * 8 + y) * 256;
                         if (color == 0) {
                             *output = border_colors[0];
@@ -287,11 +292,23 @@ uint32_t GB_convert_rgb15(GB_gameboy_t *gb, uint16_t color, bool for_border)
                 new_r = new_r * 7 / 8 + (    g + b) / 16;
                 new_g = new_g * 7 / 8 + (r   +   b) / 16;
                 new_b = new_b * 7 / 8 + (r + g    ) / 16;
-
                 
                 new_r = new_r * (224 - 32) / 255 + 32;
                 new_g = new_g * (220 - 36) / 255 + 36;
                 new_b = new_b * (216 - 40) / 255 + 40;
+            }
+            else if (gb->color_correction_mode == GB_COLOR_CORRECTION_LOW_CONTRAST) {
+                r = new_r;
+                g = new_r;
+                b = new_r;
+                
+                new_r = new_r * 7 / 8 + (    g + b) / 16;
+                new_g = new_g * 7 / 8 + (r   +   b) / 16;
+                new_b = new_b * 7 / 8 + (r + g    ) / 16;
+                
+                new_r = new_r * (162 - 67) / 255 + 67;
+                new_g = new_g * (167 - 62) / 255 + 62;
+                new_b = new_b * (157 - 58) / 255 + 58;
             }
             else if (gb->color_correction_mode == GB_COLOR_CORRECTION_PRESERVE_BRIGHTNESS) {
                 uint8_t old_max = MAX(r, MAX(g, b));
@@ -849,7 +866,7 @@ void GB_display_run(GB_gameboy_t *gb, uint8_t cycles)
         GB_STATE(gb, display, 21);
         GB_STATE(gb, display, 22);
         GB_STATE(gb, display, 23);
-        // GB_STATE(gb, display, 24);
+        GB_STATE(gb, display, 24);
         GB_STATE(gb, display, 25);
         GB_STATE(gb, display, 26);
         GB_STATE(gb, display, 27);
@@ -1282,7 +1299,9 @@ abort_fetching_object:
                 gb->wy_triggered = true;
             }
             GB_SLEEP(gb, display, 31, 2);
-            gb->mode_for_interrupt = 2;
+            if (gb->current_line != LINES - 1) {
+                gb->mode_for_interrupt = 2;
+            }
           
             // Todo: unverified timing
             gb->current_lcd_line++;
@@ -1300,20 +1319,22 @@ abort_fetching_object:
             gb->io_registers[GB_IO_LY] = gb->current_line;
             gb->ly_for_comparison = -1;
             GB_SLEEP(gb, display, 26, 2);
-            if (gb->current_line == LINES) {
-                gb->mode_for_interrupt = 2;
+            if (gb->current_line == LINES && !gb->stat_interrupt_line && (gb->io_registers[GB_IO_STAT] & 0x20)) {
+                gb->io_registers[GB_IO_IF] |= 2;
             }
-            GB_STAT_update(gb);
             GB_SLEEP(gb, display, 12, 2);
             gb->ly_for_comparison = gb->current_line;
-            
+            GB_STAT_update(gb);
+            GB_SLEEP(gb, display, 24, 1);
+
             if (gb->current_line == LINES) {
                 /* Entering VBlank state triggers the OAM interrupt */
                 gb->io_registers[GB_IO_STAT] &= ~3;
                 gb->io_registers[GB_IO_STAT] |= 1;
                 gb->io_registers[GB_IO_IF] |= 1;
-                gb->mode_for_interrupt = 2;
-                GB_STAT_update(gb);
+                if (!gb->stat_interrupt_line && (gb->io_registers[GB_IO_STAT] & 0x20)) {
+                    gb->io_registers[GB_IO_IF] |= 2;
+                }
                 gb->mode_for_interrupt = 1;
                 GB_STAT_update(gb);
                 
@@ -1345,8 +1366,7 @@ abort_fetching_object:
                 }
             }
             
-            GB_STAT_update(gb);
-            GB_SLEEP(gb, display, 13, LINE_LENGTH - 4);
+            GB_SLEEP(gb, display, 13, LINE_LENGTH - 5);
         }
         
         /* TODO: Verified on SGB2 and CGB-E. Actual interrupt timings not tested. */

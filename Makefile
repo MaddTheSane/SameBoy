@@ -106,7 +106,7 @@ OPEN_DIALOG = OpenDialog/cocoa.m
 endif
 
 # These must come before the -Wno- flags
-WARNINGS += -Werror -Wall -Wno-unknown-warning -Wno-unknown-warning-option
+WARNINGS += -Werror -Wall -Wno-unknown-warning -Wno-unknown-warning-option -Wno-missing-braces
 WARNINGS += -Wno-nonnull -Wno-unused-result -Wno-strict-aliasing -Wno-multichar -Wno-int-in-bool-context -Wno-format-truncation
 
 # Only add this flag if the compiler supports it
@@ -121,7 +121,10 @@ endif
 
 CFLAGS += $(WARNINGS)
 
-CFLAGS += -std=gnu11 -D_GNU_SOURCE -DVERSION="$(VERSION)" -I. -D_USE_MATH_DEFINES
+CFLAGS += -std=gnu11 -D_GNU_SOURCE -DGB_VERSION='"$(VERSION)"' -I. -D_USE_MATH_DEFINES
+ifneq (,$(UPDATE_SUPPORT))
+CFLAGS += -DUPDATE_SUPPORT
+endif
 
 ifeq (,$(PKG_CONFIG))
 SDL_CFLAGS := $(shell sdl2-config --cflags)

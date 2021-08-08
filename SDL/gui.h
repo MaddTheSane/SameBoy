@@ -39,12 +39,14 @@ enum pending_command {
     GB_SDL_RESET_COMMAND,
     GB_SDL_NEW_FILE_COMMAND,
     GB_SDL_QUIT_COMMAND,
+    GB_SDL_LOAD_STATE_FROM_FILE_COMMAND,
 };
 
 #define GB_SDL_DEFAULT_SCALE_MAX 8
 
 extern enum pending_command pending_command;
 extern unsigned command_parameter;
+extern char *dropped_state_file;
 
 typedef enum {
     JOYPAD_BUTTON_LEFT,
@@ -117,6 +119,9 @@ typedef struct {
     char bootrom_path[4096];
     uint8_t interference_volume;
     GB_rtc_mode_t rtc_mode;
+    
+    /* v0.14.4 */
+    bool osd;
 } configuration_t;
 
 extern configuration_t configuration;
@@ -137,5 +142,11 @@ static SDL_Scancode event_hotkey_code(SDL_Event *event)
     
     return event->key.keysym.scancode;
 }
+
+void draw_text(uint32_t *buffer, unsigned width, unsigned height, unsigned x, signed y, const char *string, uint32_t color, uint32_t border, bool is_osd);
+void show_osd_text(const char *text);
+extern const char *osd_text;
+extern unsigned osd_countdown;
+extern unsigned osd_text_lines;
 
 #endif

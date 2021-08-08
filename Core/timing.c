@@ -145,7 +145,6 @@ static void increase_tima(GB_gameboy_t *gb)
 static void GB_set_internal_div_counter(GB_gameboy_t *gb, uint16_t value)
 {
     /* TIMA increases when a specific high-bit becomes a low-bit. */
-    value &= INTERNAL_DIV_CYCLES - 1;
     uint16_t triggers = gb->div_counter & ~value;
     if ((gb->io_registers[GB_IO_TAC] & 4) && (triggers & GB_TAC_TRIGGER_BITS[gb->io_registers[GB_IO_TAC] & 3])) {
         increase_tima(gb);
@@ -283,27 +282,31 @@ static void GB_rtc_run(GB_gameboy_t *gb, uint8_t cycles)
         }
         return;
     }
+    bool running = false;
+    if (gb->cartridge_type->mbc_type == GB_TPP1) {
+        running = gb->tpp1_mr4 & 0x4;
+    }
+    else {
+        running = (gb->rtc_real.high & 0x40) == 0;
+    }
     
-    if ((gb->rtc_real.high & 0x40) == 0) { /* is timer running? */
+    if (running) { /* is timer running? */
         while (gb->last_rtc_second + 60 * 60 * 24 < current_time) {
             gb->last_rtc_second += 60 * 60 * 24;
-            if (++gb->rtc_real.days == 0) {
-                if (gb->cartridge_type->mbc_type == GB_TPP1) {
-                    if ((gb->rtc_real.high & 7) >= 6) { /* Bit 8 of days*/
-                        gb->rtc_real.high &= 0x40;
-                        gb->rtc_real.high |= 0x80; /* Overflow bit */
-                    }
-                    else {
-                        gb->rtc_real.high++;
+            if (gb->cartridge_type->mbc_type == GB_TPP1) {
+                if (++gb->rtc_real.tpp1.weekday == 7) {
+                    gb->rtc_real.tpp1.weekday = 0;
+                    if (++gb->rtc_real.tpp1.weeks == 0) {
+                        gb->tpp1_mr4 |= 8; /* Overflow bit */
                     }
                 }
-                else {
-                    if (gb->rtc_real.high & 1) { /* Bit 8 of days*/
-                        gb->rtc_real.high |= 0x80; /* Overflow bit */
-                    }
-                    
-                    gb->rtc_real.high ^= 1;
+            }
+            else if (++gb->rtc_real.days == 0) {
+                if (gb->rtc_real.high & 1) { /* Bit 8 of days*/
+                    gb->rtc_real.high |= 0x80; /* Overflow bit */
                 }
+                
+                gb->rtc_real.high ^= 1;
             }
         }
         
@@ -315,21 +318,21 @@ static void GB_rtc_run(GB_gameboy_t *gb, uint8_t cycles)
             if (++gb->rtc_real.minutes != 60) continue;
             gb->rtc_real.minutes = 0;
             
-            if (++gb->rtc_real.hours != 24) continue;
-            gb->rtc_real.hours = 0;
-            
-            if (++gb->rtc_real.days != 0) continue;
-            
             if (gb->cartridge_type->mbc_type == GB_TPP1) {
-                if ((gb->rtc_real.high & 7) >= 6) { /* Bit 8 of days*/
-                    gb->rtc_real.high &= 0x40;
-                    gb->rtc_real.high |= 0x80; /* Overflow bit */
-                }
-                else {
-                    gb->rtc_real.high++;
+                if (++gb->rtc_real.tpp1.hours != 24) continue;
+                gb->rtc_real.tpp1.hours = 0;
+                if (++gb->rtc_real.tpp1.weekday != 7) continue;
+                gb->rtc_real.tpp1.weekday = 0;
+                if (++gb->rtc_real.tpp1.weeks == 0) {
+                    gb->tpp1_mr4 |= 8; /* Overflow bit */
                 }
             }
             else {
+                if (++gb->rtc_real.hours != 24) continue;
+                gb->rtc_real.hours = 0;
+                
+                if (++gb->rtc_real.days != 0) continue;
+                
                 if (gb->rtc_real.high & 1) { /* Bit 8 of days*/
                     gb->rtc_real.high |= 0x80; /* Overflow bit */
                 }
@@ -343,6 +346,22 @@ static void GB_rtc_run(GB_gameboy_t *gb, uint8_t cycles)
 
 void GB_advance_cycles(GB_gameboy_t *gb, uint8_t cycles)
 {
+    if (gb->speed_switch_countdown) {
+        if (gb->speed_switch_countdown == cycles) {
+            gb->cgb_double_speed ^= true;
+            gb->speed_switch_countdown = 0;
+        }
+        else if (gb->speed_switch_countdown > cycles) {
+            gb->speed_switch_countdown -= cycles;
+        }
+        else {
+            uint8_t old_cycles = gb->speed_switch_countdown;
+            cycles -= old_cycles;
+            gb->speed_switch_countdown = 0;
+            GB_advance_cycles(gb, old_cycles);
+            gb->cgb_double_speed ^= true;
+        }
+    }
     gb->apu.pcm_mask[0] = gb->apu.pcm_mask[1] = 0xFF; // Sort of hacky, but too many cross-component interactions to do it right
     // Affected by speed boost
     gb->dma_cycles += cycles;
@@ -352,11 +371,30 @@ void GB_advance_cycles(GB_gameboy_t *gb, uint8_t cycles)
         advance_serial(gb, cycles); // TODO: Verify what happens in STOP mode
     }
 
+    if (gb->speed_switch_halt_countdown) {
+        gb->speed_switch_halt_countdown -= cycles;
+        if (gb->speed_switch_halt_countdown <= 0) {
+            gb->speed_switch_halt_countdown = 0;
+            gb->halted = false;
+        }
+    }
+    
     gb->debugger_ticks += cycles;
+    
+    if (gb->speed_switch_freeze) {
+        if (gb->speed_switch_freeze >= cycles) {
+            gb->speed_switch_freeze -= cycles;
+            return;
+        }
+        cycles -= gb->speed_switch_freeze;
+        gb->speed_switch_freeze = 0;
+    }
 
     if (!gb->cgb_double_speed) {
         cycles <<= 1;
     }
+    
+    gb->absolute_debugger_ticks += cycles;
     
     // Not affected by speed boost
     if (gb->io_registers[GB_IO_LCDC] & 0x80) {
