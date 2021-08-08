@@ -40,7 +40,7 @@ NSImage *HFImageNamed(NSString *name) {
 
 @implementation HFRangeWrapper
 
-- (HFRange)HFRange { return range; }
+@synthesize HFRange=range;
 
 + (HFRangeWrapper *)withRange:(HFRange)range {
     HFRangeWrapper *result = [[self alloc] init];

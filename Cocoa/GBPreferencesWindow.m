@@ -417,7 +417,7 @@
     if (joypad_wait) return;
     joypad_wait = true;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        joypad_wait = false;
+        self->joypad_wait = false;
     });
         
     if (!button.isPressed) return;

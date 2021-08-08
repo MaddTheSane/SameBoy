@@ -488,8 +488,8 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [self.audioClient stop];
     self.audioClient = nil;
     self.view.mouseHidingEnabled = NO;
-    GB_save_battery(&gb, [[[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"].path UTF8String]);
-    GB_save_cheats(&gb, [[[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"].path UTF8String]);
+    GB_save_battery(&gb, [[[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"] fileSystemRepresentation]);
+    GB_save_cheats(&gb, [[[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"] fileSystemRepresentation]);
     unsigned time_to_alarm = GB_time_to_alarm(&gb);
     
     if (time_to_alarm) {
@@ -564,7 +564,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         [GB_BOOT_ROM_CGB] = @"cgb_boot",
         [GB_BOOT_ROM_AGB] = @"agb_boot",
     };
-    GB_load_boot_rom(&gb, [[self bootROMPathForName:names[type]] UTF8String]);
+    GB_load_boot_rom(&gb, [[self bootROMPathForName:names[type]] fileSystemRepresentation]);
 }
 
 - (IBAction)reset:(id)sender
@@ -839,18 +839,18 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     NSString *rom_warnings = [self captureOutputForBlock:^{
         GB_debugger_clear_symbols(&gb);
         if ([[self.fileType pathExtension] isEqualToString:@"isx"]) {
-            GB_load_isx(&gb, self.fileURL.path.UTF8String);
-            GB_load_battery(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"ram"].path.UTF8String);
+            GB_load_isx(&gb, self.fileURL.fileSystemRepresentation);
+            GB_load_battery(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"ram"].fileSystemRepresentation);
 
         }
         else {
-            GB_load_rom(&gb, [self.fileURL.path UTF8String]);
+            GB_load_rom(&gb, [self.fileURL fileSystemRepresentation]);
         }
-        GB_load_battery(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"].path.UTF8String);
-        GB_load_cheats(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"].path.UTF8String);
+        GB_load_battery(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"].fileSystemRepresentation);
+        GB_load_cheats(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"].fileSystemRepresentation);
         [self.cheatWindowController cheatsUpdated];
-        GB_debugger_load_symbol_file(&gb, [[[NSBundle mainBundle] pathForResource:@"registers" ofType:@"sym"] UTF8String]);
-        GB_debugger_load_symbol_file(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sym"].path.UTF8String);
+        GB_debugger_load_symbol_file(&gb, [[[NSBundle mainBundle] pathForResource:@"registers" ofType:@"sym"] fileSystemRepresentation]);
+        GB_debugger_load_symbol_file(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sym"].fileSystemRepresentation);
     }];
     if (rom_warnings && !rom_warning_issued) {
         rom_warning_issued = true;
@@ -1177,7 +1177,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     bool __block success = false;
     NSString *error =
     [self captureOutputForBlock:^{
-        success = GB_load_state(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"s%ld", (long)[sender tag] ]].path.UTF8String) == 0;
+        success = GB_load_state(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"s%ld", (long)[sender tag] ]].fileSystemRepresentation) == 0;
     }];
     
     if (!success) {
@@ -1210,7 +1210,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     GB_write_memory(&gb, addr, value);
 }
 
-- (void) performAtomicBlock: (void (^)())block
+- (void) performAtomicBlock: (void (^)(void))block
 {
     while (!GB_is_inited(&gb));
     bool was_running = running && !GB_debugger_is_stopped(&gb);
@@ -1226,7 +1226,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     }
 }
 
-- (NSString *) captureOutputForBlock: (void (^)())block
+- (NSString *) captureOutputForBlock: (void (^)(void))block
 {
     capturedOutput = [[NSMutableString alloc] init];
     [self performAtomicBlock:block];
