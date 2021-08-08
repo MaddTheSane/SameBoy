@@ -1,10 +1,11 @@
 #import "AppDelegate.h"
-#include "GBButtons.h"
-#include "GBView.h"
+#import "GBButtons.h"
+#import "GBView.h"
 #include <Core/gb.h>
-#import <Carbon/Carbon.h>
+#include <Carbon/Carbon.h>
 #import <JoyKit/JoyKit.h>
 #import <WebKit/WebKit.h>
+#import "Document.h"
 
 #define UPDATE_SERVER "https://sameboy.github.io"
 
