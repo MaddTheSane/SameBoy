@@ -227,6 +227,20 @@ static void infraredStateChanged(GB_gameboy_t *gb, bool on)
     return [[NSBundle mainBundle] pathForResource:name ofType:@"bin"];
 }
 
+- (NSURL *)bootROMURLForName:(NSString *)name
+{
+	NSURL *url = [[NSUserDefaults standardUserDefaults] URLForKey:@"GBBootROMsFolder"];
+	if (url) {
+		url = [url URLByAppendingPathComponent:name];
+		url = [url URLByAppendingPathExtension:@"bin"];
+		if ([url checkResourceIsReachableAndReturnError:NULL]) {
+			return url;
+		}
+	}
+	
+	return [[NSBundle mainBundle] URLForResource:name withExtension:@"bin"];
+}
+
 - (GB_model_t)internalModel
 {
     switch (current_model) {
@@ -962,7 +976,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         GB_load_battery(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"].fileSystemRepresentation);
         GB_load_cheats(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"].fileSystemRepresentation);
         [self.cheatWindowController cheatsUpdated];
-        GB_debugger_load_symbol_file(&gb, [[[NSBundle mainBundle] pathForResource:@"registers" ofType:@"sym"] fileSystemRepresentation]);
+        GB_debugger_load_symbol_file(&gb, [[[NSBundle mainBundle] URLForResource:@"registers" withExtension:@"sym"] fileSystemRepresentation]);
         GB_debugger_load_symbol_file(&gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sym"].fileSystemRepresentation);
     }];
     if (ret) {

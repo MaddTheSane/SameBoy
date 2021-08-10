@@ -421,7 +421,9 @@ static uint32_t color_to_int(NSColor *color)
 {
     switch (_updateState) {
         case UPDATE_DOWNLOADING:
-            [_updateTask cancelByProducingResumeData:nil];
+			[_updateTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+				// do nothing
+			}];
             _updateTask = nil;
             [self.updateProgressWindow close];
             break;
