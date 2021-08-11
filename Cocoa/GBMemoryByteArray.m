@@ -46,8 +46,8 @@
         [_document performAtomicBlock:^{
             unsigned char *_dst = dst;
             uint16_t bank_backup = 0;
-            GB_gameboy_t *gb = _document.gameboy;
-            switch (_mode) {
+            GB_gameboy_t *gb = self->_document.gameboy;
+            switch (self->_mode) {
                 case GBMemoryROM:
                     bank_backup = gb->mbc_rom_bank;
                     gb->mbc_rom_bank = self.selectedBank;
@@ -75,10 +75,10 @@
                     assert(false);
             }
             while (length) {
-                *(_dst++) = [_document readMemory:addr++];
+                *(_dst++) = [self->_document readMemory:addr++];
                 length--;
             }
-            switch (_mode) {
+            switch (self->_mode) {
                 case GBMemoryROM:
                     gb->mbc_rom_bank = bank_backup;
                     break;
@@ -119,8 +119,8 @@
     [_document performAtomicBlock:^{
         uint16_t addr = (uint16_t) lrange.location;
         uint16_t bank_backup = 0;
-        GB_gameboy_t *gb = _document.gameboy;
-        switch (_mode) {
+        GB_gameboy_t *gb = self->_document.gameboy;
+        switch (self->_mode) {
             case GBMemoryROM:
                 bank_backup = gb->mbc_rom_bank;
                 gb->mbc_rom_bank = self.selectedBank;
@@ -152,10 +152,10 @@
         uint8_t *src = values;
         unsigned long long length = lrange.length;
         while (length) {
-            [_document writeMemory:addr++ value:*(src++)];
+            [self->_document writeMemory:addr++ value:*(src++)];
             length--;
         }
-        switch (_mode) {
+        switch (self->_mode) {
             case GBMemoryROM:
                 gb->mbc_rom_bank = bank_backup;
                 break;

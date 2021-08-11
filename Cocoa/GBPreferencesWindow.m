@@ -264,8 +264,8 @@
 {
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        is_button_being_modified = true;
-        button_being_modified = row;
+        self->is_button_being_modified = true;
+        self->button_being_modified = row;
         tableView.enabled = NO;
         self.playerListButton.enabled = NO;
         [tableView reloadData];

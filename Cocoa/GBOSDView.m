@@ -23,19 +23,19 @@
 {
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"GBOSDEnabled"]) return;
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (![_text isEqualToString:text]) {
+        if (![self->_text isEqualToString:text]) {
             [self setNeedsDisplay:true];
         }
-        _text = text;
+        self->_text = text;
         self.alphaValue = 1.0;
-        _animation = 2.5;
+        self->_animation = 2.5;
         // Longer strings should appear longer
-        if ([_text rangeOfString:@"\n"].location != NSNotFound) {
-            _animation += 4;
+        if ([self->_text rangeOfString:@"\n"].location != NSNotFound) {
+            self->_animation += 4;
         }
-        [_timer invalidate];
+        [self->_timer invalidate];
         self.hidden = false;
-        _timer = [NSTimer scheduledTimerWithTimeInterval:0.025 target:self selector:@selector(animate) userInfo:nil repeats:true];
+        self->_timer = [NSTimer scheduledTimerWithTimeInterval:0.025 target:self selector:@selector(animate) userInfo:nil repeats:true];
     });
 }
 

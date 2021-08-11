@@ -303,24 +303,24 @@ static uint32_t color_to_int(NSColor *color)
     self.updateProgressLabel.stringValue = @"Downloading update...";
     _updateState = UPDATE_DOWNLOADING;
     _updateTask = [[NSURLSession sharedSession] downloadTaskWithURL: [NSURL URLWithString:_updateURL] completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
-        _updateTask = nil;
+        self->_updateTask = nil;
         dispatch_sync(dispatch_get_main_queue(), ^{
             self.updateProgressButton.enabled = false;
             self.updateProgressLabel.stringValue = @"Extracting update...";
-            _updateState = UPDATE_EXTRACTING;
+            self->_updateState = UPDATE_EXTRACTING;
         });
         
-        _downloadDirectory = [[[NSFileManager defaultManager] URLForDirectory:NSItemReplacementDirectory
+        self->_downloadDirectory = [[[NSFileManager defaultManager] URLForDirectory:NSItemReplacementDirectory
                                                                      inDomain:NSUserDomainMask
                                                             appropriateForURL:[[NSBundle mainBundle] bundleURL]
                                                                        create:YES
                                                                         error:nil] path];
         NSTask *unzipTask;
-        if (!_downloadDirectory) {
+        if (!self->_downloadDirectory) {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
                 self.updateProgressLabel.stringValue = @"Failed to extract update.";
-                _updateState = UPDATE_FAILED;
+                self->_updateState = UPDATE_FAILED;
                 self.updateProgressButton.title = @"Close";
                 self.updateProgressButton.enabled = true;
                 [self.updateProgressSpinner stopAnimation:nil];
@@ -329,15 +329,15 @@ static uint32_t color_to_int(NSColor *color)
         
         unzipTask = [[NSTask alloc] init];
         unzipTask.launchPath = @"/usr/bin/unzip";
-        unzipTask.arguments = @[location.path, @"-d", _downloadDirectory];
+        unzipTask.arguments = @[location.path, @"-d", self->_downloadDirectory];
         [unzipTask launch];
         [unzipTask waitUntilExit];
         if (unzipTask.terminationStatus != 0 || unzipTask.terminationReason != NSTaskTerminationReasonExit) {
-            [[NSFileManager defaultManager] removeItemAtPath:_downloadDirectory error:nil];
+            [[NSFileManager defaultManager] removeItemAtPath:self->_downloadDirectory error:nil];
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
                 self.updateProgressLabel.stringValue = @"Failed to extract update.";
-                _updateState = UPDATE_FAILED;
+                self->_updateState = UPDATE_FAILED;
                 self.updateProgressButton.title = @"Close";
                 self.updateProgressButton.enabled = true;
                 [self.updateProgressSpinner stopAnimation:nil];
@@ -348,7 +348,7 @@ static uint32_t color_to_int(NSColor *color)
         dispatch_sync(dispatch_get_main_queue(), ^{
             self.updateProgressButton.enabled = false;
             self.updateProgressLabel.stringValue = @"Update ready, save your game progress and click Install.";
-            _updateState = UPDATE_WAIT_INSTALL;
+            self->_updateState = UPDATE_WAIT_INSTALL;
             self.updateProgressButton.title = @"Install";
             self.updateProgressButton.enabled = true;
             [self.updateProgressSpinner stopAnimation:nil];
@@ -373,16 +373,16 @@ static uint32_t color_to_int(NSColor *color)
         NSString *executablePath = [[NSBundle mainBundle] executablePath];
         NSString *contentsPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"Contents"];
         NSString *contentsTempPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"TempContents"];
-        NSString *updateContentsPath = [_downloadDirectory stringByAppendingPathComponent:@"SameBoy.app/Contents"];
+        NSString *updateContentsPath = [self->_downloadDirectory stringByAppendingPathComponent:@"SameBoy.app/Contents"];
         NSError *error = nil;
         [[NSFileManager defaultManager] moveItemAtPath:contentsPath toPath:contentsTempPath error:&error];
         if (error) {
-            [[NSFileManager defaultManager] removeItemAtPath:_downloadDirectory error:nil];
-            _downloadDirectory = nil;
+            [[NSFileManager defaultManager] removeItemAtPath:self->_downloadDirectory error:nil];
+            self->_downloadDirectory = nil;
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
                 self.updateProgressLabel.stringValue = @"Failed to install update.";
-                _updateState = UPDATE_FAILED;
+                self->_updateState = UPDATE_FAILED;
                 self.updateProgressButton.title = @"Close";
                 self.updateProgressButton.enabled = true;
                 [self.updateProgressSpinner stopAnimation:nil];
@@ -392,21 +392,21 @@ static uint32_t color_to_int(NSColor *color)
         [[NSFileManager defaultManager] moveItemAtPath:updateContentsPath toPath:contentsPath error:&error];
         if (error) {
             [[NSFileManager defaultManager] moveItemAtPath:contentsTempPath toPath:contentsPath error:nil];
-            [[NSFileManager defaultManager] removeItemAtPath:_downloadDirectory error:nil];
-            _downloadDirectory = nil;
+            [[NSFileManager defaultManager] removeItemAtPath:self->_downloadDirectory error:nil];
+            self->_downloadDirectory = nil;
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
                 self.updateProgressLabel.stringValue = @"Failed to install update.";
-                _updateState = UPDATE_FAILED;
+                self->_updateState = UPDATE_FAILED;
                 self.updateProgressButton.title = @"Close";
                 self.updateProgressButton.enabled = true;
                 [self.updateProgressSpinner stopAnimation:nil];
             });
             return;
         }
-        [[NSFileManager defaultManager] removeItemAtPath:_downloadDirectory error:nil];
+        [[NSFileManager defaultManager] removeItemAtPath:self->_downloadDirectory error:nil];
         [[NSFileManager defaultManager] removeItemAtPath:contentsTempPath error:nil];
-        _downloadDirectory = nil;
+        self->_downloadDirectory = nil;
         atexit_b(^{
             execl(executablePath.UTF8String, executablePath.UTF8String, "--update-launch", NULL);
         });
