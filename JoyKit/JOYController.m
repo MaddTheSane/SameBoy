@@ -32,7 +32,7 @@ static NSString const *JOYIsDualShock3 = @"JOYIsDualShock3";
 static NSString const *JOYIsSony = @"JOYIsSony";
 static NSString const *JOYEmulateAxisButtons = @"JOYEmulateAxisButtons";
 
-static NSMutableDictionary<id, JOYController *> *controllers; // Physical controllers
+static NSMutableDictionary<NSValue*, JOYController *> *controllers; // Physical controllers
 static NSMutableArray<JOYController *> *exposedControllers; // Logical controllers
 
 static NSDictionary *hacksByName = nil;

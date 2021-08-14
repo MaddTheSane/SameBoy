@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "JOYButton.h"
 
-typedef enum {
+typedef NS_ENUM(int, JOYAxisUsage) {
     JOYAxisUsageNone,
     JOYAxisUsageL1,
     JOYAxisUsageL2,
@@ -22,14 +22,14 @@ typedef enum {
     JOYAxisUsageNonGenericMax,
     
     JOYAxisUsageGeneric0 = 0x10000,
-} JOYAxisUsage;
+};
 
 @interface JOYAxis : NSObject
-- (NSString *)usageString;
+@property (nonatomic, readonly, copy) NSString *usageString;
 + (NSString *)usageToString: (JOYAxisUsage) usage;
-- (uint64_t)uniqueID;
-- (double)value;
-- (JOYButtonUsage)equivalentButtonUsage;
+@property (nonatomic, readonly) uint64_t uniqueID;
+@property (nonatomic, readonly) double value;
+@property (nonatomic, readonly) JOYButtonUsage equivalentButtonUsage;
 @property JOYAxisUsage usage;
 @end
 

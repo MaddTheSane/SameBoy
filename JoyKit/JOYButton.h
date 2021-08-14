@@ -2,7 +2,7 @@
 
 
 
-typedef enum {
+typedef NS_ENUM(int, JOYButtonUsage) {
     JOYButtonUsageNone,
     JOYButtonUsageA,
     JOYButtonUsageB,
@@ -39,13 +39,13 @@ typedef enum {
     JOYButtonUsageNonGenericMax,
     
     JOYButtonUsageGeneric0 = 0x10000,
-} JOYButtonUsage;
+};
 
 @interface JOYButton : NSObject
-- (NSString *)usageString;
+@property (nonatomic, readonly, copy) NSString *usageString;
 + (NSString *)usageToString: (JOYButtonUsage) usage;
-- (uint64_t)uniqueID;
-- (bool) isPressed;
+@property (nonatomic, readonly) uint64_t uniqueID;
+@property (readonly, getter=isPressed) bool pressed;
 @property JOYButtonUsage usage;
 @end
 

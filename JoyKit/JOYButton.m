@@ -91,10 +91,7 @@
     return self;
 }
 
-- (bool) isPressed
-{
-    return _state;
-}
+@synthesize pressed=_state;
 
 - (bool)updateState
 {
