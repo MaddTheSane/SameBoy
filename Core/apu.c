@@ -735,6 +735,7 @@ void GB_apu_init(GB_gameboy_t *gb)
         gb->apu.wave_channel.wave_form[(reg - GB_IO_WAV_START) * 2 + 1] = gb->io_registers[reg] & 0xF;
     }
     gb->apu.lf_div = 1;
+    gb->apu.wave_channel.shift = 4;
     /* APU glitch: When turning the APU on while DIV's bit 4 (or 5 in double speed mode) is on,
        the first DIV/APU event is skipped. */
     if (gb->div_counter & (gb->cgb_double_speed? 0x2000 : 0x1000)) {
@@ -922,7 +923,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
     }
 
     if (reg >= GB_IO_WAV_START && reg <= GB_IO_WAV_END && gb->apu.is_active[GB_WAVE]) {
-        if (!GB_is_cgb(gb) && !gb->apu.wave_channel.wave_form_just_read) {
+        if ((!GB_is_cgb(gb) && !gb->apu.wave_channel.wave_form_just_read) || gb->model == GB_MODEL_AGB) {
             return;
         }
         reg = GB_IO_WAV_START + gb->apu.wave_channel.current_sample_index / 2;
@@ -1059,7 +1060,6 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                         if (!(value & 4) && !(((gb->apu.square_channels[index].sample_countdown - 1) / 2) & 0x400)) {
                             gb->apu.square_channels[index].current_sample_index++;
                             gb->apu.square_channels[index].current_sample_index &= 0x7;
-                            gb->apu.is_active[index] = true;
                         }
                         /* Todo: verify with the schematics what's going on in here */
                         else if (gb->apu.square_channels[index].sample_length == 0x7FF &&
@@ -1170,13 +1170,12 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
         case GB_IO_NR34:
             gb->apu.wave_channel.sample_length &= 0xFF;
             gb->apu.wave_channel.sample_length |= (value & 7) << 8;
-            if ((value & 0x80)) {
+            if ((value & 0x80) && gb->apu.wave_channel.enable) {
                 /* DMG bug: wave RAM gets corrupted if the channel is retriggerred 1 cycle before the APU
                             reads from it. */
                 if (!GB_is_cgb(gb) &&
                     gb->apu.is_active[GB_WAVE] &&
-                    gb->apu.wave_channel.sample_countdown == 0 &&
-                    gb->apu.wave_channel.enable) {
+                    gb->apu.wave_channel.sample_countdown == 0) {
                     unsigned offset = ((gb->apu.wave_channel.current_sample_index + 1) >> 1) & 0xF;
 
                     /* This glitch varies between models and even specific instances:
@@ -1232,10 +1231,6 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                 }
             }
             gb->apu.wave_channel.length_enabled = value & 0x40;
-            if (gb->apu.is_active[GB_WAVE] && !gb->apu.wave_channel.enable) {
-                gb->apu.is_active[GB_WAVE] = false;
-                update_sample(gb, GB_WAVE, 0, 0);
-            }
 
             break;
 
