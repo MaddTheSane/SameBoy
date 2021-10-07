@@ -284,7 +284,7 @@ int GB_load_rom(GB_gameboy_t *gb, const char *path)
         gb->rom_size |= gb->rom_size >> 1;
         gb->rom_size++;
     }
-    if (gb->rom_size == 0) {
+    if (gb->rom_size < 0x8000) {
         gb->rom_size = 0x8000;
     }
     fseek(f, 0, SEEK_SET);
@@ -396,7 +396,7 @@ int GB_load_gbs_from_buffer(GB_gameboy_t *gb, const uint8_t *buffer, size_t size
         gb->rom_size++;
     }
     
-    if (gb->rom_size == 0) {
+    if (gb->rom_size < 0x8000) {
         gb->rom_size = 0x8000;
     }
 
@@ -1603,7 +1603,10 @@ void GB_reset(GB_gameboy_t *gb)
 {
     uint32_t mbc_ram_size = gb->mbc_ram_size;
     GB_model_t model = gb->model;
+    uint8_t rtc_section[GB_SECTION_SIZE(rtc)];
+    memcpy(rtc_section, GB_GET_SECTION(gb, rtc), sizeof(rtc_section));
     memset(gb, 0, (size_t)GB_GET_SECTION((GB_gameboy_t *) 0, unsaved));
+    memcpy(GB_GET_SECTION(gb, rtc), rtc_section, sizeof(rtc_section));
     gb->model = model;
     gb->version = GB_STRUCT_VERSION;
     
