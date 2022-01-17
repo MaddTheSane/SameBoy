@@ -129,7 +129,7 @@ static int hfrange_compare(const void *ap, const void *bp) {
 // is even in length, sorted, duplicate free, and considered to include the ranges
 // [array[0], array[1]), [array[2], array[3]), ..., [array[2n], array[2n+1])
 
-CFComparisonResult uintptrComparator(const void *val1, const void *val2, void *context) {
+static CFComparisonResult uintptrComparator(const void *val1, const void *val2, void *context) {
     (void)context;
     uintptr_t a = (uintptr_t)val1;
     uintptr_t b = (uintptr_t)val2;
