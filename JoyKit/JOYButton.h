@@ -1,7 +1,5 @@
 #import <Foundation/Foundation.h>
 
-
-
 typedef NS_ENUM(int, JOYButtonUsage) {
     JOYButtonUsageNone,
     JOYButtonUsageA,
@@ -41,12 +39,20 @@ typedef NS_ENUM(int, JOYButtonUsage) {
     JOYButtonUsageGeneric0 = 0x10000,
 };
 
+typedef enum {
+    JOYButtonTypeNormal,
+    JOYButtonTypeAxisEmulated,
+    JOYButtonTypeAxes2DEmulated,
+    JOYButtonTypeHatEmulated,
+} JOYButtonType;
+
 @interface JOYButton : NSObject
 @property (nonatomic, readonly, copy) NSString *usageString;
 + (NSString *)usageToString: (JOYButtonUsage) usage;
 @property (nonatomic, readonly) uint64_t uniqueID;
 @property (readonly, getter=isPressed) bool pressed;
 @property JOYButtonUsage usage;
+@property (readonly) JOYButtonType type;
 @end
 
 

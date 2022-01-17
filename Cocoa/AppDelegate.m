@@ -69,6 +69,9 @@ static uint32_t color_to_int(NSColor *color)
                                                               @"GBRumbleMode": @(GB_RUMBLE_CARTRIDGE_ONLY),
                                                               
                                                               @"GBVolume": @(1.0),
+                                                              
+                                                              @"GBMBC7JoystickOverride": @NO,
+                                                              @"GBMBC7AllowMouse": @YES,
                                                               }];
     
     [JOYController startOnRunLoop:[NSRunLoop currentRunLoop] withOptions:@{
@@ -87,7 +90,7 @@ static uint32_t color_to_int(NSColor *color)
     }
     
     if ([[NSProcessInfo processInfo].arguments containsObject:@"--update-launch"]) {
-        [NSApp activateIgnoringOtherApps:YES];
+        [NSApp activateIgnoringOtherApps:true];
     }
 }
 
@@ -107,7 +110,7 @@ static uint32_t color_to_int(NSColor *color)
     NSRect new = [_preferencesWindow frameRectForContentRect:tab.frame];
     new.origin.x = old.origin.x;
     new.origin.y = old.origin.y + (old.size.height - new.size.height);
-    [_preferencesWindow setFrame:new display:YES animate:_preferencesWindow.visible];
+    [_preferencesWindow setFrame:new display:true animate:_preferencesWindow.visible];
     [_preferencesWindow.contentView addSubview:tab];
 }
 
@@ -172,7 +175,7 @@ static uint32_t color_to_int(NSColor *color)
 
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:(NSUserNotification *)notification
 {
-    [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfFile:notification.identifier display:YES];
+    [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfFile:notification.identifier display:true];
 }
 
 - (void)updateFound
@@ -243,7 +246,7 @@ static uint32_t color_to_int(NSColor *color)
     [[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@UPDATE_SERVER "/latest_version"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.updatesSpinner stopAnimation:nil];
-            [self.updatesButton setEnabled:YES];
+            [self.updatesButton setEnabled:true];
         });
         if ([(NSHTTPURLResponse *)response statusCode] == 200) {
             NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -313,7 +316,7 @@ static uint32_t color_to_int(NSColor *color)
         self->_downloadDirectory = [[[NSFileManager defaultManager] URLForDirectory:NSItemReplacementDirectory
                                                                      inDomain:NSUserDomainMask
                                                             appropriateForURL:[[NSBundle mainBundle] bundleURL]
-                                                                       create:YES
+                                                                       create:true
                                                                         error:nil] path];
         NSTask *unzipTask;
         if (!self->_downloadDirectory) {
@@ -325,6 +328,7 @@ static uint32_t color_to_int(NSColor *color)
                 self.updateProgressButton.enabled = true;
                 [self.updateProgressSpinner stopAnimation:nil];
             });
+            return;
         }
         
         unzipTask = [[NSTask alloc] init];

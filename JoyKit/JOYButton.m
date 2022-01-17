@@ -102,4 +102,9 @@
     }
     return false;
 }
+
+- (JOYButtonType)type
+{
+    return JOYButtonTypeNormal;
+}
 @end

@@ -225,7 +225,7 @@ static void handle_events(GB_gameboy_t *gb)
                 break;
                 
             case SDL_DROPFILE: {
-                if (GB_is_stave_state(event.drop.file)) {
+                if (GB_is_save_state(event.drop.file)) {
                     dropped_state_file = event.drop.file;
                     pending_command = GB_SDL_LOAD_STATE_FROM_FILE_COMMAND;
                 }
@@ -590,12 +590,12 @@ static bool handle_pending_command(void)
 static void load_boot_rom(GB_gameboy_t *gb, GB_boot_rom_t type)
 {
     static const char *const names[] = {
-        [GB_BOOT_ROM_DMG0] = "dmg0_boot.bin",
+        [GB_BOOT_ROM_DMG_0] = "dmg0_boot.bin",
         [GB_BOOT_ROM_DMG] = "dmg_boot.bin",
         [GB_BOOT_ROM_MGB] = "mgb_boot.bin",
         [GB_BOOT_ROM_SGB] = "sgb_boot.bin",
         [GB_BOOT_ROM_SGB2] = "sgb2_boot.bin",
-        [GB_BOOT_ROM_CGB0] = "cgb0_boot.bin",
+        [GB_BOOT_ROM_CGB_0] = "cgb0_boot.bin",
         [GB_BOOT_ROM_CGB] = "cgb_boot.bin",
         [GB_BOOT_ROM_AGB] = "agb_boot.bin",
     };
@@ -623,6 +623,7 @@ restart:
         [MODEL_DMG] = GB_MODEL_DMG_B,
         [MODEL_CGB] = GB_MODEL_CGB_E,
         [MODEL_AGB] = GB_MODEL_AGB,
+        [MODEL_MGB] = GB_MODEL_MGB,
         [MODEL_SGB] = (GB_model_t [])
         {
             [SGB_NTSC] = GB_MODEL_SGB_NTSC,

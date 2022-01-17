@@ -3,7 +3,7 @@
 #import "JOYElement.h"
 #import "JOYSubElement.h"
 #import "JOYFullReportElement.h"
-
+#import "JOYButton.h"
 #import "JOYEmulatedButton.h"
 #include <IOKit/hid/IOHIDLib.h>
 
@@ -71,6 +71,14 @@ static bool hatsEmulateButtons = false;
 - (bool)updateState;
 @end
 
+@interface JOYAxes3D ()
+{
+    @public JOYElement *_element1, *_element2, *_element3;
+}
+- (instancetype)initWithFirstElement:(JOYElement *)element1 secondElement:(JOYElement *)element2 thirdElement:(JOYElement *)element2;
+- (bool)updateState;
+@end
+
 static NSDictionary *CreateHIDDeviceMatchDictionary(const UInt32 page, const UInt32 usage)
 {
     return @{
@@ -98,7 +106,7 @@ static void HIDReport(void *context, IOReturn result, void *sender, IOHIDReportT
                       uint32_t reportID, uint8_t *report, CFIndex reportLength)
 {
     if (reportLength) {
-        [(__bridge JOYController *)context gotReport:[[NSData alloc] initWithBytesNoCopy:report length:reportLength freeWhenDone:NO]];
+        [(__bridge JOYController *)context gotReport:[[NSData alloc] initWithBytesNoCopy:report length:reportLength freeWhenDone:false]];
     }
 }
 
@@ -168,10 +176,12 @@ typedef union {
     NSMutableDictionary<JOYElement *, JOYButton *> *_buttons;
     NSMutableDictionary<JOYElement *, JOYAxis *> *_axes;
     NSMutableDictionary<JOYElement *, JOYAxes2D *> *_axes2D;
+    NSMutableDictionary<JOYElement *, JOYAxes3D *> *_axes3D;
     NSMutableDictionary<JOYElement *, JOYHat *> *_hats;
     NSMutableDictionary<NSNumber *, JOYFullReportElement *> *_fullReportElements;
     NSMutableDictionary<JOYFullReportElement *, NSArray<JOYElement *> *> *_multiElements;
-
+    JOYAxes3D *_lastAxes3D;
+    
     // Button emulation
     NSMutableDictionary<NSNumber *, JOYEmulatedButton *> *_axisEmulatedButtons;
     NSMutableDictionary<NSNumber *, NSArray <JOYEmulatedButton *> *> *_axes2DEmulatedButtons;
@@ -246,6 +256,69 @@ typedef union {
         @(kHIDUsage_GD_Rz): @(1),
     };
     
+    if (element.usagePage == kHIDPage_Sensor) {
+        JOYAxes3DUsage usage;
+        JOYElement *element1 = nil, *element2 = nil, *element3 = nil;
+        
+        switch (element.usage) {
+            case kHIDUsage_Snsr_Data_Motion_AccelerationAxisX:
+            case kHIDUsage_Snsr_Data_Motion_AccelerationAxisY:
+            case kHIDUsage_Snsr_Data_Motion_AccelerationAxisZ:
+                usage = JOYAxes3DUsageAcceleration;
+                break;
+            case kHIDUsage_Snsr_Data_Motion_AngularPositionXAxis:
+            case kHIDUsage_Snsr_Data_Motion_AngularPositionYAxis:
+            case kHIDUsage_Snsr_Data_Motion_AngularPositionZAxis:
+                usage = JOYAxes3DUsageOrientation;
+                break;
+            case kHIDUsage_Snsr_Data_Motion_AngularVelocityXAxis:
+            case kHIDUsage_Snsr_Data_Motion_AngularVelocityYAxis:
+            case kHIDUsage_Snsr_Data_Motion_AngularVelocityZAxis:
+                usage = JOYAxes3DUsageGyroscope;
+                break;
+            default:
+                return;
+        }
+        
+        switch (element.usage) {
+            case kHIDUsage_Snsr_Data_Motion_AccelerationAxisX:
+            case kHIDUsage_Snsr_Data_Motion_AngularPositionXAxis:
+            case kHIDUsage_Snsr_Data_Motion_AngularVelocityXAxis:
+                element1 = element;
+                if (_lastAxes3D && !_lastAxes3D->_element1 && _lastAxes3D.usage == usage) {
+                    element2 = _lastAxes3D->_element2;
+                    element3 = _lastAxes3D->_element3;
+                }
+                break;
+            case kHIDUsage_Snsr_Data_Motion_AccelerationAxisY:
+            case kHIDUsage_Snsr_Data_Motion_AngularPositionYAxis:
+            case kHIDUsage_Snsr_Data_Motion_AngularVelocityYAxis:
+                element2 = element;
+                if (_lastAxes3D && !_lastAxes3D->_element2 && _lastAxes3D.usage == usage) {
+                    element1 = _lastAxes3D->_element1;
+                    element3 = _lastAxes3D->_element3;
+                }
+                break;
+            case kHIDUsage_Snsr_Data_Motion_AccelerationAxisZ:
+            case kHIDUsage_Snsr_Data_Motion_AngularPositionZAxis:
+            case kHIDUsage_Snsr_Data_Motion_AngularVelocityZAxis:
+                element3 = element;
+                if (_lastAxes3D && !_lastAxes3D->_element3 && _lastAxes3D.usage == usage) {
+                    element1 = _lastAxes3D->_element1;
+                    element2 = _lastAxes3D->_element2;
+                }
+                break;
+        }
+        
+        _lastAxes3D = [[JOYAxes3D alloc] initWithFirstElement:element1 secondElement:element2 thirdElement:element3];
+        _lastAxes3D.usage = usage;
+        if (element1) _axes3D[element1] = _lastAxes3D;
+        if (element2) _axes3D[element2] = _lastAxes3D;
+        if (element3) _axes3D[element3] = _lastAxes3D;
+        
+        return;
+    }
+    
     axisGroups = _hacks[JOYAxisGroups] ?: axisGroups;
     
     if (element.usagePage == kHIDPage_Button ||
@@ -307,29 +380,12 @@ typedef union {
                 
                 if (axes2DEmulateButtons) {
                     _axes2DEmulatedButtons[@(axes.uniqueID)] = @[
-                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadLeft  uniqueID:axes.uniqueID | 0x100000000L],
-                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadRight uniqueID:axes.uniqueID | 0x200000000L],
-                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadUp  uniqueID:axes.uniqueID | 0x300000000L],
-                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadDown uniqueID:axes.uniqueID | 0x400000000L],
+                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadLeft type:JOYButtonTypeAxes2DEmulated uniqueID:axes.uniqueID | 0x100000000L],
+                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadRight type:JOYButtonTypeAxes2DEmulated uniqueID:axes.uniqueID | 0x200000000L],
+                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadUp type:JOYButtonTypeAxes2DEmulated  uniqueID:axes.uniqueID | 0x300000000L],
+                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadDown type:JOYButtonTypeAxes2DEmulated uniqueID:axes.uniqueID | 0x400000000L],
                     ];
                 }
-                
-                /*
-                 for (NSArray *group in axes2d) {
-                 break;
-                 IOHIDElementRef first  = (__bridge IOHIDElementRef)group[0];
-                 IOHIDElementRef second = (__bridge IOHIDElementRef)group[1];
-                 if (IOHIDElementGetUsage(first)  > element.usage) continue;
-                 if (IOHIDElementGetUsage(second) > element.usage) continue;
-                 if (IOHIDElementGetReportID(first) != IOHIDElementGetReportID(element)) continue;
-                 if ((IOHIDElementGetUsage(first) - kHIDUsage_GD_X) / 3 != (element.usage - kHIDUsage_GD_X) / 3) continue;
-                 if (IOHIDElementGetParent(first) != IOHIDElementGetParent(element)) continue;
-                 
-                 [axes2d removeObject:group];
-                 [axes3d addObject:@[(__bridge id)first, (__bridge id)second, _element]];
-                 found = true;
-                 break;
-                 }*/
                 break;
             }
             case kHIDUsage_GD_Slider:
@@ -346,7 +402,7 @@ typedef union {
                 
                 if ([_hacks[JOYEmulateAxisButtons] boolValue]) {
                     _axisEmulatedButtons[@(axis.uniqueID)] =
-                    [[JOYEmulatedButton alloc] initWithUsage:axis.equivalentButtonUsage uniqueID:axis.uniqueID];
+                    [[JOYEmulatedButton alloc] initWithUsage:axis.equivalentButtonUsage type:JOYButtonTypeAxisEmulated uniqueID:axis.uniqueID];
                 }
                 
                 
@@ -366,10 +422,10 @@ typedef union {
                 [_hats setObject:hat forKey:element];
                 if (hatsEmulateButtons) {
                     _hatEmulatedButtons[@(hat.uniqueID)] = @[
-                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadLeft  uniqueID:hat.uniqueID | 0x100000000L],
-                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadRight uniqueID:hat.uniqueID | 0x200000000L],
-                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadUp  uniqueID:hat.uniqueID | 0x300000000L],
-                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadDown uniqueID:hat.uniqueID | 0x400000000L],
+                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadLeft type:JOYButtonTypeHatEmulated  uniqueID:hat.uniqueID | 0x100000000L],
+                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadRight type:JOYButtonTypeHatEmulated uniqueID:hat.uniqueID | 0x200000000L],
+                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadUp type:JOYButtonTypeHatEmulated  uniqueID:hat.uniqueID | 0x300000000L],
+                        [[JOYEmulatedButton alloc] initWithUsage:JOYButtonUsageDPadDown type:JOYButtonTypeHatEmulated uniqueID:hat.uniqueID | 0x400000000L],
                     ];
                 }
                 break;
@@ -396,14 +452,13 @@ typedef union {
     _buttons = [NSMutableDictionary dictionary];
     _axes = [NSMutableDictionary dictionary];
     _axes2D = [NSMutableDictionary dictionary];
+    _axes3D = [NSMutableDictionary dictionary];
     _hats = [NSMutableDictionary dictionary];
     _axisEmulatedButtons = [NSMutableDictionary dictionary];
     _axes2DEmulatedButtons = [NSMutableDictionary dictionary];
     _hatEmulatedButtons = [NSMutableDictionary dictionary];
     _iokitToJOY = [NSMutableDictionary dictionary];
     
-    
-    //NSMutableArray *axes3d = [NSMutableArray array];
     
     _hacks = hacks;
     _isSwitch = [_hacks[JOYIsSwitch] boolValue];
@@ -522,6 +577,19 @@ typedef union {
     if (_isSwitch) {
         [self sendReport:[NSData dataWithBytes:(uint8_t[]){0x80, 0x04} length:2]];
         [self sendReport:[NSData dataWithBytes:(uint8_t[]){0x80, 0x02} length:2]];
+        
+        _lastVendorSpecificOutput.switchPacket.reportID = 0x1; // Rumble and LEDs
+        _lastVendorSpecificOutput.switchPacket.sequence++;
+        _lastVendorSpecificOutput.switchPacket.sequence &= 0xF;
+        _lastVendorSpecificOutput.switchPacket.command = 3; // Set input report mode
+        _lastVendorSpecificOutput.switchPacket.commandData[0] = 0x30; // Standard full mode
+        [self sendReport:[NSData dataWithBytes:&_lastVendorSpecificOutput.switchPacket length:sizeof(_lastVendorSpecificOutput.switchPacket)]];
+        
+        _lastVendorSpecificOutput.switchPacket.sequence++;
+        _lastVendorSpecificOutput.switchPacket.sequence &= 0xF;
+        _lastVendorSpecificOutput.switchPacket.command = 0x40; // Enable/disableIMU
+        _lastVendorSpecificOutput.switchPacket.commandData[0] = 1; // Enabled
+        [self sendReport:[NSData dataWithBytes:&_lastVendorSpecificOutput.switchPacket length:sizeof(_lastVendorSpecificOutput.switchPacket)]];
     }
     
     if (_isDualShock3) {
@@ -617,6 +685,11 @@ typedef union {
 - (NSArray<JOYAxes2D *> *)axes2D
 {
     return [[NSSet setWithArray:[_axes2D allValues]] allObjects];
+}
+
+- (NSArray<JOYAxes3D *> *)axes3D
+{
+    return [[NSSet setWithArray:[_axes3D allValues]] allObjects];
 }
 
 - (NSArray<JOYHat *> *)hats
@@ -729,6 +802,20 @@ typedef union {
                                 [listener controller:self buttonChangedState:button];
                             }
                         }
+                    }
+                }
+            }
+            return;
+        }
+    }
+    
+    {
+        JOYAxes3D *axes = _axes3D[element];
+        if (axes) {
+            if ([axes updateState]) {
+                for (id<JOYListener> listener in listeners) {
+                    if ([listener respondsToSelector:@selector(controller:movedAxes3D:)]) {
+                        [listener controller:self movedAxes3D:axes];
                     }
                 }
             }
@@ -865,7 +952,7 @@ typedef union {
     if (_isDualShock3) {
         return 2 << player;
     }
-    if (_isUSBDualSense) {
+    if (_isDualSense) {
         switch (player) {
             case 0: return 0x04;
             case 1: return 0x0A;
