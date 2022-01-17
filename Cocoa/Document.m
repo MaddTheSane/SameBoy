@@ -328,7 +328,7 @@ static void infraredStateChanged(GB_gameboy_t *gb, bool on)
 {
     if (_gbsVisualizer) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_gbsVisualizer setNeedsDisplay:true];
+            [self->_gbsVisualizer setNeedsDisplay:true];
         });
     }
     [self.view flip];
@@ -401,11 +401,11 @@ static void infraredStateChanged(GB_gameboy_t *gb, bool on)
     GB_set_pixels_output(&gb, self.view.pixels);
     GB_set_sample_rate(&gb, 96000);
     _audioClient = [[GBAudioClient alloc] initWithRendererBlock:^(UInt32 sampleRate, UInt32 nFrames, GB_sample_t *buffer) {
-        [audioLock lock];
+        [self->audioLock lock];
         
-        if (audioBufferPosition < nFrames) {
-            audioBufferNeeded = nFrames;
-            [audioLock waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.125]];
+        if (self->audioBufferPosition < nFrames) {
+            self->audioBufferNeeded = nFrames;
+            [self->audioLock waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.125]];
         }
         
         if (self->stopping || GB_debugger_is_stopped(&self->gb)) {
@@ -414,16 +414,16 @@ static void infraredStateChanged(GB_gameboy_t *gb, bool on)
             return;
         }
         
-        if (audioBufferPosition < nFrames) {
+        if (self->audioBufferPosition < nFrames) {
             // Not enough audio
-            memset(buffer, 0, (nFrames - audioBufferPosition) * sizeof(*buffer));
-            memcpy(buffer, audioBuffer, audioBufferPosition * sizeof(*buffer));
-            audioBufferPosition = 0;
+            memset(buffer, 0, (nFrames - self->audioBufferPosition) * sizeof(*buffer));
+            memcpy(buffer, self->audioBuffer, self->audioBufferPosition * sizeof(*buffer));
+            self->audioBufferPosition = 0;
         }
-        else if (audioBufferPosition < nFrames + 4800) {
-            memcpy(buffer, audioBuffer, nFrames * sizeof(*buffer));
-            memmove(audioBuffer, audioBuffer + nFrames, (audioBufferPosition - nFrames) * sizeof(*buffer));
-            audioBufferPosition = audioBufferPosition - nFrames;
+        else if (self->audioBufferPosition < nFrames + 4800) {
+            memcpy(buffer, self->audioBuffer, nFrames * sizeof(*buffer));
+            memmove(self->audioBuffer, self->audioBuffer + nFrames, (self->audioBufferPosition - nFrames) * sizeof(*buffer));
+            self->audioBufferPosition = self->audioBufferPosition - nFrames;
         }
         else {
             memcpy(buffer, self->audioBuffer + (self->audioBufferPosition - nFrames), nFrames * sizeof(*buffer));
@@ -1491,10 +1491,10 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
             {
                 oamCount = GB_get_oam_info(&gb, oamInfo, &oamHeight);
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    if (!oamUpdating) {
-                        oamUpdating = true;
+                    if (!self->oamUpdating) {
+                        self->oamUpdating = true;
                         [self.objectsTableView reloadData];
-                        oamUpdating = false;
+                        self->oamUpdating = false;
                     }
                 });
             }

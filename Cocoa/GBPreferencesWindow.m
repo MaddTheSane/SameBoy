@@ -274,8 +274,8 @@
 {
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        is_button_being_modified = true;
-        button_being_modified = row;
+        self->is_button_being_modified = true;
+        self->button_being_modified = row;
         tableView.enabled = false;
         self.playerListButton.enabled = false;
         [tableView reloadData];
@@ -412,7 +412,7 @@
 
 - (IBAction)colorPaletteChanged:(id)sender
 {
-    signed tag = [sender selectedItem].tag;
+    NSInteger tag = [sender selectedItem].tag;
     if (tag == -2) {
         [[NSUserDefaults standardUserDefaults] setObject:@(-1)
                                                   forKey:@"GBColorPalette"];
@@ -426,7 +426,7 @@
         [_paletteEditorController awakeFromNib];
         [self beginSheet:_paletteEditor completionHandler:^(NSModalResponse returnCode) {
             [self updatePalettesMenu];
-            [_colorPalettePopupButton selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"GBCurrentTheme"] ?: @""];
+            [self->_colorPalettePopupButton selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"GBCurrentTheme"] ?: @""];
         }];
     }
     else {

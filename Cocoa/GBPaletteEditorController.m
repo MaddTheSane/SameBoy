@@ -197,7 +197,7 @@ static double blend(double from, double to, double position)
     NSDictionary *themes = [defaults dictionaryForKey:@"GBThemes"];
     NSString *theme = [defaults stringForKey:@"GBCurrentTheme"];
     if (theme && themes[theme]) {
-        unsigned index = [[themes.allKeys sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] indexOfObject:theme];
+        NSUInteger index = [[themes.allKeys sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] indexOfObject:theme];
         [_themesList selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:false];
     }
     else {
