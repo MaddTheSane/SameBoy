@@ -5,13 +5,13 @@
 #pragma once
 @class Document;
 
-typedef enum {
+typedef NS_ENUM(uint32_t, GB_frame_blending_mode_t) {
     GB_FRAME_BLENDING_MODE_DISABLED,
     GB_FRAME_BLENDING_MODE_SIMPLE,
     GB_FRAME_BLENDING_MODE_ACCURATE,
     GB_FRAME_BLENDING_MODE_ACCURATE_EVEN = GB_FRAME_BLENDING_MODE_ACCURATE,
     GB_FRAME_BLENDING_MODE_ACCURATE_ODD,
-} GB_frame_blending_mode_t;
+};
 
 @interface GBView : NSView<JOYListener>
 - (void) flip;

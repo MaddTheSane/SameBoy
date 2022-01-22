@@ -25,7 +25,7 @@ static const vector_float2 rect[] =
 
 + (bool)isSupported
 {
-    if (MTLCopyAllDevices) {
+    if (@available(macOS 10.11, *)) {
         return [MTLCopyAllDevices() count] != 0;
     }
     return false;

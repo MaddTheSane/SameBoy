@@ -877,7 +877,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     return @"Document";
 }
 
-- (BOOL)readFromFile:(NSString *)fileName ofType:(NSString *)type
+- (BOOL)readFromURL:(NSURL *)url ofType:(NSString *)type error:(NSError *__autoreleasing  _Nullable *)outError
 {
     return true;
 }

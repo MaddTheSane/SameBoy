@@ -13,11 +13,11 @@
 - (instancetype)initWithKeyEquivalent:(NSString *)key_equivalent modifierMask:(NSEventModifierFlags)mask;
 
 @property(readonly) NSEventModifierFlags modifierMask;
-@property(readonly) NSString *keyEquivalent;
-@property(readonly) NSString *preferencesEncoding;
-@property(readonly) NSString *localizedModifierMaskDisplayName;
-@property(readonly) NSString *localizedKeyEquivalentDisplayName;
-@property(readonly) NSString *localizedDisplayName;
+@property(readonly, copy) NSString *keyEquivalent;
+@property(readonly, copy) NSString *preferencesEncoding;
+@property(readonly, copy) NSString *localizedModifierMaskDisplayName;
+@property(readonly, copy) NSString *localizedKeyEquivalentDisplayName;
+@property(readonly, copy) NSString *localizedDisplayName;
 
 @end
 
