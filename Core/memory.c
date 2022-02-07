@@ -251,8 +251,8 @@ void GB_trigger_oam_bug_read(GB_gameboy_t *gb, uint16_t address)
 
 static bool is_addr_in_dma_use(GB_gameboy_t *gb, uint16_t addr)
 {
-    if (!GB_is_dma_active(gb) || addr >= 0xfe00) return false;
-    if (gb->dma_current_dest == 0xFF) return false; // Warm up
+    if (!GB_is_dma_active(gb) || addr >= 0xfe00 || gb->hdma_in_progress) return false;
+    if (gb->dma_current_dest == 0xFF || gb->dma_current_dest == 0x0) return false; // Warm up
     if (addr >= 0xfe00) return false;
     if (gb->dma_current_src == addr) return false; // Shortcut for DMA access flow
     if (gb->dma_current_src > 0xe000 && (gb->dma_current_src & ~0x2000) == addr) return false;
@@ -303,7 +303,7 @@ static uint8_t read_vram(GB_gameboy_t *gb, uint16_t addr)
         }
     }
     
-    if (unlikely(gb->vram_read_blocked)) {
+    if (unlikely(gb->vram_read_blocked && !gb->in_dma_read)) {
         return 0xFF;
     }
     if (unlikely(gb->display_state == 22 && GB_is_cgb(gb) && !gb->cgb_double_speed)) {
@@ -473,13 +473,45 @@ static inline void sync_ppu_if_needed(GB_gameboy_t *gb, uint8_t register_accesse
     }
 }
 
-static uint8_t read_high_memory(GB_gameboy_t *gb, uint16_t addr)
+internal uint8_t GB_read_oam(GB_gameboy_t *gb, uint8_t addr)
 {
-
-    if (gb->hdma_on) {
-        return gb->last_opcode_read;
+    if (addr < 0xa0) {
+        return gb->oam[addr];
     }
     
+    switch (gb->model) {
+        case GB_MODEL_CGB_E:
+        case GB_MODEL_AGB_A:
+            return (addr & 0xF0) | (addr >> 4);
+            
+        case GB_MODEL_CGB_D:
+            if (addr > 0xc0) {
+                addr |= 0xf0;
+            }
+            return gb->extra_oam[addr - 0xa0];
+            
+        case GB_MODEL_CGB_C:
+        case GB_MODEL_CGB_B:
+        case GB_MODEL_CGB_A:
+        case GB_MODEL_CGB_0:
+            addr &= ~0x18;
+            return gb->extra_oam[addr - 0xa0];
+            
+        case GB_MODEL_DMG_B:
+        case GB_MODEL_MGB:
+        case GB_MODEL_SGB_NTSC:
+        case GB_MODEL_SGB_PAL:
+        case GB_MODEL_SGB_NTSC_NO_SFC:
+        case GB_MODEL_SGB_PAL_NO_SFC:
+        case GB_MODEL_SGB2:
+        case GB_MODEL_SGB2_NO_SFC:
+            return 0;
+    }
+    unreachable();
+}
+
+static uint8_t read_high_memory(GB_gameboy_t *gb, uint16_t addr)
+{
     if (addr < 0xFE00) {
         return read_banked_ram(gb, addr);
     }
@@ -557,46 +589,7 @@ static uint8_t read_high_memory(GB_gameboy_t *gb, uint16_t addr)
             return 0xff;
         }
         
-        if (addr < 0xFEA0) {
-            return gb->oam[addr & 0xFF];
-        }
-        
-        if (gb->oam_read_blocked) {
-            return 0xFF;
-        }
-        
-        switch (gb->model) {
-            case GB_MODEL_CGB_E:
-            case GB_MODEL_AGB:
-                return (addr & 0xF0) | ((addr >> 4) & 0xF);
-
-            case GB_MODEL_CGB_D:
-                if (addr > 0xfec0) {
-                    addr |= 0xf0;
-                }
-                return gb->extra_oam[addr - 0xfea0];
-                
-            case GB_MODEL_CGB_C:
-            case GB_MODEL_CGB_B:
-            case GB_MODEL_CGB_A:
-            case GB_MODEL_CGB_0:
-                addr &= ~0x18;
-                return gb->extra_oam[addr - 0xfea0];
-                
-            case GB_MODEL_DMG_B:
-            case GB_MODEL_MGB:
-            case GB_MODEL_SGB_NTSC:
-            case GB_MODEL_SGB_PAL:
-            case GB_MODEL_SGB_NTSC_NO_SFC:
-            case GB_MODEL_SGB_PAL_NO_SFC:
-            case GB_MODEL_SGB2:
-            case GB_MODEL_SGB2_NO_SFC:
-                break;
-        }
-    }
-
-    if (addr < 0xFF00) {
-        return 0;
+        return GB_read_oam(gb, addr);
     }
 
     if (addr < 0xFF80) {
@@ -699,7 +692,7 @@ static uint8_t read_high_memory(GB_gameboy_t *gb, uint16_t addr)
                 if (gb->model != GB_MODEL_CGB_E) {
                     ret |= 0x10;
                 }
-                if (((gb->io_registers[GB_IO_RP] & 0xC0) == 0xC0 && gb->effective_ir_input) && gb->model != GB_MODEL_AGB) {
+                if (((gb->io_registers[GB_IO_RP] & 0xC0) == 0xC0 && gb->effective_ir_input) && gb->model <= GB_MODEL_CGB_E) {
                     ret &= ~2;
                 }
                 return ret;
@@ -1205,6 +1198,40 @@ static void write_banked_ram(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
     gb->ram[(addr & 0x0FFF) + gb->cgb_ram_bank * 0x1000] = value;
 }
 
+static void write_oam(GB_gameboy_t *gb, uint8_t addr, uint8_t value)
+{
+    if (addr < 0xa0) {
+        gb->oam[addr] = value;
+        return;
+    }
+    switch (gb->model) {
+        case GB_MODEL_CGB_D:
+            if (addr > 0xc0) {
+                addr |= 0xf0;
+            }
+            gb->extra_oam[addr - 0xa0] = value;
+            break;
+        case GB_MODEL_CGB_C:
+        case GB_MODEL_CGB_B:
+        case GB_MODEL_CGB_A:
+        case GB_MODEL_CGB_0:
+            addr &= ~0x18;
+            gb->extra_oam[addr - 0xa0] = value;
+            break;
+        case GB_MODEL_CGB_E:
+        case GB_MODEL_AGB_A:
+        case GB_MODEL_DMG_B:
+        case GB_MODEL_MGB:
+        case GB_MODEL_SGB_NTSC:
+        case GB_MODEL_SGB_PAL:
+        case GB_MODEL_SGB_NTSC_NO_SFC:
+        case GB_MODEL_SGB_PAL_NO_SFC:
+        case GB_MODEL_SGB2:
+        case GB_MODEL_SGB2_NO_SFC:
+            break;
+    }
+}
+
 static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
 {
     if (addr < 0xFE00) {
@@ -1226,37 +1253,7 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
         }
         
         if (GB_is_cgb(gb)) {
-            if (addr < 0xFEA0) {
-                gb->oam[addr & 0xFF] = value;
-                return;
-            }
-            switch (gb->model) {
-                case GB_MODEL_CGB_D:
-                    if (addr > 0xfec0) {
-                        addr |= 0xf0;
-                    }
-                    gb->extra_oam[addr - 0xfea0] = value;
-                    break;
-                case GB_MODEL_CGB_C:
-                case GB_MODEL_CGB_B:
-                case GB_MODEL_CGB_A:
-                case GB_MODEL_CGB_0: 
-                    addr &= ~0x18;
-                    gb->extra_oam[addr - 0xfea0] = value;
-                    break;
-                case GB_MODEL_CGB_E:
-                case GB_MODEL_AGB:
-                    break;
-                case GB_MODEL_DMG_B:
-                case GB_MODEL_MGB:
-                case GB_MODEL_SGB_NTSC:
-                case GB_MODEL_SGB_PAL:
-                case GB_MODEL_SGB_NTSC_NO_SFC:
-                case GB_MODEL_SGB_PAL_NO_SFC:
-                case GB_MODEL_SGB2:
-                case GB_MODEL_SGB2_NO_SFC:
-                    unreachable();
-            }
+            write_oam(gb, addr, value);
             return;
         }
         
@@ -1475,6 +1472,7 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 gb->dma_current_dest = 0xFF;
                 gb->dma_current_src = value << 8;
                 gb->io_registers[GB_IO_DMA] = value;
+                GB_STAT_update(gb);
                 return;
             case GB_IO_SVBK:
                 if (gb->cgb_mode || (GB_is_cgb(gb) && !gb->boot_rom_finished)) {
@@ -1534,6 +1532,10 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                     gb->hdma_current_src &= 0xF0;
                     gb->hdma_current_src |= value << 8;
                 }
+                /* Range 0xE*** like 0xF***  and can't overflow (with 0x800 bytes) to anything meaningful */
+                if (gb->hdma_current_src >= 0xE000) {
+                    gb->hdma_current_src |= 0xF000;
+                }
                 return;
             case GB_IO_HDMA2:
                 if (gb->cgb_mode) {
@@ -1549,7 +1551,7 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 return;
             case GB_IO_HDMA4:
                 if (gb->cgb_mode) {
-                    gb->hdma_current_dest &= 0x1F00;
+                    gb->hdma_current_dest &= 0xFF00;
                     gb->hdma_current_dest |= value & 0xF0;
                 }
                 return;
@@ -1561,16 +1563,11 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 }
                 gb->hdma_on = (value & 0x80) == 0;
                 gb->hdma_on_hblank = (value & 0x80) != 0;
-                if (gb->hdma_on_hblank && (gb->io_registers[GB_IO_STAT] & 3) == 0) {
+                if (gb->hdma_on_hblank && (gb->io_registers[GB_IO_STAT] & 3) == 0 && gb->display_state != 7) {
                     gb->hdma_on = true;
                 }
                 gb->io_registers[GB_IO_HDMA5] = value;
                 gb->hdma_steps_left = (gb->io_registers[GB_IO_HDMA5] & 0x7F) + 1;
-                /* Todo: Verify this. Gambatte's DMA tests require this. */
-                if (gb->hdma_current_dest + (gb->hdma_steps_left << 4) > 0xFFFF) {
-                    gb->hdma_steps_left = (0x10000 - gb->hdma_current_dest) >> 4;
-                }
-                gb->hdma_cycles = -12;
                 return;
 
             /*  Todo: what happens when starting a transfer during a transfer?
@@ -1699,19 +1696,28 @@ bool GB_is_dma_active(GB_gameboy_t *gb)
 void GB_dma_run(GB_gameboy_t *gb)
 {
     if (gb->dma_current_dest == 0xa1) return;
+    if (unlikely(gb->halted || gb->stopped)) return;
     signed cycles = gb->dma_cycles + gb->dma_cycles_modulo;
+    gb->in_dma_read = true;
     while (unlikely(cycles >= 4)) {
         cycles -= 4;
         if (gb->dma_current_dest >= 0xa0) {
             gb->dma_current_dest++;
+            if (gb->display_state == 8) {
+                gb->io_registers[GB_IO_STAT] |= 2;
+                GB_STAT_update(gb);
+            }
             break;
         }
-        if (gb->dma_current_src < 0xe000) {
+        if (unlikely(gb->hdma_in_progress && (gb->hdma_steps_left > 1 || (gb->hdma_current_dest & 0xF) != 0xF))) {
+            gb->dma_current_dest++;
+        }
+        else if (gb->dma_current_src < 0xe000) {
             gb->oam[gb->dma_current_dest++] = GB_read_memory(gb, gb->dma_current_src);
         }
         else {
             if (GB_is_cgb(gb)) {
-                gb->oam[gb->dma_current_dest++] = 0;
+                gb->oam[gb->dma_current_dest++] = 0xFF;
             }
             else {
                 gb->oam[gb->dma_current_dest++] = GB_read_memory(gb, gb->dma_current_src & ~0x2000);
@@ -1720,32 +1726,69 @@ void GB_dma_run(GB_gameboy_t *gb)
         
         /* dma_current_src must be the correct value during GB_read_memory */
         gb->dma_current_src++;
+        gb->dma_ppu_vram_conflict = false;
     }
+    gb->in_dma_read = false;
     gb->dma_cycles_modulo = cycles;
     gb->dma_cycles = 0;
 }
 
 void GB_hdma_run(GB_gameboy_t *gb)
 {
-    if (likely(!gb->hdma_on)) return;
-
-    while (gb->hdma_cycles >= 0x4) {
-        gb->hdma_cycles -= 0x4;
-
-        GB_write_memory(gb, 0x8000 | (gb->hdma_current_dest++ & 0x1FFF), GB_read_memory(gb, (gb->hdma_current_src++)));
+    unsigned cycles = gb->cgb_double_speed? 4 : 2;
+    /* This is a bit cart, revision and unit specific. TODO: what if PC is in cart RAM? */
+    if (gb->model < GB_MODEL_CGB_D || gb->pc > 0x8000) {
+        gb->hdma_open_bus = 0xFF;
+    }
+    gb->addr_for_hdma_conflict = 0xFFFF;
+    uint16_t vram_base = gb->cgb_vram_bank? 0x2000 : 0;
+    gb->hdma_in_progress = true;
+    GB_advance_cycles(gb, cycles);
+    while (gb->hdma_on) {
+        uint8_t byte = gb->hdma_open_bus;
+        gb->addr_for_hdma_conflict = 0xFFFF;
+        
+        if (gb->hdma_current_src < 0x8000 ||
+            (gb->hdma_current_src & 0xE000) == 0xC000 ||
+            (gb->hdma_current_src & 0xE000) == 0xA000) {
+            byte = GB_read_memory(gb, gb->hdma_current_src);
+        }
+        if (unlikely(GB_is_dma_active(gb)) && (gb->dma_cycles_modulo == 2 || gb->cgb_double_speed)) {
+            write_oam(gb, gb->hdma_current_src, byte);
+        }
+        gb->hdma_current_src++;
+        GB_advance_cycles(gb, cycles);
+        if (gb->addr_for_hdma_conflict == 0xFFFF /* || (gb->model == GB_MODEL_AGB_B && gb->cgb_double_speed) */) {
+            gb->vram[vram_base + (gb->hdma_current_dest++ & 0x1FFF)] = byte;
+        }
+        else {
+            if (gb->model == GB_MODEL_CGB_E || gb->cgb_double_speed) {
+                /*
+                    These corruptions revision (unit?) specific in single speed. They happen only on my CGB-E.
+                */
+                gb->addr_for_hdma_conflict &= 0x1FFF;
+                // Can't write to even bitmap bytes in single speed mode
+                if (gb->cgb_double_speed || gb->addr_for_hdma_conflict >= 0x1900 || (gb->addr_for_hdma_conflict & 1)) {
+                    gb->vram[vram_base + (gb->hdma_current_dest & gb->addr_for_hdma_conflict & 0x1FFF)] = byte;
+                }
+            }
+            gb->hdma_current_dest++;
+        }
+        gb->hdma_open_bus = 0xFF;
         
         if ((gb->hdma_current_dest & 0xf) == 0) {
-            if (--gb->hdma_steps_left == 0) {
+            if (--gb->hdma_steps_left == 0 || gb->hdma_current_dest == 0) {
                 gb->hdma_on = false;
                 gb->hdma_on_hblank = false;
-                gb->hdma_starting = false;
                 gb->io_registers[GB_IO_HDMA5] &= 0x7F;
-                break;
             }
-            if (gb->hdma_on_hblank) {
+            else if (gb->hdma_on_hblank) {
                 gb->hdma_on = false;
-                break;
             }
         }
+    }
+    gb->hdma_in_progress = false; // TODO: timing? (affects VRAM reads)
+    if (!gb->cgb_double_speed) {
+        GB_advance_cycles(gb, 2);
     }
 }

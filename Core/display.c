@@ -159,7 +159,7 @@ void GB_display_vblank(GB_gameboy_t *gb)
         GB_borrow_sgb_border(gb);
         uint32_t border_colors[16 * 4];
         
-        if (!gb->has_sgb_border && GB_is_cgb(gb) && gb->model != GB_MODEL_AGB) {
+        if (!gb->has_sgb_border && GB_is_cgb(gb) && gb->model <= GB_MODEL_CGB_E) {
             uint16_t colors[] = {
                 0x2095, 0x5129, 0x1EAF, 0x1EBA, 0x4648,
                 0x30DA, 0x69AD, 0x2B57, 0x2B5D, 0x632C,
@@ -277,7 +277,7 @@ uint32_t GB_convert_rgb15(GB_gameboy_t *gb, uint16_t color, bool for_border)
         b = scale_channel_with_curve_sgb(b);
     }
     else {
-        bool agb = gb->model == GB_MODEL_AGB;
+        bool agb = gb->model > GB_MODEL_CGB_E;
         r = agb? scale_channel_with_curve_agb(r) : scale_channel_with_curve(r);
         g = agb? scale_channel_with_curve_agb(g) : scale_channel_with_curve(g);
         b = agb? scale_channel_with_curve_agb(b) : scale_channel_with_curve(b);
@@ -397,6 +397,9 @@ void GB_set_light_temperature(GB_gameboy_t *gb, double temperature)
 void GB_STAT_update(GB_gameboy_t *gb)
 {
     if (!(gb->io_registers[GB_IO_LCDC] & 0x80)) return;
+    if (GB_is_dma_active(gb) && (gb->io_registers[GB_IO_STAT] & 3) == 2) {
+        gb->io_registers[GB_IO_STAT] &= ~3;
+    }
     
     bool previous_interrupt_line = gb->stat_interrupt_line;
     /* Set LY=LYC bit */
@@ -437,16 +440,14 @@ void GB_lcd_off(GB_gameboy_t *gb)
     gb->display_cycles = 0;
     /* When the LCD is disabled, state is constant */
     
+    if (gb->hdma_on_hblank && (gb->io_registers[GB_IO_STAT] & 3)) {
+        gb->hdma_on = true;
+    }
+    
     /* When the LCD is off, LY is 0 and STAT mode is 0.  */
     gb->io_registers[GB_IO_LY] = 0;
     gb->io_registers[GB_IO_STAT] &= ~3;
-    if (gb->hdma_on_hblank) {
-        gb->hdma_on_hblank = false;
-        gb->hdma_on = false;
-        
-        /* Todo: is this correct? */
-        gb->hdma_steps_left = 0xff;
-    }
+    
     
     gb->oam_read_blocked = false;
     gb->vram_read_blocked = false;
@@ -465,34 +466,58 @@ void GB_lcd_off(GB_gameboy_t *gb)
     }
 }
 
+static inline uint8_t oam_read(GB_gameboy_t *gb, uint8_t addr)
+{
+    if (unlikely(gb->oam_ppu_blocked)) {
+        return 0xFF;
+    }
+    if (unlikely(gb->dma_current_dest <= 0xa0 && gb->dma_current_dest > 0)) { // TODO: what happens in the last and first M cycles?
+        if (gb->hdma_in_progress) {
+            return GB_read_oam(gb, (gb->hdma_current_src & ~1) | (addr & 1));
+        }
+        return gb->oam[((gb->dma_current_dest - 1 + (gb->halted || gb->stopped)) & ~1) | (addr & 1)];
+    }
+    return gb->oam[addr];
+}
+
 static void add_object_from_index(GB_gameboy_t *gb, unsigned index)
 {
+    if (likely(!GB_is_dma_active(gb) || gb->halted || gb->stopped)) {
+        gb->mode2_y_bus = oam_read(gb, index * 4);
+        gb->mode2_x_bus = oam_read(gb, index * 4 + 1);
+    }
+
     if (gb->n_visible_objs == 10) return;
     
     /* TODO: It appears that DMA blocks PPU access to OAM, but it needs verification. */
-    if (GB_is_dma_active(gb)) {
+    if (unlikely(GB_is_dma_active(gb) && (gb->halted || gb->stopped))) {
+        if (gb->model < GB_MODEL_CGB_E) {
+            return;
+        }
+        /* CGB-0 to CGB-D: Halted DMA blocks Mode 2;
+           Pre-CGB: Unit specific behavior, some units read FFs, some units read using
+                    several different corruption pattterns. For simplicity, we emulate
+                    FFs. */
+    }
+    
+    if (unlikely(gb->oam_ppu_blocked)) {
         return;
     }
     
-    if (gb->oam_ppu_blocked) {
-        return;
-    }
-
-    /* This reverse sorts the visible objects by location and priority */
-    object_t *objects = (object_t *) &gb->oam;
     bool height_16 = (gb->io_registers[GB_IO_LCDC] & 4) != 0;
-    signed y = objects[index].y - 16;
+    signed y = gb->mode2_y_bus - 16;
+    /* This reverse sorts the visible objects by location and priority */
     if (y <= gb->current_line && y + (height_16? 16 : 8) > gb->current_line) {
         unsigned j = 0;
         for (; j < gb->n_visible_objs; j++) {
-            if (gb->objects_x[j] <= objects[index].x) break;
+            if (gb->objects_x[j] <= gb->mode2_x_bus) break;
         }
         memmove(gb->visible_objs + j + 1, gb->visible_objs + j, gb->n_visible_objs - j);
         memmove(gb->objects_x + j + 1, gb->objects_x + j, gb->n_visible_objs - j);
         memmove(gb->objects_y + j + 1, gb->objects_y + j, gb->n_visible_objs - j);
         gb->visible_objs[j] = index;
-        gb->objects_x[j] = objects[index].x;
-        gb->objects_y[j] = objects[index].y;
+        gb->objects_x[j] = gb->mode2_x_bus;
+        gb->objects_y[j] = gb->mode2_y_bus;
         gb->n_visible_objs++;
     }
 }
@@ -675,11 +700,35 @@ static inline uint8_t vram_read(GB_gameboy_t *gb, uint16_t addr)
     if (unlikely(gb->vram_ppu_blocked)) {
         return 0xFF;
     }
-    if (unlikely(gb->dma_current_dest <= 0xa0 && gb->dma_current_dest > 0 && (gb->dma_current_src & 0xE000) == 0x8000)) { // TODO: what happens in the last and first M cycles?
+    if (unlikely(gb->hdma_in_progress)) {
+        gb->addr_for_hdma_conflict = addr;
+        return 0;
+    }
+    // TODO: what if both?
+    else if (unlikely(gb->dma_current_dest <= 0xa0 && gb->dma_current_dest > 0 && (gb->dma_current_src & 0xE000) == 0x8000)) { // TODO: what happens in the last and first M cycles?
         // DMAing from VRAM!
-        /* TODO: This is only correct on a DMG/MGB, CGBs and AGBs use some other pattern; AGS has a completely different one */
-        addr |= ((gb->dma_current_src - 1) & 0x1FFF);
-        gb->oam[gb->dma_current_dest - 1] = gb->vram[addr];
+        /* TODO: AGS has its own, very different pattern, but AGS is not currently a supported model */
+        /* TODO: Research this when researching odd modes */
+        /* TODO: probably not 100% on the first few reads during halt/stop modes*/
+        unsigned offset = 1 - (gb->halted || gb->stopped);
+        if (GB_is_cgb(gb)) {
+            if (gb->dma_ppu_vram_conflict) {
+                addr = (gb->dma_ppu_vram_conflict_addr & 0x1FFF) | (addr & 0x2000);
+            }
+            else if (gb->dma_cycles_modulo && !gb->halted && !gb->stopped) {
+                addr &= 0x2000;
+                addr |= ((gb->dma_current_src - offset) & 0x1FFF);
+            }
+            else {
+                addr &= 0x2000 | ((gb->dma_current_src - offset) & 0x1FFF);
+                gb->dma_ppu_vram_conflict_addr = addr;
+                gb->dma_ppu_vram_conflict = !gb->halted && !gb->stopped;
+            }
+        }
+        else {
+            addr |= ((gb->dma_current_src - offset) & 0x1FFF);
+        }
+        gb->oam[gb->dma_current_dest - offset] = gb->vram[(addr & 0x1FFF) | (gb->cgb_vram_bank? 0x2000 : 0)];
     }
     return gb->vram[addr];
 }
@@ -855,17 +904,6 @@ static void advance_fetcher_state_machine(GB_gameboy_t *gb, unsigned *cycles)
         
         nodefault;
     }
-}
-
-static inline uint8_t oam_read(GB_gameboy_t *gb, uint8_t addr)
-{
-    if (unlikely(gb->oam_ppu_blocked)) {
-        return 0xFF;
-    }
-    if (unlikely(gb->dma_current_dest <= 0xa0 && gb->dma_current_dest > 0)) { // TODO: what happens in the last and first M cycles?
-        return gb->oam[((gb->dma_current_dest - 1) & ~1) | (addr & 1)];
-    }
-    return gb->oam[addr];
 }
 
 static uint16_t get_object_line_address(GB_gameboy_t *gb, uint8_t y, uint8_t tile, uint8_t flags)
@@ -1235,6 +1273,7 @@ static inline uint16_t mode3_batching_length(GB_gameboy_t *gb)
 {
     if (gb->model & GB_MODEL_NO_SFC_BIT) return 0;
     if (gb->hdma_on) return 0;
+    if (gb->stopped) return 0;
     if (GB_is_dma_active(gb)) return 0;
     if (gb->wy_triggered && (gb->io_registers[GB_IO_LCDC] & 0x20) && (gb->io_registers[GB_IO_WX] < 8 || gb->io_registers[GB_IO_WX] == 166)) {
         return 0;
@@ -1296,7 +1335,6 @@ void GB_display_run(GB_gameboy_t *gb, unsigned cycles, bool force)
         GB_STATE(gb, display, 22);
         GB_STATE(gb, display, 23);
         GB_STATE(gb, display, 24);
-        GB_STATE(gb, display, 25);
         GB_STATE(gb, display, 26);
         GB_STATE(gb, display, 27);
         GB_STATE(gb, display, 28);
@@ -1620,7 +1658,7 @@ void GB_display_run(GB_gameboy_t *gb, unsigned cycles, bool force)
                     dma_sync(gb, &cycles);
                     gb->object_low_line_address = get_object_line_address(gb,
                                                                           gb->objects_y[gb->n_visible_objs - 1],
-                                                                          oam_read(gb, gb->visible_objs[gb->n_visible_objs - 1] * 4 + 2),
+                                                                          gb->mode2_y_bus = oam_read(gb, gb->visible_objs[gb->n_visible_objs - 1] * 4 + 2),
                                                                           gb->object_flags = oam_read(gb, gb->visible_objs[gb->n_visible_objs - 1] * 4 + 3)
                                                                           );
                     
@@ -1742,16 +1780,14 @@ skip_slow_mode_3:
             GB_SLEEP(gb, display, 33, 2);
             gb->cgb_palettes_blocked = !gb->cgb_double_speed;
             
+            if (gb->hdma_on_hblank && !gb->halted && !gb->stopped) {
+                gb->hdma_on = true;
+            }
+            
             gb->cycles_for_line += 2;
             GB_SLEEP(gb, display, 36, 2);
             gb->cgb_palettes_blocked = false;
             
-            gb->cycles_for_line += 8;
-            GB_SLEEP(gb, display, 25, 8);
-            
-            if (gb->hdma_on_hblank) {
-                gb->hdma_starting = true;
-            }
             GB_SLEEP(gb, display, 11, LINE_LENGTH - gb->cycles_for_line - 2);
             /*
              TODO: Verify double speed timing
@@ -2001,9 +2037,9 @@ uint8_t GB_get_oam_info(GB_gameboy_t *gb, GB_oam_info_t *dest, uint8_t *object_h
     for (signed y = 0; y < LINES; y++) {
         object_t *object = (object_t *) &gb->oam;
         uint8_t objects_in_line = 0;
+        bool obscured = false;
         for (uint8_t i = 0; i < 40; i++, object++) {
             signed object_y = object->y - 16;
-            bool obscured = false;
             // Is object not in this line?
             if (object_y > y || object_y + *object_height <= y) continue;
             if (++objects_in_line == 11) obscured = true;

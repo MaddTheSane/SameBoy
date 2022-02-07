@@ -115,7 +115,10 @@ typedef enum {
     GB_MODEL_CGB_C = 0x203,
     GB_MODEL_CGB_D = 0x204,
     GB_MODEL_CGB_E = 0x205,
-    GB_MODEL_AGB = 0x206,
+    // GB_MODEL_AGB_0 = 0x206,
+    GB_MODEL_AGB_A = 0x207,
+    GB_MODEL_AGB = GB_MODEL_AGB_A,
+    //GB_MODEL_AGB_B = 0x208
 } GB_model_t;
 
 enum {
@@ -226,7 +229,7 @@ enum {
 
     /* Missing */
 
-    /* CGB Paletts */
+    /* CGB Palettes */
     GB_IO_BGPI       = 0x68, // CGB Mode Only - Background Palette Index
     GB_IO_BGPD       = 0x69, // CGB Mode Only - Background Palette Data
     GB_IO_OBPI       = 0x6a, // CGB Mode Only - Object Palette Index
@@ -421,7 +424,6 @@ struct GB_gameboy_internal_s {
         bool hdma_on;
         bool hdma_on_hblank;
         uint8_t hdma_steps_left;
-        int16_t hdma_cycles; // in 8MHz units
         uint16_t hdma_current_src, hdma_current_dest;
 
         uint8_t dma_current_dest;
@@ -429,8 +431,9 @@ struct GB_gameboy_internal_s {
         uint16_t dma_current_src;
         uint16_t dma_cycles;
         int8_t dma_cycles_modulo;
-        uint8_t last_opcode_read; /* Required to emulate HDMA reads from Exxx */
-        bool hdma_starting;
+        bool dma_ppu_vram_conflict;
+        uint16_t dma_ppu_vram_conflict_addr;
+        uint8_t hdma_open_bus; /* Required to emulate HDMA reads from Exxx */
     )
     
     /* MBC */
@@ -594,7 +597,12 @@ struct GB_gameboy_internal_s {
         uint8_t objects_x[10];
         uint8_t objects_y[10];
         uint8_t object_tile_data[2];
-        uint8_t object_flags;
+        uint8_t mode2_y_bus;
+        // They're the same bus
+        union {
+            uint8_t mode2_x_bus;
+            uint8_t object_flags;
+        };
         uint8_t n_visible_objs;
         uint8_t oam_search_index;
         uint8_t accessed_oam_row;
@@ -765,7 +773,7 @@ struct GB_gameboy_internal_s {
         bool disable_rendering;
         uint8_t boot_rom[0x900];
         bool vblank_just_occured; // For slow operations involving syscalls; these should only run once per vblank
-        uint8_t cycles_since_run; // How many cycles have passed since the last call to GB_run(), in 8MHz units
+        unsigned cycles_since_run; // How many cycles have passed since the last call to GB_run(), in 8MHz units
         double clock_multiplier;
         GB_rumble_mode_t rumble_mode;
         uint32_t rumble_on_cycles;
@@ -775,6 +783,9 @@ struct GB_gameboy_internal_s {
         bool wx_just_changed;
         bool tile_sel_glitch;
         bool disable_oam_corruption; // For safe memory reads
+        bool in_dma_read;
+        bool hdma_in_progress;
+        uint16_t addr_for_hdma_conflict;
                
         GB_gbs_header_t gbs_header;
    )
@@ -805,7 +816,7 @@ void GB_reset(GB_gameboy_t *gb);
 void GB_switch_model_and_reset(GB_gameboy_t *gb, GB_model_t model);
 
 /* Returns the time passed, in 8MHz ticks. */
-uint8_t GB_run(GB_gameboy_t *gb);
+unsigned GB_run(GB_gameboy_t *gb);
 /* Returns the time passed since the last frame, in nanoseconds */
 uint64_t GB_run_frame(GB_gameboy_t *gb);
 
