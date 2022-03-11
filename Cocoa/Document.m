@@ -1,16 +1,42 @@
-#include <AVFoundation/AVFoundation.h>
-#include <CoreAudio/CoreAudio.h>
-#include <Core/gb.h>
-#include "GBAudioClient.h"
-#include "Document.h"
-#include "AppDelegate.h"
-#include "HexFiend/HexFiend.h"
-#include "GBMemoryByteArray.h"
-#include "GBWarningPopover.h"
-#include "GBCheatWindowController.h"
-#include "GBTerminalTextFieldCell.h"
-#include "BigSurToolbar.h"
+#import <AVFoundation/AVFoundation.h>
+#import <CoreAudio/CoreAudio.h>
+#import <Core/gb.h>
+#import "GBAudioClient.h"
+#import "Document.h"
+#import "AppDelegate.h"
+#import "HexFiend/HexFiend.h"
+#import "GBMemoryByteArray.h"
+#import "GBWarningPopover.h"
+#import "GBCheatWindowController.h"
+#import "GBTerminalTextFieldCell.h"
+#import "BigSurToolbar.h"
 #import "GBPaletteEditorController.h"
+#import "GBObjectView.h"
+#import "GBPaletteView.h"
+
+@implementation NSString (relativePath)
+
+- (NSString *)pathRelativeToDirectory:(NSString *)directory
+{
+    NSMutableArray<NSString *> *baseComponents = [[directory pathComponents] mutableCopy];
+    NSMutableArray<NSString *> *selfComponents = [[self pathComponents] mutableCopy];
+    
+    while (baseComponents.count) {
+        if (![baseComponents.firstObject isEqualToString:selfComponents.firstObject]) {
+            break;
+        }
+        
+        [baseComponents removeObjectAtIndex:0];
+        [selfComponents removeObjectAtIndex:0];
+    }
+    while (baseComponents.count) {
+        [baseComponents removeObjectAtIndex:0];
+        [selfComponents insertObject:@".." atIndex:0];
+    }
+    return [selfComponents componentsJoinedByString:@"/"];
+}
+
+@end
 
 #define GB_MODEL_PAL_BIT_OLD 0x1000
 
@@ -46,10 +72,7 @@ enum model {
     AVCaptureConnection *cameraConnection;
     AVCaptureStillImageOutput *cameraOutput;
     
-    GB_oam_info_t oamInfo[40];
-    uint16_t oamCount;
-    uint8_t oamHeight;
-    bool oamUpdating;
+    GB_oam_info_t _oamInfo[40];
     
     NSMutableData *currentPrinterImageData;
     enum {GBAccessoryNone, GBAccessoryPrinter, GBAccessoryWorkboy, GBAccessoryLinkCable} accessory;
@@ -468,7 +491,6 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 - (void) run
 {
     assert(!master);
-    running = true;
     [self preRun];
     if (slave) {
         [slave preRun];
@@ -515,8 +537,8 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [_audioClient stop];
     _audioClient = nil;
     self.view.mouseHidingEnabled = false;
-    GB_save_battery(&gb, [[[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"].path UTF8String]);
-    GB_save_cheats(&gb, [[[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"].path UTF8String]);
+    GB_save_battery(&gb, self.savPath.UTF8String);
+    GB_save_cheats(&gb, self.chtPath.UTF8String);
     unsigned time_to_alarm = GB_time_to_alarm(&gb);
     
     if (time_to_alarm) {
@@ -547,6 +569,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         return;
     }
     if (running) return;
+    running = true;
     [[[NSThread alloc] initWithTarget:self selector:@selector(run) object:nil] start];
 }
 
@@ -958,28 +981,107 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     }
 }
 
+- (bool)isCartContainer
+{
+    return [self.fileName.pathExtension.lowercaseString isEqualToString:@"gbcart"];
+}
+
+- (NSString *)savPath
+{
+    if (self.isCartContainer) {
+        return [self.fileName stringByAppendingPathComponent:@"battery.sav"];
+    }
+    
+    return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"].path;
+}
+
+- (NSString *)chtPath
+{
+    if (self.isCartContainer) {
+        return [self.fileName stringByAppendingPathComponent:@"cheats.cht"];
+    }
+    
+    return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"].path;
+}
+
+- (NSString *)saveStatePath:(unsigned)index
+{
+    if (self.isCartContainer) {
+        return [self.fileName stringByAppendingPathComponent:[NSString stringWithFormat:@"state.s%u", index]];
+    }
+    return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"s%u", index]].path;
+}
+
+- (NSString *)romPath
+{
+    NSString *fileName = self.fileName;
+    if (self.isCartContainer) {
+        NSArray *paths = [[NSString stringWithContentsOfFile:[fileName stringByAppendingPathComponent:@"rom.gbl"]
+                                                    encoding:NSUTF8StringEncoding
+                                                       error:nil] componentsSeparatedByString:@"\n"];
+        fileName = nil;
+        bool needsRebuild = false;
+        for (NSString *path in paths) {
+            NSURL *url = [NSURL URLWithString:path relativeToURL:self.fileURL];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
+                if (fileName && ![fileName isEqualToString:url.path]) {
+                    needsRebuild = true;
+                    break;
+                }
+                fileName = url.path;
+            }
+            else {
+                needsRebuild = true;
+            }
+        }
+        if (fileName && needsRebuild) {
+            [[NSString stringWithFormat:@"%@\n%@\n%@",
+              [fileName pathRelativeToDirectory:self.fileName],
+              fileName,
+              [[NSURL fileURLWithPath:fileName].fileReferenceURL.absoluteString substringFromIndex:strlen("file://")]]
+             writeToFile:[self.fileName stringByAppendingPathComponent:@"rom.gbl"]
+             atomically:false
+             encoding:NSUTF8StringEncoding
+             error:nil];
+        }
+    }
+    
+    return fileName;
+}
+
 - (int) loadROM
 {
     __block int ret = 0;
+    NSString *fileName = self.romPath;
+    if (!fileName) {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:@"Could not locate the ROM referenced by this Game Boy Cartridge"];
+        [alert setAlertStyle:NSAlertStyleCritical];
+        [alert runModal];
+        return 1;
+    }
+    
     NSString *rom_warnings = [self captureOutputForBlock:^{
         GB_debugger_clear_symbols(&self->gb);
-        if ([[[self.fileType pathExtension] lowercaseString] isEqualToString:@"isx"]) {
-            ret = GB_load_isx(&self->gb, self.fileURL.fileSystemRepresentation);
-            GB_load_battery(&self->gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"ram"].fileSystemRepresentation);
+        if ([[[fileName pathExtension] lowercaseString] isEqualToString:@"isx"]) {
+            ret = GB_load_isx(&self->gb, fileName.fileSystemRepresentation);
+            if (!self.isCartContainer) {
+                GB_load_battery(&self->gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"ram"].fileSystemRepresentation);
+            }
         }
-        else if ([[[self.fileType pathExtension] lowercaseString] isEqualToString:@"gbs"]) {
+        else if ([[[fileName pathExtension] lowercaseString] isEqualToString:@"gbs"]) {
             __block GB_gbs_info_t info;
-            ret = GB_load_gbs(&self->gb, self.fileURL.fileSystemRepresentation, &info);
+            ret = GB_load_gbs(&self->gb, fileName.fileSystemRepresentation, &info);
             [self prepareGBSInterface:&info];
         }
         else {
-            ret = GB_load_rom(&self->gb, self.fileURL.fileSystemRepresentation);
+            ret = GB_load_rom(&self->gb, [fileName fileSystemRepresentation]);
         }
-        GB_load_battery(&self->gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"].fileSystemRepresentation);
-        GB_load_cheats(&self->gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"].fileSystemRepresentation);
+        GB_load_battery(&self->gb, self.savPath.fileSystemRepresentation);
+        GB_load_cheats(&self->gb, self.chtPath.fileSystemRepresentation);
         [self.cheatWindowController cheatsUpdated];
-        GB_debugger_load_symbol_file(&self->gb, [[[NSBundle mainBundle] URLForResource:@"registers" withExtension:@"sym"] fileSystemRepresentation]);
-        GB_debugger_load_symbol_file(&self->gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sym"].fileSystemRepresentation);
+        GB_debugger_load_symbol_file(&self->gb, [[[NSBundle mainBundle] pathForResource:@"registers" ofType:@"sym"] fileSystemRepresentation]);
+        GB_debugger_load_symbol_file(&self->gb, [[fileName stringByDeletingPathExtension] stringByAppendingPathExtension:@"sym"].fileSystemRepresentation);
     }];
     if (ret) {
         NSAlert *alert = [[NSAlert alloc] init];
@@ -1310,7 +1412,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 {
     bool __block success = false;
     [self performAtomicBlock:^{
-        success = GB_save_state(&self->gb, [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"s%ld", (long)[sender tag] ]].fileSystemRepresentation) == 0;
+        success = GB_save_state(&self->gb, [self saveStatePath:[sender tag]].fileSystemRepresentation) == 0;
     }];
     
     if (!success) {
@@ -1348,8 +1450,8 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 
 - (IBAction)loadState:(id)sender
 {
-    int ret = [self loadStateFile:[[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"s%ld", (long)[sender tag]]].fileSystemRepresentation noErrorOnNotFound:true];
-    if (ret == ENOENT) {
+    int ret = [self loadStateFile:[self saveStatePath:[sender tag]].fileSystemRepresentation noErrorOnNotFound:true];
+    if (ret == ENOENT && !self.isCartContainer) {
         [self loadStateFile:[[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"sn%ld", (long)[sender tag]]].fileSystemRepresentation noErrorOnNotFound:false];
     }
 }
@@ -1403,28 +1505,21 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 
 + (NSImage *) imageFromData:(NSData *)data width:(NSUInteger) width height:(NSUInteger) height scale:(double) scale
 {
-    CGDataProviderRef provider = CGDataProviderCreateWithCFData((CFDataRef) data);
-    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
-    CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
-    CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     
-    CGImageRef iref = CGImageCreate(width,
-                                    height,
-                                    8,
-                                    32,
-                                    4 * width,
-                                    colorSpaceRef,
-                                    bitmapInfo,
-                                    provider,
-                                    NULL,
-                                    true,
-                                    renderingIntent);
-    CGDataProviderRelease(provider);
-    CGColorSpaceRelease(colorSpaceRef);
-    
-    NSImage *ret = [[NSImage alloc] initWithCGImage:iref size:NSMakeSize(width * scale, height * scale)];
-    CGImageRelease(iref);
-    
+    NSImage *ret = [[NSImage alloc] initWithSize:NSMakeSize(width * scale, height * scale)];
+    NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+                                                                    pixelsWide:width
+                                                                    pixelsHigh:height
+                                                                 bitsPerSample:8
+                                                               samplesPerPixel:3
+                                                                      hasAlpha:false
+                                                                      isPlanar:false
+                                                                colorSpaceName:NSDeviceRGBColorSpace
+                                                                  bitmapFormat:0
+                                                                   bytesPerRow:4 * width
+                                                                  bitsPerPixel:32];
+    memcpy(rep.bitmapData, data.bytes, data.length);
+    [ret addRepresentation:rep];
     return ret;
 }
 
@@ -1488,13 +1583,9 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
             case 2:
             /* OAM */
             {
-                oamCount = GB_get_oam_info(&gb, oamInfo, &oamHeight);
+                _oamCount = GB_get_oam_info(&gb, _oamInfo, &_oamHeight);
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    if (!self->oamUpdating) {
-                        self->oamUpdating = true;
-                        [self.objectsTableView reloadData];
-                        self->oamUpdating = false;
-                    }
+                    [self.objectView reloadData:self];
                 });
             }
             break;
@@ -1503,7 +1594,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
             /* Palettes */
             {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.paletteTableView reloadData];
+                    [self.paletteView reloadData:self];
                 });
             }
             break;
@@ -1770,14 +1861,14 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     window_rect.origin.y += window_rect.size.height;
     switch ([sender selectedSegment]) {
         case 0:
+        case 2:
             window_rect.size.height = 384 + height_diff + 48;
             break;
         case 1:
-        case 2:
             window_rect.size.height = 512 + height_diff + 48;
             break;
         case 3:
-            window_rect.size.height = 20 * 16 + height_diff + 34;
+            window_rect.size.height = 24 * 16 + height_diff;
             break;
             
         default:
@@ -1850,79 +1941,9 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     }
 }
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
+- (GB_oam_info_t *)oamInfo
 {
-    if (tableView == self.paletteTableView) {
-        return 16; /* 8 BG palettes, 8 OBJ palettes*/
-    }
-    else if (tableView == self.objectsTableView) {
-        return oamCount;
-    }
-    return 0;
-}
-
-- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
-{
-    NSUInteger columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
-    if (tableView == self.paletteTableView) {
-        if (columnIndex == 0) {
-            return [NSString stringWithFormat:@"%s %u", row >= 8 ? "Object" : "Background", (unsigned)(row & 7)];
-        }
-        
-        uint8_t *palette_data = GB_get_direct_access(&gb, row >= 8? GB_DIRECT_ACCESS_OBP : GB_DIRECT_ACCESS_BGP, NULL, NULL);
-
-        uint16_t index = columnIndex - 1 + (row & 7) * 4;
-        return @((palette_data[(index << 1) + 1] << 8) | palette_data[(index << 1)]);
-    }
-    else if (tableView == self.objectsTableView) {
-        switch (columnIndex) {
-            case 0:
-                return [Document imageFromData:[NSData dataWithBytesNoCopy:oamInfo[row].image
-                                                                    length:64 * 4 * 2
-                                                             freeWhenDone:false]
-                                         width:8
-                                        height:oamHeight
-                                         scale:16.0/oamHeight];
-            case 1:
-                return @((signed)((unsigned)oamInfo[row].x - 8));
-            case 2:
-                return @((signed)((unsigned)oamInfo[row].y - 16));
-            case 3:
-                return [NSString stringWithFormat:@"$%02x", oamInfo[row].tile];
-            case 4:
-                return [NSString stringWithFormat:@"$%04x", 0x8000 + oamInfo[row].tile * 0x10];
-            case 5:
-                return [NSString stringWithFormat:@"$%04x", oamInfo[row].oam_addr];
-            case 6:
-                if (GB_is_cgb(&gb)) {
-                    return [NSString stringWithFormat:@"%c%c%c%d%d",
-                            oamInfo[row].flags & 0x80? 'P' : '-',
-                            oamInfo[row].flags & 0x40? 'Y' : '-',
-                            oamInfo[row].flags & 0x20? 'X' : '-',
-                            oamInfo[row].flags & 0x08? 1 : 0,
-                            oamInfo[row].flags & 0x07];
-                }
-                return [NSString stringWithFormat:@"%c%c%c%d",
-                        oamInfo[row].flags & 0x80? 'P' : '-',
-                        oamInfo[row].flags & 0x40? 'Y' : '-',
-                        oamInfo[row].flags & 0x20? 'X' : '-',
-                        oamInfo[row].flags & 0x10? 1 : 0];
-            case 7:
-                return oamInfo[row].obscured_by_line_limit? @"Dropped: Too many objects in line": @"";
-
-        }
-    }
-    return nil;
-}
-
-- (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row
-{
-    return tableView == self.objectsTableView;
-}
-
-- (BOOL)tableView:(NSTableView *)tableView shouldEditTableColumn:(nullable NSTableColumn *)tableColumn row:(NSInteger)row
-{
-    return false;
+    return _oamInfo;
 }
 
 - (IBAction)showVRAMViewer:(id)sender
@@ -2161,6 +2182,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     bool wasRunning = self->running;
     Document *partner = master ?: slave;
     if (partner) {
+        wasRunning |= partner->running;
         [self stop];
         partner->master = nil;
         partner->slave = nil;
@@ -2354,5 +2376,31 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 {
     GB_set_object_rendering_disabled(&gb, !GB_is_object_rendering_disabled(&gb));
 }
+
+- (IBAction)newCartridgeInstance:(id)sender
+{
+    bool shouldResume = running;
+    [self stop];
+    NSSavePanel *savePanel = [NSSavePanel savePanel];
+    [savePanel setAllowedFileTypes:@[@"gbcart"]];
+    [savePanel beginSheetModalForWindow:self.mainWindow completionHandler:^(NSInteger result) {
+        if (result == NSModalResponseOK) {
+            [savePanel orderOut:self];
+            NSString *romPath = self.romPath;
+            [[NSFileManager defaultManager] trashItemAtURL:savePanel.URL resultingItemURL:nil error:nil];
+            [[NSFileManager defaultManager] createDirectoryAtURL:savePanel.URL withIntermediateDirectories:false attributes:nil error:nil];
+            [[NSString stringWithFormat:@"%@\n%@\n%@",
+              [romPath pathRelativeToDirectory:savePanel.URL.path],
+              romPath,
+              [[NSURL fileURLWithPath:romPath].fileReferenceURL.absoluteString substringFromIndex:strlen("file://")]
+            ] writeToURL:[savePanel.URL URLByAppendingPathComponent:@"rom.gbl"] atomically:false encoding:NSUTF8StringEncoding error:nil];
+            [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:savePanel.URL display:true completionHandler:nil];
+        }
+        if (shouldResume) {
+            [self start];
+        }
+    }];
+}
+
 
 @end

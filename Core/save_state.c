@@ -232,6 +232,8 @@ static size_t bess_size_for_cartridge(const GB_cartridge_t *cart)
             return sizeof(BESS_block_t) + 3 * sizeof(BESS_MBC_pair_t) + (cart->has_rtc? sizeof(BESS_RTC_t) : 0);
         case GB_MBC5:
             return sizeof(BESS_block_t) + 4 * sizeof(BESS_MBC_pair_t);
+        case GB_MMM01:
+            return sizeof(BESS_block_t) + 8 * sizeof(BESS_MBC_pair_t);
         case GB_HUC1:
             return sizeof(BESS_block_t) + 4 * sizeof(BESS_MBC_pair_t);
         case GB_HUC3:
@@ -406,7 +408,7 @@ static int save_bess_mbc_block(GB_gameboy_t *gb, virtual_file_t *file)
 {
     
     BESS_block_t mbc_block = {BE32('MBC '), 0};
-    BESS_MBC_pair_t pairs[4];
+    BESS_MBC_pair_t pairs[8];
     switch (gb->cartridge_type->mbc_type) {
         default:
         case GB_NO_MBC: return 0;
@@ -435,20 +437,30 @@ static int save_bess_mbc_block(GB_gameboy_t *gb, virtual_file_t *file)
             pairs[3] = (BESS_MBC_pair_t){LE16(0x4000), gb->mbc5.ram_bank};
             mbc_block.size = 4 * sizeof(pairs[0]);
             break;
+        case GB_MMM01:
+            pairs[0] = (BESS_MBC_pair_t){LE16(0x2000), (gb->mmm01.rom_bank_low & (gb->mmm01.rom_bank_mask << 1)) | (gb->mmm01.rom_bank_mid << 5)};
+            pairs[1] = (BESS_MBC_pair_t){LE16(0x6000), gb->mmm01.mbc1_mode | (gb->mmm01.rom_bank_mask << 2) | (gb->mmm01.multiplex_mode << 6)};
+            pairs[2] = (BESS_MBC_pair_t){LE16(0x4000), gb->mmm01.ram_bank_low | (gb->mmm01.ram_bank_high << 2) | (gb->mmm01.rom_bank_high << 4) | (gb->mmm01.mbc1_mode_disable << 6)};
+            pairs[3] = (BESS_MBC_pair_t){LE16(0x0000), (gb->mbc_ram_enable? 0xA : 0x0) | (gb->mmm01.ram_bank_mask << 4) | (gb->mmm01.locked << 6)};
+            /* For compatibility with emulators that inaccurately emulate MMM01, and also require two writes per register */
+            pairs[4] = (BESS_MBC_pair_t){LE16(0x2000), (gb->mmm01.rom_bank_low & ~(gb->mmm01.rom_bank_mask << 1))};
+            pairs[5] = pairs[1];
+            pairs[6] = pairs[2];
+            pairs[7] = pairs[3];
+            mbc_block.size = 8 * sizeof(pairs[0]);
+            break;
         case GB_HUC1:
             pairs[0] = (BESS_MBC_pair_t){LE16(0x0000), gb->huc1.ir_mode? 0xE : 0x0};
             pairs[1] = (BESS_MBC_pair_t){LE16(0x2000), gb->huc1.bank_low};
             pairs[2] = (BESS_MBC_pair_t){LE16(0x4000), gb->huc1.bank_high};
             pairs[3] = (BESS_MBC_pair_t){LE16(0x6000), gb->huc1.mode};
             mbc_block.size = 4 * sizeof(pairs[0]);
-            
         case GB_HUC3:
             pairs[0] = (BESS_MBC_pair_t){LE16(0x0000), gb->huc3.mode};
             pairs[1] = (BESS_MBC_pair_t){LE16(0x2000), gb->huc3.rom_bank};
             pairs[2] = (BESS_MBC_pair_t){LE16(0x4000), gb->huc3.ram_bank};
             mbc_block.size = 3 * sizeof(pairs[0]);
             break;
-        
         case GB_TPP1:
             pairs[0] = (BESS_MBC_pair_t){LE16(0x0000), gb->tpp1.rom_bank};
             pairs[1] = (BESS_MBC_pair_t){LE16(0x0001), gb->tpp1.rom_bank >> 8};
@@ -469,6 +481,14 @@ static int save_bess_mbc_block(GB_gameboy_t *gb, virtual_file_t *file)
     }
     
     return 0;
+}
+
+static const uint8_t *get_header_bank(GB_gameboy_t *gb)
+{
+    if (gb->cartridge_type->mbc_type == GB_MMM01) {
+        return gb->rom + gb->rom_size - 0x8000;
+    }
+    return gb->rom;
 }
 
 static int save_state_internal(GB_gameboy_t *gb, virtual_file_t *file, bool append_bess)
@@ -540,11 +560,13 @@ static int save_state_internal(GB_gameboy_t *gb, virtual_file_t *file, bool appe
         goto error;
     }
     
-    if (file->write(file, gb->rom + 0x134, 0x10) != 0x10) {
+    const uint8_t *bank = get_header_bank(gb);
+    
+    if (file->write(file, bank + 0x134, 0x10) != 0x10) {
         goto error;
     }
     
-    if (file->write(file, gb->rom + 0x14E, 2) != 2) {
+    if (file->write(file, bank + 0x14E, 2) != 2) {
         goto error;
     }
     
@@ -965,6 +987,11 @@ static int load_bess_save(GB_gameboy_t *gb, virtual_file_t *file, bool is_samebo
                 // Interrupts
                 GB_write_memory(&save, 0xFF00 + GB_IO_IF, core.io_registers[GB_IO_IF]);
                 
+                /* Required to be compatible with both SameBoy 0.14.x AND BGB */
+                if (GB_is_cgb(&save) && !save.cgb_mode && save.cgb_ram_bank == 7) {
+                    save.cgb_ram_bank = 1;
+                }
+                
                 break;
             case BE32('NAME'):
                 if (LE32(block.size) > sizeof(emulator_name) - 1) {
@@ -978,7 +1005,8 @@ static int load_bess_save(GB_gameboy_t *gb, virtual_file_t *file, bool is_samebo
                 BESS_INFO_t bess_info = {0,};
                 if (LE32(block.size) != sizeof(bess_info) - sizeof(block)) goto parse_error;
                 if (file->read(file, &bess_info.header + 1, LE32(block.size)) != LE32(block.size)) goto error;
-                if (memcmp(bess_info.title, gb->rom + 0x134, sizeof(bess_info.title))) {
+                const uint8_t *bank = get_header_bank(gb);
+                if (memcmp(bess_info.title, bank + 0x134, sizeof(bess_info.title))) {
                     char ascii_title[0x11] = {0,};
                     for (unsigned i = 0; i < 0x10; i++) {
                         if (bess_info.title[i] < 0x20 || bess_info.title[i] > 0x7E) break;
@@ -986,7 +1014,7 @@ static int load_bess_save(GB_gameboy_t *gb, virtual_file_t *file, bool is_samebo
                     }
                     GB_log(gb, "Save state was made on another ROM: '%s'\n", ascii_title);
                 }
-                else if (memcmp(bess_info.checksum, gb->rom + 0x14E, 2)) {
+                else if (memcmp(bess_info.checksum, bank + 0x14E, 2)) {
                     GB_log(gb, "Save state was potentially made on another revision of the same ROM.\n");
                 }
                 break;
@@ -999,7 +1027,12 @@ static int load_bess_save(GB_gameboy_t *gb, virtual_file_t *file, bool is_samebo
             case BE32('MBC '):
                 if (!found_core) goto parse_error;
                 if (LE32(block.size) % 3 != 0) goto parse_error;
-                if (LE32(block.size) > 0x1000) goto parse_error; 
+                if (LE32(block.size) > 0x1000) goto parse_error;
+                /* Inject some default writes, as some emulators omit them */
+                if (gb->cartridge_type->mbc_type == GB_MMM01) {
+                    GB_write_memory(&save, 0x6000, 0x30);
+                    GB_write_memory(&save, 0x4000, 0x70);
+                }
                 for (unsigned i = LE32(block.size); i > 0;  i -= 3) {
                     BESS_MBC_pair_t pair;
                     file->read(file, &pair, sizeof(pair));
