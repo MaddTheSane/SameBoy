@@ -1,36 +1,48 @@
 {
   "images" : [
     {
-      "display-gamut" : "sRGB",
-      "filename" : "CPU.png",
+      "filename" : "CPU~solid.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "display-gamut" : "display-P3",
-      "filename" : "CPU~P3.png",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "CPU~solid~dark.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "display-gamut" : "sRGB",
-      "filename" : "CPU@2x.png",
+      "filename" : "CPU~solid@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "display-gamut" : "display-P3",
-      "filename" : "CPU~P3@2x.png",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "CPU~solid~dark@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "display-gamut" : "sRGB",
       "idiom" : "universal",
       "scale" : "3x"
     },
     {
-      "display-gamut" : "display-P3",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
       "idiom" : "universal",
       "scale" : "3x"
     }
@@ -38,5 +50,8 @@
   "info" : {
     "author" : "xcode",
     "version" : 1
+  },
+  "properties" : {
+    "template-rendering-intent" : "template"
   }
 }
