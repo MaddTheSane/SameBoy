@@ -23,6 +23,7 @@ typedef enum {
     GB_CONFLICT_WX,
     GB_CONFLICT_CGB_LCDC,
     GB_CONFLICT_NR10,
+    GB_CONFLICT_CGB_SCX,
 } conflict_t;
 
 /* Todo: How does double speed mode affect these? */
@@ -35,9 +36,7 @@ static const conflict_t cgb_conflict_map[0x80] = {
     [GB_IO_OBP0] = GB_CONFLICT_PALETTE_CGB,
     [GB_IO_OBP1] = GB_CONFLICT_PALETTE_CGB,
     [GB_IO_NR10] = GB_CONFLICT_NR10,
-    [GB_IO_SCX] = GB_CONFLICT_WRITE_CPU, // TODO: Similar to BGP, there's some time travelling involved
-
-    /* Todo: most values not verified, and probably differ between revisions */
+    [GB_IO_SCX] = GB_CONFLICT_CGB_SCX,
 };
 
 /* Todo: verify on an MGB */
@@ -145,6 +144,7 @@ static void cycle_write(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
         /* The DMG STAT-write bug is basically the STAT register being read as FF for a single T-cycle */
         case GB_CONFLICT_STAT_DMG:
             GB_advance_cycles(gb, gb->pending_cycles);
+            GB_display_sync(gb);
             /* State 7 is the edge between HBlank and OAM mode, and it behaves a bit weird.
              The OAM interrupt seems to be blocked by HBlank interrupts in that case, despite
              the timing not making much sense for that.
@@ -206,7 +206,7 @@ static void cycle_write(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
             
             uint8_t old_value = GB_read_memory(gb, addr);
             GB_advance_cycles(gb, gb->pending_cycles - 2);
-            
+            GB_display_sync(gb);
             if (gb->model != GB_MODEL_MGB && gb->position_in_line == 0 && (old_value & 2) && !(value & 2)) {
                 old_value &= ~2;
             }
@@ -277,6 +277,7 @@ static void cycle_write(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
             GB_advance_cycles(gb, gb->pending_cycles);
             if (gb->model <= GB_MODEL_CGB_C) {
                 // TODO: Double speed mode? This logic is also a bit weird, it needs more tests
+                GB_apu_run(gb, true);
                 if (gb->apu.square_sweep_calculate_countdown > 3 && gb->apu.enable_zombie_calculate_stepping) {
                     gb->apu.square_sweep_calculate_countdown -= 2;
                 }
@@ -288,6 +289,19 @@ static void cycle_write(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
             }
             GB_write_memory(gb, addr, value);
             gb->pending_cycles = 4;
+            break;
+            
+        case GB_CONFLICT_CGB_SCX:
+            if (gb->cgb_double_speed) {
+                GB_advance_cycles(gb, gb->pending_cycles - 2);
+                GB_write_memory(gb, addr, value);
+                gb->pending_cycles = 6;
+            }
+            else {
+                GB_advance_cycles(gb, gb->pending_cycles);
+                GB_write_memory(gb, addr, value);
+                gb->pending_cycles = 4;
+            }
             break;
     }
     gb->address_bus = addr;
@@ -1366,7 +1380,7 @@ static void rlc_r(GB_gameboy_t *gb, uint8_t opcode)
     if (carry) {
         gb->af |= GB_CARRY_FLAG;
     }
-    if (!(value << 1)) {
+    if (value == 0) {
         gb->af |= GB_ZERO_FLAG;
     }
 }

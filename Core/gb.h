@@ -311,11 +311,11 @@ typedef struct {
     bool bg_priority; // For object FIFO – the BG priority bit. For the BG FIFO – the CGB attributes priority bit
 } GB_fifo_item_t;
 
-#define GB_FIFO_LENGTH 16
+#define GB_FIFO_LENGTH 8
 typedef struct {
     GB_fifo_item_t fifo[GB_FIFO_LENGTH];
     uint8_t read_end;
-    uint8_t write_end;
+    uint8_t size;
 } GB_fifo_t;
 
 typedef struct {
@@ -545,8 +545,8 @@ struct GB_gameboy_internal_s {
         GB_UNIT(div);
         uint16_t div_counter;
         uint8_t tima_reload_state; /* After TIMA overflows, it becomes 0 for 4 cycles before actually reloading. */
-        uint16_t serial_cycles;
-        uint16_t serial_length;
+        bool serial_master_clock;
+        uint8_t serial_mask;
         uint8_t double_speed_alignment;
         uint8_t serial_count;
         int32_t speed_switch_halt_countdown;
@@ -581,7 +581,6 @@ struct GB_gameboy_internal_s {
         uint8_t object_palettes_data[0x40];
         uint8_t position_in_line;
         bool stat_interrupt_line;
-        uint8_t effective_scx;
         uint8_t window_y;
         /* The LCDC will skip the first frame it renders after turning it on.
            On the CGB, a frame is not skipped if the previous frame was skipped as well.
@@ -599,7 +598,6 @@ struct GB_gameboy_internal_s {
         bool vram_read_blocked;
         bool oam_write_blocked;
         bool vram_write_blocked;
-        bool fifo_insertion_glitch;
         uint8_t current_line;
         uint16_t ly_for_comparison;
         GB_fifo_t bg_fifo, oam_fifo;
@@ -623,9 +621,9 @@ struct GB_gameboy_internal_s {
             uint8_t object_flags;
         };
         uint8_t n_visible_objs;
+        uint8_t orig_n_visible_objs;
         uint8_t oam_search_index;
         uint8_t accessed_oam_row;
-        uint8_t extra_penalty_for_object_at_0;
         uint8_t mode_for_interrupt;
         bool lyc_interrupt_line;
         bool cgb_palettes_blocked;
@@ -645,6 +643,7 @@ struct GB_gameboy_internal_s {
         uint16_t last_tile_index_address;
         bool cgb_repeated_a_frame;
         uint8_t data_for_sel_glitch;
+        bool delayed_glitch_hblank_interrupt;
     )
 
     /* Unsaved data. This includes all pointers, as well as everything that shouldn't be on a save state */
