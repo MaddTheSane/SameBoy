@@ -17,9 +17,11 @@ ifeq ($(PLATFORM),windows32)
 _ := $(shell chcp 65001)
 EXESUFFIX:=.exe
 NATIVE_CC = clang -IWindows -Wno-deprecated-declarations --target=i386-pc-windows
+SDL_AUDIO_DRIVERS ?= xaudio2 xaudio2_7 sdl
 else
 EXESUFFIX:=
 NATIVE_CC := cc
+SDL_AUDIO_DRIVERS ?= sdl
 endif
 
 PB12_COMPRESS := build/pb12$(EXESUFFIX)
@@ -47,7 +49,6 @@ endif
 include version.mk
 export VERSION
 CONF ?= debug
-SDL_AUDIO_DRIVER ?= sdl
 
 BIN := build/bin
 OBJ := build/obj
@@ -162,7 +163,7 @@ endif
 
 CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.9 -isysroot $(SYSROOT)
 OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -isysroot $(SYSROOT)
-LDFLAGS += -framework AppKit -framework PreferencePanes -framework Carbon -framework QuartzCore -weak_framework Metal -weak_framework MetalKit -mmacosx-version-min=10.9 -isysroot $(SYSROOT)
+LDFLAGS += -framework AppKit -framework PreferencePanes -framework Carbon -framework QuartzCore -framework Security -weak_framework Metal -weak_framework MetalKit -mmacosx-version-min=10.9 -isysroot $(SYSROOT)
 GL_LDFLAGS := -framework OpenGL
 endif
 CFLAGS += -Wno-deprecated-declarations
@@ -176,9 +177,11 @@ CFLAGS += -g
 else ifeq ($(CONF), release)
 CFLAGS += -O3 -DNDEBUG
 STRIP := strip
+CODESIGN := true
 ifeq ($(PLATFORM),Darwin)
 LDFLAGS += -Wl,-exported_symbols_list,$(NULL)
 STRIP := strip -x
+CODESIGN := codesign -fs -
 endif
 ifeq ($(PLATFORM),windows32)
 LDFLAGS +=  -fuse-ld=lld
@@ -204,14 +207,14 @@ endif
 cocoa: $(BIN)/SameBoy.app
 quicklook: $(BIN)/SameBoy.qlgenerator
 sdl: $(SDL_TARGET) $(BIN)/SDL/dmg_boot.bin $(BIN)/SDL/mgb_boot.bin $(BIN)/SDL/cgb0_boot.bin $(BIN)/SDL/cgb_boot.bin $(BIN)/SDL/agb_boot.bin $(BIN)/SDL/sgb_boot.bin $(BIN)/SDL/sgb2_boot.bin $(BIN)/SDL/LICENSE $(BIN)/SDL/registers.sym $(BIN)/SDL/background.bmp $(BIN)/SDL/Shaders
-bootroms: $(BIN)/BootROMs/agb_boot.bin $(BIN)/BootROMs/cgb_boot.bin $(BIN)/BootROMs/cgb0_boot.bin $(BIN)/BootROMs/dmg_boot.bin $(BIN)/BootROMs/sgb_boot.bin $(BIN)/BootROMs/sgb2_boot.bin
+bootroms: $(BIN)/BootROMs/agb_boot.bin $(BIN)/BootROMs/cgb_boot.bin $(BIN)/BootROMs/cgb0_boot.bin $(BIN)/BootROMs/dmg_boot.bin $(BIN)/BootROMs/mgb_boot.bin $(BIN)/BootROMs/sgb_boot.bin $(BIN)/BootROMs/sgb2_boot.bin
 tester: $(TESTER_TARGET) $(BIN)/tester/dmg_boot.bin $(BIN)/tester/cgb_boot.bin $(BIN)/tester/agb_boot.bin $(BIN)/tester/sgb_boot.bin $(BIN)/tester/sgb2_boot.bin
 all: cocoa sdl tester libretro
 
 # Get a list of our source files and their respective object file targets
 
 CORE_SOURCES := $(shell ls Core/*.c)
-SDL_SOURCES := $(shell ls SDL/*.c) $(OPEN_DIALOG) SDL/audio/$(SDL_AUDIO_DRIVER).c
+SDL_SOURCES := $(shell ls SDL/*.c) $(OPEN_DIALOG) $(patsubst %,SDL/audio/%.c,$(SDL_AUDIO_DRIVERS))
 TESTER_SOURCES := $(shell ls Tester/*.c)
 
 ifeq ($(PLATFORM),Darwin)
@@ -307,6 +310,9 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
 	cp -rf $(BIN)/SameBoy.qlgenerator $(BIN)/SameBoy.app/Contents/Library/QuickLook/
 	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --accent-color AccentColor --target-device mac --minimum-deployment-target 10.9 --platform macosx --compile $(BIN)/SameBoy.app/Contents/Resources --output-partial-info-plist $(OBJ)/tmpInfo.plist --app-icon AppIcon Cocoa/Assets.xcassets
 	/usr/libexec/PlistBuddy -x -c "Merge $(OBJ)/tmpInfo.plist" $(BIN)/SameBoy.app/Contents/Info.plist
+ifeq ($(CONF), release)
+	$(CODESIGN) $@
+endif
 
 $(BIN)/SameBoy.app/Contents/MacOS/SameBoy: $(CORE_OBJECTS) $(COCOA_OBJECTS)
 	-@$(MKDIR) -p $(dir $@)
@@ -327,12 +333,18 @@ $(BIN)/SameBoy.qlgenerator: $(BIN)/SameBoy.qlgenerator/Contents/MacOS/SameBoyQL 
 	$(MKDIR) -p $(BIN)/SameBoy.qlgenerator/Contents/Resources
 	cp QuickLook/*.png $(BIN)/SameBoy.qlgenerator/Contents/Resources/
 	sed s/@VERSION/$(VERSION)/ < QuickLook/Info.plist > $(BIN)/SameBoy.qlgenerator/Contents/Info.plist
+ifeq ($(CONF), release)
+	$(CODESIGN) $@
+endif
 
 # Currently, SameBoy.app includes two "copies" of each Core .o file once in the app itself and
 # once in the QL Generator. It should probably become a dylib instead.
 $(BIN)/SameBoy.qlgenerator/Contents/MacOS/SameBoyQL: $(CORE_OBJECTS) $(QUICKLOOK_OBJECTS)
 	-@$(MKDIR) -p $(dir $@)
 	$(CC) $^ -o $@ $(LDFLAGS) $(FAT_FLAGS) -Wl,-exported_symbols_list,QuickLook/exports.sym -bundle -framework Cocoa -framework Quicklook
+ifeq ($(CONF), release)
+	$(STRIP) $@
+endif
 
 # cgb_boot_fast.bin is not a standard boot ROM, we don't expect it to exist in the user-provided
 # boot ROM directory.
@@ -348,6 +360,7 @@ $(BIN)/SDL/sameboy: $(CORE_OBJECTS) $(SDL_OBJECTS)
 	$(CC) $^ -o $@ $(LDFLAGS) $(FAT_FLAGS) $(SDL_LDFLAGS) $(GL_LDFLAGS)
 ifeq ($(CONF), release)
 	$(STRIP) $@
+	$(CODESIGN) $@
 endif
 
 # Windows version builds two, one with a conole and one without it
@@ -384,6 +397,7 @@ $(BIN)/tester/sameboy_tester: $(CORE_OBJECTS) $(TESTER_OBJECTS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 ifeq ($(CONF), release)
 	$(STRIP) $@
+	$(CODESIGN) $@
 endif
 
 $(BIN)/tester/sameboy_tester.exe: $(CORE_OBJECTS) $(SDL_OBJECTS)
@@ -475,15 +489,15 @@ endif
 $(DESTDIR)$(PREFIX)/share/icons/hicolor/%/apps/sameboy.png: FreeDesktop/AppIcon/%.png
 	-@$(MKDIR) -p $(dir $@)
 	cp -f $^ $@
-    
+
 $(DESTDIR)$(PREFIX)/share/icons/hicolor/%/mimetypes/x-gameboy-rom.png: FreeDesktop/Cartridge/%.png
 	-@$(MKDIR) -p $(dir $@)
 	cp -f $^ $@
-    
+
 $(DESTDIR)$(PREFIX)/share/icons/hicolor/%/mimetypes/x-gameboy-color-rom.png: FreeDesktop/ColorCartridge/%.png
 	-@$(MKDIR) -p $(dir $@)
 	cp -f $^ $@
-        
+
 $(DESTDIR)$(PREFIX)/share/mime/packages/sameboy.xml: FreeDesktop/sameboy.xml
 	-@$(MKDIR) -p $(dir $@)
 	cp -f $^ $@

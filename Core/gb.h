@@ -283,7 +283,7 @@ typedef enum {
 #endif
 #endif
 
-typedef void (*GB_vblank_callback_t)(GB_gameboy_t *gb);
+typedef void (*GB_vblank_callback_t)(GB_gameboy_t *gb, GB_vblank_type_t type);
 typedef void (*GB_log_callback_t)(GB_gameboy_t *gb, const char *string, GB_log_attributes attributes);
 typedef char *(*GB_input_callback_t)(GB_gameboy_t *gb);
 typedef uint32_t (*GB_rgb_encode_callback_t)(GB_gameboy_t *gb, uint8_t r, uint8_t g, uint8_t b);
@@ -436,6 +436,7 @@ struct GB_gameboy_internal_s {
         bool dma_ppu_vram_conflict;
         uint16_t dma_ppu_vram_conflict_addr;
         uint8_t hdma_open_bus; /* Required to emulate HDMA reads from Exxx */
+        bool allow_hdma_on_wake;
     )
     
     /* MBC */
@@ -466,7 +467,7 @@ struct GB_gameboy_internal_s {
                 uint8_t rom_bank_low;
                 uint8_t rom_bank_high:1;
                 uint8_t ram_bank:4;
-            } mbc5;
+            } mbc5; // Also used for GB_CAMERA
                
             struct {
                 uint8_t rom_bank;
@@ -479,7 +480,7 @@ struct GB_gameboy_internal_s {
                 bool eeprom_cs:1;
                 uint16_t eeprom_command:11;
                 uint16_t read_bits;
-                uint8_t bits_countdown:5;
+                uint8_t argument_bits_left:5;
                 bool secondary_ram_enable:1;
                 bool eeprom_write_enabled:1;
             } mbc7;
@@ -504,8 +505,7 @@ struct GB_gameboy_internal_s {
             struct {
                 uint8_t bank_low:6;
                 uint8_t bank_high:3;
-                bool mode:1;
-                bool ir_mode:1;
+                bool ir_mode;
             } huc1;
 
             struct {
@@ -733,8 +733,6 @@ struct GB_gameboy_internal_s {
         void *nontrivial_jump_state;
         bool non_trivial_jump_breakpoint_occured;
 
-        /* SLD (Todo: merge with backtrace) */
-        bool stack_leak_detection;
         signed debug_call_depth;
         uint16_t sp_for_call_depth[0x200]; /* Should be much more than enough */
         uint16_t addr_for_call_depth[0x200];

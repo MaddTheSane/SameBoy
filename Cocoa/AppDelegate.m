@@ -6,6 +6,7 @@
 #import <JoyKit/JoyKit.h>
 #import <WebKit/WebKit.h>
 #import "Document.h"
+#import <mach-o/dyld.h>
 
 #define UPDATE_SERVER "https://sameboy.github.io"
 
@@ -32,10 +33,14 @@ static uint32_t color_to_int(NSColor *color)
         UPDATE_FAILED,
     } _updateState;
     NSString *_downloadDirectory;
+    AuthorizationRef _auth;
 }
 
 - (void) applicationDidFinishLaunching:(NSNotification *)notification
 {
+    // Refresh icon if launched via a software update
+    [NSApplication sharedApplication].applicationIconImage = [NSImage imageNamed:@"AppIcon"];
+    
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     for (unsigned i = 0; i < GBButtonCount; i++) {
         if ([[defaults objectForKey:button_to_preference_name(i, 0)] isKindOfClass:[NSString class]]) {
@@ -364,8 +369,55 @@ static uint32_t color_to_int(NSColor *color)
     [self.updateWindow performClose:sender];
 }
 
+- (bool)executePath:(NSString *)path withArguments:(NSArray <NSString *> *)arguments
+{
+    if (!_auth) {
+        NSTask *task = [[NSTask alloc] init];
+        task.launchPath = path;
+        task.arguments = arguments;
+        [task launch];
+        [task waitUntilExit];
+        return task.terminationStatus == 0 && task.terminationReason == NSTaskTerminationReasonExit;
+    }
+    
+    char *argv[arguments.count + 1];
+    argv[arguments.count] = NULL;
+    for (unsigned i = 0; i < arguments.count; i++) {
+        argv[i] = (char *)arguments[i].UTF8String;
+    }
+    
+    return AuthorizationExecuteWithPrivileges(_auth, path.UTF8String, kAuthorizationFlagDefaults, argv, NULL) == errAuthorizationSuccess;
+}
+
+- (void)deauthorize
+{
+    if (_auth) {
+        AuthorizationFree(_auth, kAuthorizationFlagDefaults);
+        _auth = nil;
+    }
+}
+
 - (IBAction)installUpdate:(id)sender
 {
+    bool needsAuthorization = false;
+    if ([self executePath:@"/usr/sbin/spctl" withArguments:@[@"--status"]]) { // Succeeds when GateKeeper is on
+        // GateKeeper is on, we need to --add ourselves as root, else we might get a GateKeeper crash
+        needsAuthorization = true;
+    }
+    else if (access(_dyld_get_image_name(0), W_OK)) {
+        // We don't have write access, so we need authorization to update as root
+        needsAuthorization = true;
+    }
+    
+    if (needsAuthorization && !_auth) {
+        AuthorizationCreate(NULL, kAuthorizationEmptyEnvironment, kAuthorizationFlagPreAuthorize | kAuthorizationFlagInteractionAllowed, &_auth);
+        // Make sure we can modify the bundle
+        if (![self executePath:@"/usr/sbin/chown" withArguments:@[@"-R", [NSString stringWithFormat:@"%d:%d", getuid(), getgid()], [NSBundle mainBundle].bundlePath]]) {
+            [self deauthorize];
+            return;
+        }
+    }
+    
     [self.updateProgressSpinner startAnimation:nil];
     self.updateProgressButton.title = @"Cancel";
     self.updateProgressButton.enabled = true;
@@ -384,8 +436,8 @@ static uint32_t color_to_int(NSColor *color)
                                                             appropriateForURL:[[NSBundle mainBundle] bundleURL]
                                                                        create:true
                                                                         error:nil] path];
-        NSTask *unzipTask;
-        if (!self->_downloadDirectory) {
+        if (!_downloadDirectory) {
+            [self deauthorize];
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
                 self.updateProgressLabel.stringValue = @"Failed to extract update.";
@@ -397,13 +449,15 @@ static uint32_t color_to_int(NSColor *color)
             return;
         }
         
+        NSTask *unzipTask;
         unzipTask = [[NSTask alloc] init];
         unzipTask.launchPath = @"/usr/bin/unzip";
         unzipTask.arguments = @[location.path, @"-d", self->_downloadDirectory];
         [unzipTask launch];
         [unzipTask waitUntilExit];
         if (unzipTask.terminationStatus != 0 || unzipTask.terminationReason != NSTaskTerminationReasonExit) {
-            [[NSFileManager defaultManager] removeItemAtPath:self->_downloadDirectory error:nil];
+            [self deauthorize];
+            [[NSFileManager defaultManager] removeItemAtPath:_downloadDirectory error:nil];
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
                 self.updateProgressLabel.stringValue = @"Failed to extract update.";
@@ -447,8 +501,9 @@ static uint32_t color_to_int(NSColor *color)
         NSError *error = nil;
         [[NSFileManager defaultManager] moveItemAtPath:contentsPath toPath:contentsTempPath error:&error];
         if (error) {
-            [[NSFileManager defaultManager] removeItemAtPath:self->_downloadDirectory error:nil];
-            self->_downloadDirectory = nil;
+            [self deauthorize];
+            [[NSFileManager defaultManager] removeItemAtPath:_downloadDirectory error:nil];
+            _downloadDirectory = nil;
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
                 self.updateProgressLabel.stringValue = @"Failed to install update.";
@@ -461,6 +516,7 @@ static uint32_t color_to_int(NSColor *color)
         }
         [[NSFileManager defaultManager] moveItemAtPath:updateContentsPath toPath:contentsPath error:&error];
         if (error) {
+            [self deauthorize];
             [[NSFileManager defaultManager] moveItemAtPath:contentsTempPath toPath:contentsPath error:nil];
             [[NSFileManager defaultManager] removeItemAtPath:self->_downloadDirectory error:nil];
             self->_downloadDirectory = nil;
@@ -507,6 +563,14 @@ static uint32_t color_to_int(NSColor *color)
             [self.updateProgressWindow close];
             break;
     }
+}
+
+- (void)orderFrontAboutPanel:(id)sender
+{
+    // NSAboutPanelOptionApplicationIcon is not available prior to 10.13, but the key is still there and working.
+    [[NSApplication sharedApplication] orderFrontStandardAboutPanelWithOptions:@{
+        @"ApplicationIcon": [NSImage imageNamed:@"Icon"]
+    }];
 }
 
 - (void)dealloc

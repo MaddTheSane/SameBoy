@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <shlobj.h>
+#include <stdio.h>
 #include "open_dialog.h"
 
 static char *wc_to_utf8_alloc(const wchar_t *wide)
@@ -65,22 +66,20 @@ char *do_open_folder_dialog(void)
 char *do_save_recording_dialog(unsigned frequency)
 {
     OPENFILENAMEW dialog;
-    wchar_t filename[MAX_PATH + 5];
-    
-    filename[0] = '\0';
+    wchar_t filename[MAX_PATH + 5] = L"recording.wav";
+    static wchar_t filter[] = L"RIFF WAVE\0*.wav\0Apple AIFF\0*.aiff;*.aif;*.aifc\0Raw PCM (Stereo _______Hz, 16-bit LE)\0*.raw;*.pcm;\0All files\0*.*\0\0";
+
     memset(&dialog, 0, sizeof(dialog));
     dialog.lStructSize = sizeof(dialog);
     dialog.lpstrFile = filename;
     dialog.nMaxFile = MAX_PATH;
-    if (frequency == 48000) {
-        dialog.lpstrFilter = L"RIFF WAVE\0*.wav\0Apple AIFF\0*.aiff;*.aif;*.aifc\0Raw PCM (Stereo 48000Hz, 16-bit LE)\0*.raw;*.pcm;\0All files\0*.*\0\0";
-    }
-    else {
-        dialog.lpstrFilter = L"RIFF WAVE\0*.wav\0Apple AIFF\0*.aiff;*.aif;*.aifc\0Raw PCM (Stereo 44100Hz, 16-bit LE)\0*.raw;*.pcm;\0All files\0*.*\0\0";
-    }
+    dialog.lpstrFilter = filter;
+    swprintf(filter + sizeof("RIFF WAVE\0*.wav\0Apple AIFF\0*.aiff;*.aif;*.aifc\0Raw PCM (Stereo ") - 1,
+             sizeof("_______Hz, 16-bit LE)"),
+             L"%dHz, 16-bit LE)       ",
+             frequency);
+
     dialog.nFilterIndex = 1;
-    dialog.lpstrFileTitle = NULL;
-    dialog.nMaxFileTitle = 0;
     dialog.lpstrInitialDir = NULL;
     dialog.Flags = OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
     

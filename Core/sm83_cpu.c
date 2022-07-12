@@ -242,7 +242,7 @@ static void cycle_write(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
             break;
             
         case GB_CONFLICT_CGB_LCDC:
-            if ((value ^ gb->io_registers[GB_IO_LCDC]) & 0x10) {
+            if ((~value & gb->io_registers[GB_IO_LCDC]) & 0x10) {
                 // Todo: This is difference is because my timing is off in one of the models
                 if (gb->model > GB_MODEL_CGB_C) {
                     GB_advance_cycles(gb, gb->pending_cycles);
@@ -360,6 +360,7 @@ static void enter_stop_mode(GB_gameboy_t *gb)
         gb->div_cycles = -4; // Emulate the CPU-side DIV-reset signal being held
     }
     gb->stopped = true;
+    gb->allow_hdma_on_wake = (gb->io_registers[GB_IO_STAT] & 3);
     gb->oam_ppu_blocked = !gb->oam_read_blocked;
     gb->vram_ppu_blocked = !gb->vram_read_blocked;
     gb->cgb_palettes_ppu_blocked = !gb->cgb_palettes_blocked;
@@ -368,6 +369,9 @@ static void enter_stop_mode(GB_gameboy_t *gb)
 static void leave_stop_mode(GB_gameboy_t *gb)
 {
     gb->stopped = false;
+    if (gb->hdma_on_hblank && (gb->io_registers[GB_IO_STAT] & 3) == 0 && gb->allow_hdma_on_wake) {
+        gb->hdma_on = true;
+    }
     // TODO: verify this
     gb->dma_cycles = 4;
     GB_dma_run(gb);
@@ -437,6 +441,7 @@ static void stop(GB_gameboy_t *gb, uint8_t opcode)
             GB_dma_run(gb);
             gb->halted = true;
             gb->just_halted = true;
+            gb->allow_hdma_on_wake = (gb->io_registers[GB_IO_STAT] & 3);
         }
         else {
             gb->speed_switch_halt_countdown = 0;
@@ -879,7 +884,7 @@ static void ld_##dhl##_##y(GB_gameboy_t *gb, uint8_t opcode) \
 cycle_write(gb, gb->hl, gb->y); \
 }
 
-LD_X_Y(b,c) LD_X_Y(b,d) LD_X_Y(b,e) LD_X_Y(b,h) LD_X_Y(b,l)             LD_X_DHL(b) LD_X_Y(b,a)
+            LD_X_Y(b,c) LD_X_Y(b,d) LD_X_Y(b,e) LD_X_Y(b,h) LD_X_Y(b,l) LD_X_DHL(b) LD_X_Y(b,a)
 LD_X_Y(c,b)             LD_X_Y(c,d) LD_X_Y(c,e) LD_X_Y(c,h) LD_X_Y(c,l) LD_X_DHL(c) LD_X_Y(c,a)
 LD_X_Y(d,b) LD_X_Y(d,c)             LD_X_Y(d,e) LD_X_Y(d,h) LD_X_Y(d,l) LD_X_DHL(d) LD_X_Y(d,a)
 LD_X_Y(e,b) LD_X_Y(e,c) LD_X_Y(e,d)             LD_X_Y(e,h) LD_X_Y(e,l) LD_X_DHL(e) LD_X_Y(e,a)
@@ -1038,6 +1043,7 @@ static void halt(GB_gameboy_t *gb, uint8_t opcode)
     }
     else {
         gb->halted = true;
+        gb->allow_hdma_on_wake = (gb->io_registers[GB_IO_STAT] & 3);
     }
     gb->just_halted = true;
 }
@@ -1631,7 +1637,7 @@ void GB_cpu_run(GB_gameboy_t *gb)
     /* Wake up from HALT mode without calling interrupt code. */
     if (gb->halted && !effective_ime && interrupt_queue) {
         gb->halted = false;
-        if (gb->hdma_on_hblank && (gb->io_registers[GB_IO_STAT] & 3) == 0) {
+        if (gb->hdma_on_hblank && (gb->io_registers[GB_IO_STAT] & 3) == 0 && gb->allow_hdma_on_wake) {
             gb->hdma_on = true;
         }
         gb->dma_cycles = 4;
@@ -1642,7 +1648,7 @@ void GB_cpu_run(GB_gameboy_t *gb)
     /* Call interrupt */
     else if (effective_ime && interrupt_queue) {
         gb->halted = false;
-        if (gb->hdma_on_hblank && (gb->io_registers[GB_IO_STAT] & 3) == 0) {
+        if (gb->hdma_on_hblank && (gb->io_registers[GB_IO_STAT] & 3) == 0 && gb->allow_hdma_on_wake) {
             gb->hdma_on = true;
         }
         // TODO: verify the timing!

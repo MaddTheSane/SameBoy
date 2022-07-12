@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "gui.h"
 #include "font.h"
+#include "audio/audio.h"
 
 static const SDL_Color gui_palette[4] = {{8, 24, 16,}, {57, 97, 57,}, {132, 165, 99}, {198, 222, 140}};
 static uint32_t gui_palette_native[4];
@@ -66,54 +67,6 @@ void render_texture(void *pixels,  void *previous)
         SDL_GL_SwapWindow(window);
     }
 }
-
-configuration_t configuration =
-{
-    .keys = {
-        SDL_SCANCODE_RIGHT,
-        SDL_SCANCODE_LEFT,
-        SDL_SCANCODE_UP,
-        SDL_SCANCODE_DOWN,
-        SDL_SCANCODE_X,
-        SDL_SCANCODE_Z,
-        SDL_SCANCODE_BACKSPACE,
-        SDL_SCANCODE_RETURN,
-        SDL_SCANCODE_SPACE
-    },
-    .keys_2 = {
-        SDL_SCANCODE_TAB,
-        SDL_SCANCODE_LSHIFT,
-    },
-    .joypad_configuration = {
-        13,
-        14,
-        11,
-        12,
-        0,
-        1,
-        9,
-        8,
-        10,
-        4,
-        -1,
-        5,
-    },
-    .joypad_axises = {
-        0,
-        1,
-    },
-    .color_correction_mode = GB_COLOR_CORRECTION_EMULATE_HARDWARE,
-    .highpass_mode = GB_HIGHPASS_ACCURATE,
-    .scaling_mode = GB_SDL_SCALING_INTEGER_FACTOR,
-    .blending_mode = GB_FRAME_BLENDING_MODE_ACCURATE,
-    .rewind_length = 60 * 2,
-    .model = MODEL_CGB,
-    .volume = 100,
-    .rumble_mode = GB_RUMBLE_ALL_GAMES,
-    .default_scale = 2,
-    .color_temperature = 10,
-};
-
 
 static const char *help[] = {
 "Drop a ROM to play.\n"
@@ -313,9 +266,10 @@ static void item_help(unsigned index)
 
 static void enter_emulation_menu(unsigned index);
 static void enter_graphics_menu(unsigned index);
-static void enter_controls_menu(unsigned index);
+static void enter_keyboard_menu(unsigned index);
 static void enter_joypad_menu(unsigned index);
 static void enter_audio_menu(unsigned index);
+static void enter_controls_menu(unsigned index);
 static void toggle_audio_recording(unsigned index);
 
 extern void set_filename(const char *new_filename, typeof(free) *new_free_function);
@@ -353,8 +307,7 @@ static const struct menu_item paused_menu[] = {
     {"Emulation Options", enter_emulation_menu},
     {"Graphic Options", enter_graphics_menu},
     {"Audio Options", enter_audio_menu},
-    {"Keyboard Options", enter_controls_menu},
-    {"Joypad Options", enter_joypad_menu},
+    {"Control Options", enter_controls_menu},
     {audio_recording_menu_item, toggle_audio_recording},
     {"Help", item_help},
     {"Quit SameBoy", item_exit},
@@ -394,6 +347,42 @@ const char *current_model_string(unsigned index)
 {
     return (const char *[]){"Game Boy", "Game Boy Color", "Game Boy Advance", "Super Game Boy", "Game Boy Pocket"}
         [configuration.model];
+}
+
+static void cycle_cgb_revision(unsigned index)
+{
+    
+    if (configuration.cgb_revision == GB_MODEL_CGB_E - GB_MODEL_CGB_0) {
+        configuration.cgb_revision = 0;
+    }
+    else {
+        configuration.cgb_revision++;
+    }
+    pending_command = GB_SDL_RESET_COMMAND;
+}
+
+static void cycle_cgb_revision_backwards(unsigned index)
+{
+    if (configuration.cgb_revision == 0) {
+        configuration.cgb_revision = GB_MODEL_CGB_E - GB_MODEL_CGB_0;
+    }
+    else {
+        configuration.cgb_revision--;
+    }
+    pending_command = GB_SDL_RESET_COMMAND;
+}
+
+const char *current_cgb_revision_string(unsigned index)
+{
+    return (const char *[]){
+        "CPU CGB 0 (Exp.)",
+        "CPU CGB A (Exp.)",
+        "CPU CGB B (Exp.)",
+        "CPU CGB C (Exp.)",
+        "CPU CGB D",
+        "CPU CGB E",
+    }
+    [configuration.cgb_revision];
 }
 
 static void cycle_sgb_revision(unsigned index)
@@ -523,6 +512,7 @@ const char *current_rtc_mode_string(unsigned index)
 
 static const struct menu_item emulation_menu[] = {
     {"Emulated Model:", cycle_model, current_model_string, cycle_model_backwards},
+    {"GBC Revision:", cycle_cgb_revision, current_cgb_revision_string, cycle_cgb_revision_backwards},
     {"SGB Revision:", cycle_sgb_revision, current_sgb_revision_string, cycle_sgb_revision_backwards},
     {"Boot ROMs Folder:", toggle_bootrom, current_bootrom_string, toggle_bootrom},
     {"Rewind Length:", cycle_rewind, current_rewind_string, cycle_rewind_backwards},
@@ -847,13 +837,13 @@ static void enter_graphics_menu(unsigned index)
     recalculate_menu_height();
 }
 
-const char *highpass_filter_string(unsigned index)
+static const char *highpass_filter_string(unsigned index)
 {
     return (const char *[]){"None (Keep DC Offset)", "Accurate", "Preserve Waveform"}
         [configuration.highpass_mode];
 }
 
-void cycle_highpass_filter(unsigned index)
+static void cycle_highpass_filter(unsigned index)
 {
     configuration.highpass_mode++;
     if (configuration.highpass_mode == GB_HIGHPASS_MAX) {
@@ -861,7 +851,7 @@ void cycle_highpass_filter(unsigned index)
     }
 }
 
-void cycle_highpass_filter_backwards(unsigned index)
+static void cycle_highpass_filter_backwards(unsigned index)
 {
     if (configuration.highpass_mode == 0) {
         configuration.highpass_mode = GB_HIGHPASS_MAX - 1;
@@ -871,14 +861,14 @@ void cycle_highpass_filter_backwards(unsigned index)
     }
 }
 
-const char *volume_string(unsigned index)
+static const char *volume_string(unsigned index)
 {
     static char ret[5];
     sprintf(ret, "%d%%", configuration.volume);
     return ret;
 }
 
-void increase_volume(unsigned index)
+static void increase_volume(unsigned index)
 {
     configuration.volume += 5;
     if (configuration.volume > 100) {
@@ -886,7 +876,7 @@ void increase_volume(unsigned index)
     }
 }
 
-void decrease_volume(unsigned index)
+static void decrease_volume(unsigned index)
 {
     configuration.volume -= 5;
     if (configuration.volume > 100) {
@@ -894,14 +884,14 @@ void decrease_volume(unsigned index)
     }
 }
 
-const char *interference_volume_string(unsigned index)
+static const char *interference_volume_string(unsigned index)
 {
     static char ret[5];
     sprintf(ret, "%d%%", configuration.interference_volume);
     return ret;
 }
 
-void increase_interference_volume(unsigned index)
+static void increase_interference_volume(unsigned index)
 {
     configuration.interference_volume += 5;
     if (configuration.interference_volume > 100) {
@@ -909,7 +899,7 @@ void increase_interference_volume(unsigned index)
     }
 }
 
-void decrease_interference_volume(unsigned index)
+static void decrease_interference_volume(unsigned index)
 {
     configuration.interference_volume -= 5;
     if (configuration.interference_volume > 100) {
@@ -917,13 +907,90 @@ void decrease_interference_volume(unsigned index)
     }
 }
 
-static const struct menu_item audio_menu[] = {
+static const char *audio_driver_string(unsigned index)
+{
+    return GB_audio_driver_name();
+}
+
+static const char *preferred_audio_driver_string(unsigned index)
+{
+    if (configuration.audio_driver[0] == 0) {
+        return "Auto";
+    }
+    return configuration.audio_driver;
+}
+
+static void audio_driver_changed(void);
+
+static void cycle_prefrered_audio_driver(unsigned index)
+{
+    audio_driver_changed();
+    if (configuration.audio_driver[0] == 0) {
+        strcpy(configuration.audio_driver, GB_audio_driver_name_at_index(0));
+        return;
+    }
+    unsigned i = 0;
+    while (true) {
+        const char *name = GB_audio_driver_name_at_index(i);
+        if (name[0] == 0) { // Not a supported driver? Switch to auto
+            configuration.audio_driver[0] = 0;
+            return;
+        }
+        if (strcmp(configuration.audio_driver, name) == 0) {
+            strcpy(configuration.audio_driver, GB_audio_driver_name_at_index(i + 1));
+            return;
+        }
+        i++;
+    }
+}
+
+static void cycle_preferred_audio_driver_backwards(unsigned index)
+{
+    audio_driver_changed();
+    if (configuration.audio_driver[0] == 0) {
+        unsigned i = 0;
+        while (true) {
+            const char *name = GB_audio_driver_name_at_index(i);
+            if (name[0] == 0) {
+                strcpy(configuration.audio_driver, GB_audio_driver_name_at_index(i - 1));
+                return;
+            }
+            i++;
+        }
+        return;
+    }
+    unsigned i = 0;
+    while (true) {
+        const char *name = GB_audio_driver_name_at_index(i);
+        if (name[0] == 0) { // Not a supported driver? Switch to auto
+            configuration.audio_driver[0] = 0;
+            return;
+        }
+        if (strcmp(configuration.audio_driver, name) == 0) {
+            strcpy(configuration.audio_driver, GB_audio_driver_name_at_index(i - 1));
+            return;
+        }
+        i++;
+    }
+}
+
+static void nop(unsigned index){}
+
+static struct menu_item audio_menu[] = {
     {"Highpass Filter:", cycle_highpass_filter, highpass_filter_string, cycle_highpass_filter_backwards},
     {"Volume:", increase_volume, volume_string, decrease_volume},
     {"Interference Volume:", increase_interference_volume, interference_volume_string, decrease_interference_volume},
+    {"Preferred Audio Driver:", cycle_prefrered_audio_driver, preferred_audio_driver_string, cycle_preferred_audio_driver_backwards},
+    {"Active Driver:", nop, audio_driver_string},
     {"Back", return_to_root_menu},
     {NULL,}
 };
+
+static void audio_driver_changed(void)
+{
+    audio_menu[4].value_getter = NULL;
+    audio_menu[4].string = "Relaunch to apply";
+}
 
 static void enter_audio_menu(unsigned index)
 {
@@ -940,7 +1007,7 @@ static void modify_key(unsigned index)
 
 static const char *key_name(unsigned index);
 
-static const struct menu_item controls_menu[] = {
+static const struct menu_item keyboard_menu[] = {
     {"Right:", modify_key, key_name,},
     {"Left:", modify_key, key_name,},
     {"Up:", modify_key, key_name,},
@@ -952,7 +1019,7 @@ static const struct menu_item controls_menu[] = {
     {"Turbo:", modify_key, key_name,},
     {"Rewind:", modify_key, key_name,},
     {"Slow-Motion:", modify_key, key_name,},
-    {"Back", return_to_root_menu},
+    {"Back", enter_controls_menu},
     {NULL,}
 };
 
@@ -964,9 +1031,9 @@ static const char *key_name(unsigned index)
     return SDL_GetScancodeName(configuration.keys[index]);
 }
 
-static void enter_controls_menu(unsigned index)
+static void enter_keyboard_menu(unsigned index)
 {
-    current_menu = controls_menu;
+    current_menu = keyboard_menu;
     current_selection = 0;
     scroll = 0;
     recalculate_menu_height();
@@ -1096,7 +1163,7 @@ static const struct menu_item joypad_menu[] = {
     {"Joypad:", cycle_joypads, current_joypad_name, cycle_joypads_backwards},
     {"Configure layout", detect_joypad_layout},
     {"Rumble Mode:", cycle_rumble_mode, current_rumble_mode, cycle_rumble_mode_backwards},
-    {"Back", return_to_root_menu},
+    {"Back", enter_controls_menu},
     {NULL,}
 };
 
@@ -1153,6 +1220,32 @@ void connect_joypad(void)
     if (joystick) {
         haptic = SDL_HapticOpenFromJoystick(joystick);
     }
+}
+
+static void toggle_mouse_control(unsigned index)
+{
+    configuration.allow_mouse_controls = !configuration.allow_mouse_controls;
+}
+
+const char *mouse_control_string(unsigned index)
+{
+    return configuration.allow_mouse_controls? "Allow mouse control" : "Disallow mouse control";
+}
+
+static const struct menu_item controls_menu[] = {
+    {"Keyboard Options", enter_keyboard_menu},
+    {"Joypad Options", enter_joypad_menu},
+    {"Motion-controlled games:", toggle_mouse_control, mouse_control_string, toggle_mouse_control},
+    {"Back", return_to_root_menu},
+    {NULL,}
+};
+
+static void enter_controls_menu(unsigned index)
+{
+    current_menu = controls_menu;
+    current_selection = 0;
+    scroll = 0;
+    recalculate_menu_height();
 }
 
 static void toggle_audio_recording(unsigned index)
@@ -1219,6 +1312,22 @@ static void toggle_audio_recording(unsigned index)
     }
 }
 
+void convert_mouse_coordinates(signed *x, signed *y)
+{
+    signed width = GB_get_screen_width(&gb);
+    signed height = GB_get_screen_height(&gb);
+    signed x_offset = (width - 160) / 2;
+    signed y_offset = (height - 144) / 2;
+
+    *x = (signed)(*x - rect.x / factor) * width / (signed)(rect.w / factor) - x_offset;
+    *y = (signed)(*y - rect.y / factor) * height / (signed)(rect.h / factor) - y_offset;
+
+    if (strcmp("CRT", configuration.filter) == 0) {
+        *y = *y * 8 / 7;
+        *y -= 144 / 16;
+    }
+}
+
 void run_gui(bool is_running)
 {
     SDL_ShowCursor(SDL_ENABLE);
@@ -1281,13 +1390,9 @@ void run_gui(bool is_running)
                         event.key.keysym.scancode = SDL_SCANCODE_ESCAPE;
                     }
                     else if (gui_state == SHOWING_MENU) {
-                        signed x = (event.button.x - rect.x / factor) * width / (rect.w / factor) - x_offset;
-                        signed y = (event.button.y - rect.y / factor) * height / (rect.h / factor) - y_offset;
-                        
-                        if (strcmp("CRT", configuration.filter) == 0) {
-                            y = y * 8 / 7;
-                            y -= 144 / 16;
-                        }
+                        signed x = event.button.x;
+                        signed y = event.button.y;
+                        convert_mouse_coordinates(&x, &y);
                         y += scroll;
                         
                         if (x < 0 || x >= 160 || y < 24) {
@@ -1526,7 +1631,12 @@ void run_gui(bool is_running)
                 }
                 else if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
                     if (gui_state == SHOWING_MENU && current_menu != root_menu) {
-                        return_to_root_menu(0);
+                        for (const struct menu_item *item = current_menu; item->string; item++) {
+                            if (strcmp(item->string, "Back") == 0) {
+                                item->handler(0);
+                                break;
+                            }
+                        }
                         should_render = true;
                     }
                     else if (is_running) {
