@@ -605,11 +605,11 @@ typedef union {
         
         // The Joy-Cons don't like having their IMU enabled too quickly
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            _lastVendorSpecificOutput.switchPacket.sequence++;
-            _lastVendorSpecificOutput.switchPacket.sequence &= 0xF;
-            _lastVendorSpecificOutput.switchPacket.command = 0x40; // Enable/disableIMU
-            _lastVendorSpecificOutput.switchPacket.commandData[0] = 1; // Enabled
-            [self sendReport:[NSData dataWithBytes:&_lastVendorSpecificOutput.switchPacket length:sizeof(_lastVendorSpecificOutput.switchPacket)]];
+            self->_lastVendorSpecificOutput.switchPacket.sequence++;
+            self->_lastVendorSpecificOutput.switchPacket.sequence &= 0xF;
+            self->_lastVendorSpecificOutput.switchPacket.command = 0x40; // Enable/disableIMU
+            self->_lastVendorSpecificOutput.switchPacket.commandData[0] = 1; // Enabled
+            [self sendReport:[NSData dataWithBytes:&self->_lastVendorSpecificOutput.switchPacket length:sizeof(self->_lastVendorSpecificOutput.switchPacket)]];
         });
     }
     

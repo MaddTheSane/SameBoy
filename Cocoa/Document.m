@@ -119,7 +119,7 @@ enum model {
     NSSavePanel *_audioSavePanel;
     bool _isRecordingAudio;
     
-    void (^ volatile _pendingAtomicBlock)();
+    void (^ volatile _pendingAtomicBlock)(void);
     
     NSDate *_fileModificationTime;
 }
@@ -575,7 +575,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self updateDebuggerButtons];
-        [slave updateDebuggerButtons];
+        [self->slave updateDebuggerButtons];
     });
     self.gbsPlayPauseButton.state = true;
     self.view.mouseHidingEnabled = (self.mainWindow.styleMask & NSWindowStyleMaskFullScreen) != 0;
@@ -592,7 +592,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self updateDebuggerButtons];
-        [slave updateDebuggerButtons];
+        [self->slave updateDebuggerButtons];
     });
     self.gbsPlayPauseButton.state = false;
     if (master) {
@@ -1020,13 +1020,13 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 
 - (bool)isCartContainer
 {
-    return [self.fileName.pathExtension.lowercaseString isEqualToString:@"gbcart"];
+    return [self.fileURL.pathExtension.lowercaseString isEqualToString:@"gbcart"];
 }
 
 - (NSString *)savPath
 {
     if (self.isCartContainer) {
-        return [self.fileName stringByAppendingPathComponent:@"battery.sav"];
+        return [self.fileURL URLByAppendingPathComponent:@"battery.sav"].path;
     }
     
     return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"].path;
@@ -1035,7 +1035,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 - (NSString *)chtPath
 {
     if (self.isCartContainer) {
-        return [self.fileName stringByAppendingPathComponent:@"cheats.cht"];
+        return [self.fileURL URLByAppendingPathComponent:@"cheats.cht"].path;
     }
     
     return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"].path;
@@ -1044,14 +1044,14 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 - (NSString *)saveStatePath:(unsigned)index
 {
     if (self.isCartContainer) {
-        return [self.fileName stringByAppendingPathComponent:[NSString stringWithFormat:@"state.s%u", index]];
+        return [self.fileURL URLByAppendingPathComponent:[NSString stringWithFormat:@"state.s%u", index]].path;
     }
     return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"s%u", index]].path;
 }
 
 - (NSString *)romPath
 {
-    NSString *fileName = self.fileName;
+    NSString *fileName = self.fileURL.path;
     if (self.isCartContainer) {
         NSArray *paths = [[NSString stringWithContentsOfFile:[fileName stringByAppendingPathComponent:@"rom.gbl"]
                                                     encoding:NSUTF8StringEncoding
@@ -1124,18 +1124,18 @@ static bool is_path_writeable(const char *path)
         else {
             ret = GB_load_rom(&self->gb, [fileName fileSystemRepresentation]);
         }
-        if (GB_save_battery_size(&gb)) {
+        if (GB_save_battery_size(&self->gb)) {
             if (!is_path_writeable(self.savPath.fileSystemRepresentation)) {
-                GB_log(&gb, "The save path for this ROM is not writeable, progress will not be saved.\n");
+                GB_log(&self->gb, "The save path for this ROM is not writeable, progress will not be saved.\n");
             }
         }
-        GB_load_battery(&gb, self.savPath.fileSystemRepresentation);
-        GB_load_cheats(&gb, self.chtPath.fileSystemRepresentation);
+        GB_load_battery(&self->gb, self.savPath.fileSystemRepresentation);
+        GB_load_cheats(&self->gb, self.chtPath.fileSystemRepresentation);
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.cheatWindowController cheatsUpdated];
         });
-        GB_debugger_load_symbol_file(&gb, [[[NSBundle mainBundle] pathForResource:@"registers" ofType:@"sym"] fileSystemRepresentation]);
-        GB_debugger_load_symbol_file(&gb, [[fileName stringByDeletingPathExtension] stringByAppendingPathExtension:@"sym"].fileSystemRepresentation);
+        GB_debugger_load_symbol_file(&self->gb, [[[NSBundle mainBundle] pathForResource:@"registers" ofType:@"sym"] fileSystemRepresentation]);
+        GB_debugger_load_symbol_file(&self->gb, [[fileName stringByDeletingPathExtension] stringByAppendingPathExtension:@"sym"].fileSystemRepresentation);
     }];
     if (ret) {
         NSAlert *alert = [[NSAlert alloc] init];
@@ -1251,7 +1251,7 @@ static bool is_path_writeable(const char *path)
         [(NSMenuItem *)anItem setTitle:_isRecordingAudio? @"Stop Audio Recording" : @"Start Audio Recording…"];
     }
     else if ([anItem action] == @selector(toggleAudioChannel:)) {
-        [(NSMenuItem *)anItem setState:!GB_is_channel_muted(&gb, [anItem tag])];
+        [(NSMenuItem *)anItem setState:!GB_is_channel_muted(&self->gb, [anItem tag])];
     }
     
     return [super validateUserInterfaceItem:anItem];
@@ -1607,7 +1607,7 @@ static bool is_path_writeable(const char *path)
     while (_pendingAtomicBlock);
 }
 
-- (NSString *)captureOutputForBlock: (void (^)())block
+- (NSString *)captureOutputForBlock: (void (^)(void))block
 {
     capturedOutput = [[NSMutableString alloc] init];
     [self performAtomicBlock:block];
@@ -1737,9 +1737,9 @@ static bool is_path_writeable(const char *path)
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [hex_controller setSelectedContentsRanges:@[[HFRangeWrapper withRange:HFRangeMake(addr, 0)]]];
-            [hex_controller _ensureVisibilityOfLocation:addr];
-            for (HFRepresenter *representer in hex_controller.representers) {
+            [self->hex_controller setSelectedContentsRanges:@[[HFRangeWrapper withRange:HFRangeMake(addr, 0)]]];
+            [self->hex_controller _ensureVisibilityOfLocation:addr];
+            for (HFRepresenter *representer in self->hex_controller.representers) {
                 if ([representer isKindOfClass:[HFHexTextRepresenter class]]) {
                     [self.memoryWindow makeFirstResponder:representer.view];
                     break;
@@ -1792,9 +1792,9 @@ static bool is_path_writeable(const char *path)
         bank %= n_banks;
 
         [sender setStringValue:[NSString stringWithFormat:@"$%x", bank]];
-        [(GBMemoryByteArray *)(hex_controller.byteArray) setSelectedBank:bank];
+        [(GBMemoryByteArray *)(self->hex_controller.byteArray) setSelectedBank:bank];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [hex_controller reloadData];
+            [self->hex_controller reloadData];
         });
     }];
     
@@ -1891,7 +1891,7 @@ static bool is_path_writeable(const char *path)
 
                 self->cameraOutput = [[AVCaptureStillImageOutput alloc] init];
                 /* Greyscale is not widely supported, so we use YUV, whose first element is the brightness. */
-                [cameraOutput setOutputSettings: @{(id)kCVPixelBufferPixelFormatTypeKey: @(kYUVSPixelFormat),
+                [self->cameraOutput setOutputSettings: @{(id)kCVPixelBufferPixelFormatTypeKey: @(kYUVSPixelFormat),
                                                    (id)kCVPixelBufferWidthKey: @(round(dimensions.width * ratio)),
                                                    (id)kCVPixelBufferHeightKey: @(round(dimensions.height * ratio)),}];
 
@@ -2092,8 +2092,8 @@ static bool is_path_writeable(const char *path)
     [currentPrinterImageData appendBytes:paddedImage length:sizeof(paddedImage)];
     /* UI related code must run on main thread. */
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_printerSpinner startAnimation:nil];
-        self.feedImageView.image = [Document imageFromData:currentPrinterImageData
+        [self->_printerSpinner startAnimation:nil];
+        self.feedImageView.image = [Document imageFromData:self->currentPrinterImageData
                                                      width:160
                                                     height:self->currentPrinterImageData.length / 160 / sizeof(imageBytes[0])
                                                      scale:2.0];
@@ -2110,7 +2110,7 @@ static bool is_path_writeable(const char *path)
 - (void)printDone
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_printerSpinner stopAnimation:nil];
+        [self->_printerSpinner stopAnimation:nil];
     });
 }
 
@@ -2152,7 +2152,7 @@ static bool is_path_writeable(const char *path)
 {
     [self disconnectLinkCable];
     [self performAtomicBlock:^{
-        GB_disconnect_serial(&gb);
+        GB_disconnect_serial(&self->gb);
     }];
 }
 
@@ -2160,7 +2160,7 @@ static bool is_path_writeable(const char *path)
 {
     [self disconnectLinkCable];
     [self performAtomicBlock:^{
-        GB_connect_printer(&gb, printImage, printDone);
+        GB_connect_printer(&self->gb, printImage, printDone);
     }];
 }
 
@@ -2168,7 +2168,7 @@ static bool is_path_writeable(const char *path)
 {
     [self disconnectLinkCable];
     [self performAtomicBlock:^{
-        GB_connect_workboy(&gb, setWorkboyTime, getWorkboyTime);
+        GB_connect_workboy(&self->gb, setWorkboyTime, getWorkboyTime);
     }];
 }
 
@@ -2565,8 +2565,8 @@ static bool is_path_writeable(const char *path)
     
     [_audioSavePanel beginSheetModalForWindow:self.mainWindow completionHandler:^(NSInteger result) {
         if (result == NSModalResponseOK) {
-            [_audioSavePanel orderOut:self];
-            int error = GB_start_audio_recording(&gb, _audioSavePanel.URL.fileSystemRepresentation, self.audioFormatButton.selectedTag);
+            [self->_audioSavePanel orderOut:self];
+            int error = GB_start_audio_recording(&self->gb, self->_audioSavePanel.URL.fileSystemRepresentation, self.audioFormatButton.selectedTag);
             if (error) {
                 NSAlert *alert = [[NSAlert alloc] init];
                 [alert setMessageText:[NSString stringWithFormat:@"Could not start recording: %s", strerror(error)]];
@@ -2575,13 +2575,13 @@ static bool is_path_writeable(const char *path)
             }
             else {
                 [self.osdView displayText:@"Audio recording started"];
-                _isRecordingAudio = true;
+                self->_isRecordingAudio = true;
             }
         }
         if (shouldResume) {
             [self start];
         }
-        _audioSavePanel = nil;
+        self->_audioSavePanel = nil;
     }];
 }
 
@@ -2626,7 +2626,7 @@ static bool is_path_writeable(const char *path)
                 }
             }
             if (ok) {
-                GB_save_battery(&gb, self.savPath.UTF8String);
+                GB_save_battery(&self->gb, self.savPath.fileSystemRepresentation);
                 self.fileURL = urls.firstObject;
                 [self loadROM];
             }

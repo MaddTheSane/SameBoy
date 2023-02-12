@@ -77,7 +77,7 @@
 {
     if (row >= [self numberOfRowsInTableView:tableView]) return nil;
     
-    unsigned columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
+    NSInteger columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
     JOYController *controller = self.joycons[row];
     switch (columnIndex) {
         case 0: {
@@ -121,7 +121,7 @@
 
 - (void)tableView:(NSTableView *)tableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    unsigned columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
+    NSInteger columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
     if (columnIndex != 2) return;
     if (row >= [self numberOfRowsInTableView:tableView]) return;
     JOYController *controller = self.joycons[row];
@@ -147,7 +147,7 @@
 {
     if (row >= [self numberOfRowsInTableView:tableView]) return [[NSCell alloc] init];
 
-    unsigned columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
+    NSInteger columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
     if (columnIndex == 2) {
         JOYCombinedController *controller = (JOYCombinedController *)self.joycons[row];
         if (controller.joyconType == JOYJoyConTypeDual) {
@@ -157,12 +157,12 @@
             id block = ^(void) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     for (JOYController *child in controller.children) {
-                        [_pairings removeObjectForKey:child.uniqueID];
+                        [self->_pairings removeObjectForKey:child.uniqueID];
                     }
-                    [[NSUserDefaults standardUserDefaults] setObject:_pairings forKey:@"GBJoyConPairings"];
-                    _unpairing = true;
+                    [[NSUserDefaults standardUserDefaults] setObject:self->_pairings forKey:@"GBJoyConPairings"];
+                    self->_unpairing = true;
                     [controller breakApart];
-                    _unpairing = false;
+                    self->_unpairing = false;
                 });
             };
             // To retain the block
@@ -229,7 +229,7 @@
 
 - (BOOL)tableView:(NSTableView *)tableView shouldEditTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    unsigned columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
+    NSInteger columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
     return columnIndex == 2;
 }
 

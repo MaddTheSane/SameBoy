@@ -396,7 +396,7 @@ static uint32_t color_to_int(NSColor *color)
         argv[i] = (char *)arguments[i].UTF8String;
     }
     
-    return AuthorizationExecuteWithPrivileges(_auth, path.UTF8String, kAuthorizationFlagDefaults, argv, NULL) == errAuthorizationSuccess;
+    return AuthorizationExecuteWithPrivileges(_auth, path.fileSystemRepresentation, kAuthorizationFlagDefaults, argv, NULL) == errAuthorizationSuccess;
 }
 
 - (void)deauthorize
@@ -438,7 +438,7 @@ static uint32_t color_to_int(NSColor *color)
         dispatch_sync(dispatch_get_main_queue(), ^{
             self.updateProgressButton.enabled = false;
             self.updateProgressLabel.stringValue = @"Extracting update…";
-            _updateState = UPDATE_EXTRACTING;
+            self->_updateState = UPDATE_EXTRACTING;
         });
         
         self->_downloadDirectory = [[[NSFileManager defaultManager] URLForDirectory:NSItemReplacementDirectory
@@ -446,7 +446,7 @@ static uint32_t color_to_int(NSColor *color)
                                                             appropriateForURL:[[NSBundle mainBundle] bundleURL]
                                                                        create:true
                                                                         error:nil] path];
-        if (!_downloadDirectory) {
+        if (!self->_downloadDirectory) {
             [self deauthorize];
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
@@ -467,7 +467,7 @@ static uint32_t color_to_int(NSColor *color)
         [unzipTask waitUntilExit];
         if (unzipTask.terminationStatus != 0 || unzipTask.terminationReason != NSTaskTerminationReasonExit) {
             [self deauthorize];
-            [[NSFileManager defaultManager] removeItemAtPath:_downloadDirectory error:nil];
+            [[NSFileManager defaultManager] removeItemAtPath:self->_downloadDirectory error:nil];
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
                 self.updateProgressLabel.stringValue = @"Failed to extract update.";
@@ -512,8 +512,8 @@ static uint32_t color_to_int(NSColor *color)
         [[NSFileManager defaultManager] moveItemAtPath:contentsPath toPath:contentsTempPath error:&error];
         if (error) {
             [self deauthorize];
-            [[NSFileManager defaultManager] removeItemAtPath:_downloadDirectory error:nil];
-            _downloadDirectory = nil;
+            [[NSFileManager defaultManager] removeItemAtPath:self->_downloadDirectory error:nil];
+            self->_downloadDirectory = nil;
             dispatch_sync(dispatch_get_main_queue(), ^{
                 self.updateProgressButton.enabled = false;
                 self.updateProgressLabel.stringValue = @"Failed to install update.";
