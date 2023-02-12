@@ -22,8 +22,8 @@ static OSStatus render(CGContextRef cgContext, CFURLRef url, bool showBorder)
     uint8_t cgbFlag = 0;
     
     /* The cgb_boot_fast boot ROM skips the boot animation */
-    if (get_image_for_rom([[(__bridge NSURL *)url path] UTF8String],
-                          [[bundle pathForResource:@"cgb_boot_fast" ofType:@"bin"] UTF8String],
+    if (get_image_for_rom([(__bridge NSURL *)url fileSystemRepresentation],
+                          [[bundle URLForResource:@"cgb_boot_fast" withExtension:@"bin"] fileSystemRepresentation],
                           bitmap, &cgbFlag)) {
         return -1;
     }
