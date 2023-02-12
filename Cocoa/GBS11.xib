@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14868" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14868"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -46,7 +46,7 @@
                 <button focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qxJ-pH-d0y">
                     <rect key="frame" x="57" y="124" width="50" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" bezelStyle="rounded" image="Play" imagePosition="only" alignment="center" alternateImage="Pause" state="on" borderStyle="border" focusRingType="none" inset="2" id="3ZK-br-UrS">
+                    <buttonCell key="cell" type="push" bezelStyle="rounded" image="play.fill" catalog="system" imagePosition="only" alignment="center" alternateImage="pause.fill" state="on" borderStyle="border" focusRingType="none" inset="2" id="3ZK-br-UrS">
                         <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
@@ -72,8 +72,8 @@
                     <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="momentary" id="cmq-I8-cFL">
                         <font key="font" metaFont="system"/>
                         <segments>
-                            <segment toolTip="Previous Track" image="Previous" width="31"/>
-                            <segment toolTip="Next Track" image="Next" width="30" tag="1"/>
+                            <segment toolTip="Previous Track" image="backward.end.alt.fill" catalog="system" width="31"/>
+                            <segment toolTip="Next Track" image="forward.end.alt.fill" catalog="system" width="30" tag="1"/>
                         </segments>
                     </segmentedCell>
                     <connections>
@@ -106,7 +106,7 @@
                 <button focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0yD-Sp-Ilo">
                     <rect key="frame" x="13" y="124" width="50" height="32"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" bezelStyle="rounded" image="Rewind" imagePosition="only" alignment="center" state="on" borderStyle="border" focusRingType="none" inset="2" id="ZIF-TP-Fqn">
+                    <buttonCell key="cell" type="push" bezelStyle="rounded" image="backward.end.fill" catalog="system" imagePosition="only" alignment="center" state="on" borderStyle="border" focusRingType="none" inset="2" id="ZIF-TP-Fqn">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
@@ -119,10 +119,10 @@
         </customView>
     </objects>
     <resources>
-        <image name="Next" width="16" height="10"/>
-        <image name="Pause" width="10" height="10"/>
-        <image name="Play" width="10" height="10"/>
-        <image name="Previous" width="16" height="10"/>
-        <image name="Rewind" width="10" height="10"/>
+        <image name="backward.end.alt.fill" catalog="system" width="24" height="13"/>
+        <image name="backward.end.fill" catalog="system" width="15" height="13"/>
+        <image name="forward.end.alt.fill" catalog="system" width="24" height="13"/>
+        <image name="pause.fill" catalog="system" width="11" height="13"/>
+        <image name="play.fill" catalog="system" width="12" height="13"/>
     </resources>
 </document>

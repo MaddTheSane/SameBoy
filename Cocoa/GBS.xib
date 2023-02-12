@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="19529" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="19529"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -44,7 +44,7 @@
                     </textFieldCell>
                 </textField>
                 <button focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qxJ-pH-d0y">
-                    <rect key="frame" x="63.5" y="128" width="38" height="23"/>
+                    <rect key="frame" x="64" y="128" width="38" height="23"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="roundTextured" bezelStyle="texturedRounded" image="play.fill" catalog="system" imagePosition="only" alignment="center" alternateImage="pause.fill" state="on" borderStyle="border" focusRingType="none" inset="2" id="3ZK-br-UrS">
                         <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
@@ -55,7 +55,7 @@
                     </connections>
                 </button>
                 <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SRS-M5-VVL">
-                    <rect key="frame" x="244.5" y="128" width="68" height="23"/>
+                    <rect key="frame" x="241" y="128" width="76" height="23"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <segmentedCell key="cell" borderStyle="border" alignment="left" style="texturedRounded" trackingMode="momentary" id="cmq-I8-cFL">
                         <font key="font" metaFont="system"/>
@@ -92,9 +92,9 @@
                     </textFieldCell>
                 </textField>
                 <button focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0yD-Sp-Ilo">
-                    <rect key="frame" x="20.5" y="128" width="38" height="23"/>
+                    <rect key="frame" x="21" y="128" width="38" height="23"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="roundTextured" bezelStyle="texturedRounded" image="Rewind" imagePosition="only" alignment="center" state="on" borderStyle="border" focusRingType="none" inset="2" id="ZIF-TP-Fqn">
+                    <buttonCell key="cell" type="roundTextured" bezelStyle="texturedRounded" image="backward.end.fill" catalog="system" imagePosition="only" alignment="center" state="on" borderStyle="border" focusRingType="none" inset="2" id="ZIF-TP-Fqn">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>

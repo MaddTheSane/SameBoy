@@ -1073,10 +1073,10 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         }
         if (fileName && needsRebuild) {
             [[NSString stringWithFormat:@"%@\n%@\n%@",
-              [fileName pathRelativeToDirectory:self.fileName],
+              [fileName pathRelativeToDirectory:self.fileURL.path],
               fileName,
               [[NSURL fileURLWithPath:fileName].fileReferenceURL.absoluteString substringFromIndex:strlen("file://")]]
-             writeToFile:[self.fileName stringByAppendingPathComponent:@"rom.gbl"]
+             writeToURL:[self.fileURL URLByAppendingPathComponent:@"rom.gbl"]
              atomically:false
              encoding:NSUTF8StringEncoding
              error:nil];
