@@ -207,13 +207,17 @@ static void cycle_write(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
             uint8_t old_value = GB_read_memory(gb, addr);
             GB_advance_cycles(gb, gb->pending_cycles - 2);
             GB_display_sync(gb);
-            if (gb->model != GB_MODEL_MGB && gb->position_in_line == 0 && (old_value & 2) && !(value & 2)) {
-                old_value &= ~2;
+            if (gb->model != GB_MODEL_MGB && gb->position_in_line == 0 && (old_value & GB_LCDC_OBJ_EN) && !(value & GB_LCDC_OBJ_EN)) {
+                old_value &= ~GB_LCDC_OBJ_EN;
             }
             
-            GB_write_memory(gb, addr, old_value | (value & 1));
+            GB_write_memory(gb, addr, old_value | (value & GB_LCDC_BG_EN));
             GB_advance_cycles(gb, 1);
             GB_write_memory(gb, addr, value);
+            
+            if ((old_value & GB_LCDC_WIN_ENABLE) && !(value & GB_LCDC_WIN_ENABLE) && gb->window_is_being_fetched) {
+                gb->disable_window_pixel_insertion_glitch = true;
+            }
             gb->pending_cycles = 5;
             break;
         }
@@ -242,11 +246,11 @@ static void cycle_write(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
             break;
             
         case GB_CONFLICT_CGB_LCDC:
-            if ((~value & gb->io_registers[GB_IO_LCDC]) & 0x10) {
+            if ((~value & gb->io_registers[GB_IO_LCDC]) & GB_LCDC_TILE_SEL) {
                 // Todo: This is difference is because my timing is off in one of the models
                 if (gb->model > GB_MODEL_CGB_C) {
                     GB_advance_cycles(gb, gb->pending_cycles);
-                    GB_write_memory(gb, addr, value ^ 0x10); // Write with the old TILE_SET first
+                    GB_write_memory(gb, addr, value ^ GB_LCDC_TILE_SEL); // Write with the old TILE_SET first
                     gb->tile_sel_glitch = true;
                     GB_advance_cycles(gb, 1);
                     gb->tile_sel_glitch = false;
@@ -255,7 +259,7 @@ static void cycle_write(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 }
                 else {
                     GB_advance_cycles(gb, gb->pending_cycles - 1);
-                    GB_write_memory(gb, addr, value ^ 0x10); // Write with the old TILE_SET first
+                    GB_write_memory(gb, addr, value ^ GB_LCDC_TILE_SEL); // Write with the old TILE_SET first
                     gb->tile_sel_glitch = true;
                     GB_advance_cycles(gb, 1);
                     gb->tile_sel_glitch = false;
@@ -407,7 +411,7 @@ static void stop(GB_gameboy_t *gb, uint8_t opcode)
     if (speed_switch) {
         flush_pending_cycles(gb);
         
-        if (gb->io_registers[GB_IO_LCDC] & 0x80 && gb->cgb_double_speed) {
+        if (gb->io_registers[GB_IO_LCDC] & GB_LCDC_ENABLE && gb->cgb_double_speed) {
             GB_log(gb, "ROM triggered a PPU odd mode, which is currently not supported. Reverting to even-mode.\n");
             if (gb->double_speed_alignment & 7) {
                 gb->speed_switch_freeze = 2;
@@ -415,6 +419,9 @@ static void stop(GB_gameboy_t *gb, uint8_t opcode)
         }
         if (gb->apu.global_enable && gb->cgb_double_speed) {
             GB_log(gb, "ROM triggered an APU odd mode, which is currently not tested.\n");
+        }
+        if (gb->cartridge_type->mbc_type == GB_CAMERA && (gb->camera_registers[GB_CAMERA_SHOOT_AND_1D_FLAGS] & 1) && !gb->cgb_double_speed) {
+            GB_log(gb, "ROM entered double speed mode with a camera cartridge, this could damage a real cartridge's camera.\n");
         }
         
         if (gb->cgb_double_speed) {
@@ -960,7 +967,7 @@ static void sbc_a_r(GB_gameboy_t *gb, uint8_t opcode)
     value = get_src_value(gb, opcode);
     a = gb->af >> 8;
     carry = (gb->af & GB_CARRY_FLAG) != 0;
-    gb->af = ((a - value - carry) << 8) | GB_SUBTRACT_FLAG;
+    gb->af = (((uint8_t)(a - value - carry)) << 8) | GB_SUBTRACT_FLAG;
 
     if ((uint8_t) (a - value - carry) == 0) {
         gb->af |= GB_ZERO_FLAG;
@@ -1696,7 +1703,7 @@ void GB_cpu_run(GB_gameboy_t *gb)
     }
     /* Run mode */
     else if (!gb->halted) {
-        uint8_t opcode = gb->hdma_open_bus = cycle_read(gb, gb->pc++);
+        uint8_t opcode = cycle_read(gb, gb->pc++);
         if (unlikely(gb->hdma_on)) {
             GB_hdma_run(gb);
         }

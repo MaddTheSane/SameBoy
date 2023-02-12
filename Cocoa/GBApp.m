@@ -1,8 +1,10 @@
-#import "AppDelegate.h"
+#import "GBApp.h"
 #import "GBButtons.h"
 #import "GBView.h"
-#include <Core/gb.h>
-#include <Carbon/Carbon.h>
+#import "Document.h"
+#import "GBJoyConManager.h"
+#import <Core/gb.h>
+#import <Carbon/Carbon.h>
 #import <JoyKit/JoyKit.h>
 #import <WebKit/WebKit.h>
 #import "Document.h"
@@ -18,10 +20,9 @@ static uint32_t color_to_int(NSColor *color)
            ((unsigned)(color.blueComponent * 0xFF));
 }
 
-@implementation AppDelegate
+@implementation GBApp
 {
-    NSWindow *preferences_window;
-    NSArray<NSView *> *preferences_tabs;
+    NSArray<NSView *> *_preferencesTabs;
     NSString *_lastVersion;
     NSString *_updateURL;
     NSURLSessionDownloadTask *_updateTask;
@@ -34,6 +35,7 @@ static uint32_t color_to_int(NSColor *color)
     } _updateState;
     NSString *_downloadDirectory;
     AuthorizationRef _auth;
+    bool _simulatingMenuEvent;
 }
 
 - (void) applicationDidFinishLaunching:(NSNotification *)notification
@@ -63,13 +65,14 @@ static uint32_t color_to_int(NSColor *color)
                                                               @"GBSlow-Motion": @(kVK_Shift),
 
                                                               @"GBFilter": @"NearestNeighbor",
-                                                              @"GBColorCorrection": @(GB_COLOR_CORRECTION_EMULATE_HARDWARE),
-                                                              @"GBHighpassFilter": @(GB_HIGHPASS_REMOVE_DC_OFFSET),
+                                                              @"GBColorCorrection": @(GB_COLOR_CORRECTION_MODERN_BALANCED),
+                                                              @"GBHighpassFilter": @(GB_HIGHPASS_ACCURATE),
                                                               @"GBRewindLength": @(10),
                                                               @"GBFrameBlendingMode": @([defaults boolForKey:@"DisableFrameBlending"]? GB_FRAME_BLENDING_MODE_DISABLED : GB_FRAME_BLENDING_MODE_ACCURATE),
                                                               
                                                               @"GBDMGModel": @(GB_MODEL_DMG_B),
                                                               @"GBCGBModel": @(GB_MODEL_CGB_E),
+                                                              @"GBAGBModel": @(GB_MODEL_AGB_A),
                                                               @"GBSGBModel": @(GB_MODEL_SGB2),
                                                               @"GBRumbleMode": @(GB_RUMBLE_CARTRIDGE_ONLY),
                                                               
@@ -77,6 +80,9 @@ static uint32_t color_to_int(NSColor *color)
                                                               
                                                               @"GBMBC7JoystickOverride": @NO,
                                                               @"GBMBC7AllowMouse": @YES,
+                                                              
+                                                              @"GBJoyConAutoPair": @YES,
+                                                              @"GBJoyConsDefaultsToHorizontal": @YES,
                                                               
                                                               // Default themes
                                                               @"GBThemes": @{
@@ -146,6 +152,10 @@ static uint32_t color_to_int(NSColor *color)
         JOYHatsEmulateButtonsKey: @YES,
     }];
     
+    [GBJoyConManager sharedInstance]; // Starts handling Joy-Cons
+    
+    [JOYController registerListener:self];
+    
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"GBNotificationsUsed"]) {
         [NSUserNotificationCenter defaultUserNotificationCenter].delegate = self;
     }
@@ -169,10 +179,10 @@ static uint32_t color_to_int(NSColor *color)
 
 - (IBAction)switchPreferencesTab:(id)sender
 {
-    for (NSView *view in preferences_tabs) {
+    for (NSView *view in _preferencesTabs) {
         [view removeFromSuperview];
     }
-    NSView *tab = preferences_tabs[[sender tag]];
+    NSView *tab = _preferencesTabs[[sender tag]];
     NSRect old = [_preferencesWindow frame];
     NSRect new = [_preferencesWindow frameRectForContentRect:tab.frame];
     new.origin.x = old.origin.x;
@@ -216,7 +226,7 @@ static uint32_t color_to_int(NSColor *color)
         [[NSBundle mainBundle] loadNibNamed:@"Preferences" owner:self topLevelObjects:&objects];
         NSToolbarItem *first_toolbar_item = [_preferencesWindow.toolbar.items firstObject];
         _preferencesWindow.toolbar.selectedItemIdentifier = [first_toolbar_item itemIdentifier];
-        preferences_tabs = @[self.emulationTab, self.graphicsTab, self.audioTab, self.controlsTab, self.updatesTab];
+        _preferencesTabs = @[self.emulationTab, self.graphicsTab, self.audioTab, self.controlsTab, self.updatesTab];
         [self switchPreferencesTab:first_toolbar_item];
         [_preferencesWindow center];
 #ifndef UPDATE_SUPPORT
@@ -421,14 +431,14 @@ static uint32_t color_to_int(NSColor *color)
     [self.updateProgressSpinner startAnimation:nil];
     self.updateProgressButton.title = @"Cancel";
     self.updateProgressButton.enabled = true;
-    self.updateProgressLabel.stringValue = @"Downloading update...";
+    self.updateProgressLabel.stringValue = @"Downloading update…";
     _updateState = UPDATE_DOWNLOADING;
     _updateTask = [[NSURLSession sharedSession] downloadTaskWithURL: [NSURL URLWithString:_updateURL] completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
         self->_updateTask = nil;
         dispatch_sync(dispatch_get_main_queue(), ^{
             self.updateProgressButton.enabled = false;
-            self.updateProgressLabel.stringValue = @"Extracting update...";
-            self->_updateState = UPDATE_EXTRACTING;
+            self.updateProgressLabel.stringValue = @"Extracting update…";
+            _updateState = UPDATE_EXTRACTING;
         });
         
         self->_downloadDirectory = [[[NSFileManager defaultManager] URLForDirectory:NSItemReplacementDirectory
@@ -489,7 +499,7 @@ static uint32_t color_to_int(NSColor *color)
 - (void)performUpgrade
 {
     self.updateProgressButton.enabled = false;
-    self.updateProgressLabel.stringValue = @"Instaling update...";
+    self.updateProgressLabel.stringValue = @"Instaling update…";
     _updateState = UPDATE_INSTALLING;
     self.updateProgressButton.enabled = false;
     [self.updateProgressSpinner startAnimation:nil];
@@ -571,6 +581,76 @@ static uint32_t color_to_int(NSColor *color)
     [[NSApplication sharedApplication] orderFrontStandardAboutPanelWithOptions:@{
         @"ApplicationIcon": [NSImage imageNamed:@"Icon"]
     }];
+}
+
+- (void)controller:(JOYController *)controller buttonChangedState:(JOYButton *)button
+{
+    if (!button.isPressed) return;
+    NSDictionary *mapping = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"JoyKitInstanceMapping"][controller.uniqueID];
+    if (!mapping) {
+        mapping = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"JoyKitNameMapping"][controller.deviceName];
+    }
+    
+    JOYButtonUsage usage = ((JOYButtonUsage)[mapping[n2s(button.uniqueID)] unsignedIntValue]) ?: -1;
+    if (!mapping && usage >= JOYButtonUsageGeneric0) {
+        usage = (const JOYButtonUsage[]){JOYButtonUsageY, JOYButtonUsageA, JOYButtonUsageB, JOYButtonUsageX}[(usage - JOYButtonUsageGeneric0) & 3];
+    }
+    
+    if (usage == GBJoyKitHotkey1 || usage == GBJoyKitHotkey2) {
+        if (_preferencesWindow && self.keyWindow == _preferencesWindow) {
+            return;
+        }
+        if (![[NSUserDefaults standardUserDefaults] boolForKey:@"GBAllowBackgroundControllers"] && !self.keyWindow) {
+            return;
+        }
+
+        NSString *keyEquivalent = [[NSUserDefaults standardUserDefaults] stringForKey:usage == GBJoyKitHotkey1? @"GBJoypadHotkey1" : @"GBJoypadHotkey2"];
+        NSEventModifierFlags flags = NSEventModifierFlagCommand;
+        if ([keyEquivalent hasPrefix:@"^"]) {
+            flags |= NSEventModifierFlagShift;
+            [keyEquivalent substringFromIndex:1];
+        }
+        _simulatingMenuEvent = true;
+        [[NSApplication sharedApplication] sendEvent:[NSEvent keyEventWithType:NSEventTypeKeyDown
+                                                                                 location:(NSPoint){0,}
+                                                                            modifierFlags:flags
+                                                                                timestamp:0
+                                                                             windowNumber:0
+                                                                                  context:NULL
+                                                                               characters:keyEquivalent
+                                                              charactersIgnoringModifiers:keyEquivalent
+                                                                                isARepeat:false
+                                                                                  keyCode:0]];
+        _simulatingMenuEvent = false;
+    }
+}
+
+- (NSWindow *)keyWindow
+{
+    NSWindow *ret = [super keyWindow];
+    if (!ret && _simulatingMenuEvent) {
+        ret = [(Document *)self.orderedDocuments.firstObject mainWindow];
+    }
+    return ret;
+}
+
+- (NSWindow *)mainWindow
+{
+    NSWindow *ret = [super mainWindow];
+    if (!ret && _simulatingMenuEvent) {
+        ret = [(Document *)self.orderedDocuments.firstObject mainWindow];
+    }
+    return ret;
+}
+
+- (IBAction)openDebuggerHelp:(id)sender
+{
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://sameboy.github.io/debugger/"]];
+}
+
+- (IBAction)openSponsor:(id)sender
+{
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/sponsors/LIJI32"]];
 }
 
 - (void)dealloc

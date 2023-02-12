@@ -17,6 +17,7 @@ _Static_assert((GB_SECTION_OFFSET(timing) & 7) == 0, "Section timing is not alig
 _Static_assert((GB_SECTION_OFFSET(apu) & 7) == 0, "Section apu is not aligned");
 _Static_assert((GB_SECTION_OFFSET(rtc) & 7) == 0, "Section rtc is not aligned");
 _Static_assert((GB_SECTION_OFFSET(video) & 7) == 0, "Section video is not aligned");
+_Static_assert((GB_SECTION_OFFSET(accessory) & 7) == 0, "Section accessory is not aligned");
 
 typedef struct __attribute__((packed)) {
     uint32_t magic;
@@ -280,6 +281,7 @@ size_t GB_get_save_state_size_no_bess(GB_gameboy_t *gb)
     + GB_SECTION_SIZE(apu       ) + sizeof(uint32_t)
     + GB_SECTION_SIZE(rtc       ) + sizeof(uint32_t)
     + GB_SECTION_SIZE(video     ) + sizeof(uint32_t)
+    + GB_SECTION_SIZE(accessory ) + sizeof(uint32_t)
     + (GB_is_hle_sgb(gb)? sizeof(*gb->sgb) + sizeof(uint32_t) : 0)
     + gb->mbc_ram_size
     + gb->ram_size
@@ -336,6 +338,10 @@ static bool verify_and_update_state_compatibility(GB_gameboy_t *gb, GB_gameboy_t
         return false;
     }
     
+    if (gb->accessory != save->accessory) {
+        memset(GB_GET_SECTION(save, accessory), 0, GB_SECTION_SIZE(accessory));
+    }
+    
     switch (save->model) {
         case GB_MODEL_DMG_B: return true;
         case GB_MODEL_SGB_NTSC: return true;
@@ -352,11 +358,13 @@ static bool verify_and_update_state_compatibility(GB_gameboy_t *gb, GB_gameboy_t
         case GB_MODEL_CGB_D: return true;
         case GB_MODEL_CGB_E: return true;
         case GB_MODEL_AGB_A: return true;
+        case GB_MODEL_GBP_A: return true;
     }
     if ((gb->model & GB_MODEL_FAMILY_MASK) == (save->model & GB_MODEL_FAMILY_MASK)) {
         save->model = gb->model;
         return true;
     }
+    
     GB_log(gb, "This save state is for an unknown Game Boy model\n");
     return false;
 }
@@ -411,6 +419,10 @@ static void sanitize_state(GB_gameboy_t *gb)
         gb->sgb->current_player &= gb->sgb->player_count - 1;
     }
     GB_update_clock_rate(gb);
+    
+    if (gb->camera_update_request_callback) {
+        GB_camera_updated(gb);
+    }
 }
 
 static bool dump_section(virtual_file_t *file, const void *src, uint32_t size)
@@ -539,7 +551,8 @@ static int save_state_internal(GB_gameboy_t *gb, virtual_file_t *file, bool appe
     if (!DUMP_SECTION(gb, file, rtc       )) goto error;
     uint32_t video_offset = file->tell(file) + 4;
     if (!DUMP_SECTION(gb, file, video     )) goto error;
-    
+    if (!DUMP_SECTION(gb, file, accessory )) goto error;
+
     uint32_t sgb_offset = 0;
     
     if (GB_is_hle_sgb(gb)) {
@@ -633,7 +646,9 @@ static int save_state_internal(GB_gameboy_t *gb, virtual_file_t *file, bool appe
         case GB_MODEL_CGB_C: bess_core.full_model = BE32('CCC '); break;
         case GB_MODEL_CGB_D: bess_core.full_model = BE32('CCD '); break;
         case GB_MODEL_CGB_E: bess_core.full_model = BE32('CCE '); break;
-        case GB_MODEL_AGB_A: bess_core.full_model = BE32('CAA '); break;
+        case GB_MODEL_AGB_A:
+        case GB_MODEL_GBP_A:
+            bess_core.full_model = BE32('CAA '); break;
     }
     
     bess_core.pc = LE16(gb->pc);
@@ -819,6 +834,7 @@ error:
 
 int GB_save_state(GB_gameboy_t *gb, const char *path)
 {
+    GB_ASSERT_NOT_RUNNING(gb)
     FILE *f = fopen(path, "wb");
     if (!f) {
         GB_log(gb, "Could not open save state: %s.\n", strerror(errno));
@@ -837,6 +853,7 @@ int GB_save_state(GB_gameboy_t *gb, const char *path)
 
 void GB_save_state_to_buffer(GB_gameboy_t *gb, uint8_t *buffer)
 {
+    GB_ASSERT_NOT_RUNNING(gb)
     virtual_file_t file = {
         .write = buffer_write,
         .seek = buffer_seek,
@@ -1297,8 +1314,8 @@ static int load_state_internal(GB_gameboy_t *gb, virtual_file_t *file)
     if (!READ_SECTION(&save, file, apu       )) return errno ?: EIO;
     if (!READ_SECTION(&save, file, rtc       )) return errno ?: EIO;
     if (!READ_SECTION(&save, file, video     )) return errno ?: EIO;
-#undef READ_SECTION
-    
+    if (!READ_SECTION(&save, file, accessory )) return errno ?: EIO;
+
     
     bool attempt_bess = false;
     if (!verify_and_update_state_compatibility(gb, &save, &attempt_bess)) {
@@ -1339,6 +1356,7 @@ static int load_state_internal(GB_gameboy_t *gb, virtual_file_t *file)
 
 int GB_load_state(GB_gameboy_t *gb, const char *path)
 {
+    GB_ASSERT_NOT_RUNNING(gb)
     FILE *f = fopen(path, "rb");
     if (!f) {
         GB_log(gb, "Could not open save state: %s.\n", strerror(errno));
@@ -1357,6 +1375,7 @@ int GB_load_state(GB_gameboy_t *gb, const char *path)
 
 int GB_load_state_from_buffer(GB_gameboy_t *gb, const uint8_t *buffer, size_t length)
 {
+    GB_ASSERT_NOT_RUNNING(gb)
     virtual_file_t file = {
         .read = buffer_read,
         .seek = buffer_seek,
@@ -1367,6 +1386,109 @@ int GB_load_state_from_buffer(GB_gameboy_t *gb, const uint8_t *buffer, size_t le
     };
     
     return load_state_internal(gb, &file);
+}
+
+static int get_state_model_bess(virtual_file_t *file, GB_model_t *model)
+{
+    file->seek(file, -sizeof(BESS_footer_t), SEEK_END);
+    BESS_footer_t footer = {0, };
+    file->read(file, &footer, sizeof(footer));
+    if (footer.magic != BE32('BESS')) {
+        return -1;
+    }
+
+    file->seek(file, LE32(footer.start_offset), SEEK_SET);
+    while (true) {
+        BESS_block_t block;
+        if (file->read(file, &block, sizeof(block)) != sizeof(block)) return errno;
+        switch (block.magic) {
+            case BE32('CORE'): {
+                BESS_CORE_t core = {0,};
+                if (LE32(block.size) > sizeof(core) - sizeof(block)) {
+                    if (file->read(file, &core.header + 1, sizeof(core) - sizeof(block)) != sizeof(core) - sizeof(block)) return errno;
+                    file->seek(file, LE32(block.size) - (sizeof(core) - sizeof(block)), SEEK_CUR);
+                }
+                else {
+                    if (file->read(file, &core.header + 1, LE32(block.size)) != LE32(block.size)) return errno;
+                }
+                
+                switch (core.full_model) {
+                    case BE32('GDB '): *model = GB_MODEL_DMG_B; return 0;
+                    case BE32('GM  '): *model = GB_MODEL_MGB; return 0;
+                    case BE32('SN  '): *model = GB_MODEL_SGB_NTSC_NO_SFC; return 0;
+                    case BE32('SP  '): *model = GB_MODEL_SGB_PAL; return 0;
+                    case BE32('S2  '): *model = GB_MODEL_SGB2; return 0;
+                    case BE32('CC0 '): *model = GB_MODEL_CGB_0; return 0;
+                    case BE32('CCA '): *model = GB_MODEL_CGB_A; return 0;
+                    case BE32('CCB '): *model = GB_MODEL_CGB_B; return 0;
+                    case BE32('CCC '): *model = GB_MODEL_CGB_C; return 0;
+                    case BE32('CCD '): *model = GB_MODEL_CGB_D; return 0;
+                    case BE32('CCE '): *model = GB_MODEL_CGB_E; return 0;
+                    case BE32('CAA '): *model = GB_MODEL_AGB_A; return 0;
+                }
+                return -1;
+                
+            default:
+                file->seek(file, LE32(block.size), SEEK_CUR);
+                break;
+            }
+        }
+    }
+    return -1;
+}
+
+
+static int get_state_model_internal(virtual_file_t *file, GB_model_t *model)
+{
+    GB_gameboy_t save;
+    
+    bool fix_broken_windows_saves = false;
+    
+    if (file->read(file, GB_GET_SECTION(&save, header), GB_SECTION_SIZE(header)) != GB_SECTION_SIZE(header)) return errno;
+    if (save.magic == 0) {
+        /* Potentially legacy, broken Windows save state*/
+        
+        file->seek(file, 4, SEEK_SET);
+        if (file->read(file, GB_GET_SECTION(&save, header), GB_SECTION_SIZE(header)) != GB_SECTION_SIZE(header)) return errno;
+        fix_broken_windows_saves = true;
+    }
+    if (save.magic != state_magic()) {
+        return get_state_model_bess(file, model);
+    }
+    if (!READ_SECTION(&save, file, core_state)) return errno ?: EIO;
+    *model = save.model;
+    return 0;
+}
+
+int GB_get_state_model(const char *path, GB_model_t *model)
+{
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        return errno;
+    }
+    virtual_file_t file = {
+        .read = file_read,
+        .seek = file_seek,
+        .tell = file_tell,
+        .file = f,
+    };
+    int ret = get_state_model_internal(&file, model);
+    fclose(f);
+    return ret;
+}
+
+int GB_get_state_model_from_buffer(const uint8_t *buffer, size_t length, GB_model_t *model)
+{
+    virtual_file_t file = {
+        .read = buffer_read,
+        .seek = buffer_seek,
+        .tell = buffer_tell,
+        .buffer = (uint8_t *)buffer,
+        .position = 0,
+        .size = length,
+    };
+    
+    return get_state_model_internal(&file, model);
 }
 
 

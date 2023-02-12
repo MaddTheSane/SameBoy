@@ -23,7 +23,7 @@ typedef struct {
 } GB_symbol_map_t;
 
 typedef struct {
-    GB_symbol_t *buckets[0x400];
+    GB_symbol_t *buckets[0x2000];
 } GB_reversed_symbol_map_t;
 
 #ifdef GB_INTERNAL
@@ -35,4 +35,4 @@ internal GB_symbol_map_t *GB_map_alloc(void);
 internal void GB_map_free(GB_symbol_map_t *map);
 #endif
 
-#endif /* symbol_hash_h */
+#endif

@@ -33,6 +33,7 @@ enum pending_command {
     GB_SDL_NEW_FILE_COMMAND,
     GB_SDL_QUIT_COMMAND,
     GB_SDL_LOAD_STATE_FROM_FILE_COMMAND,
+    GB_SDL_CART_SWAP_COMMAND,
 };
 
 #define GB_SDL_DEFAULT_SCALE_MAX 8
@@ -64,5 +65,6 @@ extern const char *osd_text;
 extern unsigned osd_countdown;
 extern unsigned osd_text_lines;
 void convert_mouse_coordinates(signed *x, signed *y);
+const GB_palette_t *current_dmg_palette(void);
 
 #endif

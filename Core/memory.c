@@ -379,14 +379,16 @@ static uint8_t read_mbc_ram(GB_gameboy_t *gb, uint16_t addr)
             case 5:
                 return gb->rtc_latched.data[(addr & 3) ^ 3];
             default:
-                return 0xFF;
+                gb->returned_open_bus = true;
+                return gb->data_bus;
         }
     }
     else if ((!gb->mbc_ram_enable) &&
         gb->cartridge_type->mbc_type != GB_CAMERA &&
         gb->cartridge_type->mbc_type != GB_HUC1 &&
         gb->cartridge_type->mbc_type != GB_HUC3) {
-        return 0xFF;
+        gb->returned_open_bus = true;
+        return gb->data_bus;
     }
     
     if (gb->cartridge_type->mbc_type == GB_HUC1 && gb->huc1.ir_mode) {
@@ -403,7 +405,8 @@ static uint8_t read_mbc_ram(GB_gameboy_t *gb, uint16_t addr)
             gb->rtc_latched.high &= 0xC1;
             return gb->rtc_latched.data[gb->mbc_ram_bank];
         }
-        return 0xFF;
+        gb->returned_open_bus = true;
+        return gb->data_bus;
     }
 
     if (gb->camera_registers_mapped) {
@@ -411,11 +414,19 @@ static uint8_t read_mbc_ram(GB_gameboy_t *gb, uint16_t addr)
     }
 
     if (!gb->mbc_ram || !gb->mbc_ram_size) {
-        return 0xFF;
+        gb->returned_open_bus = true;
+        return gb->data_bus;
     }
 
-    if (gb->cartridge_type->mbc_type == GB_CAMERA && gb->mbc_ram_bank == 0 && addr >= 0xA100 && addr < 0xAF00) {
-        return GB_camera_read_image(gb, addr - 0xA100);
+    if (gb->cartridge_type->mbc_type == GB_CAMERA) {
+        /* Forbid reading RAM while the camera is busy. */
+        if (gb->camera_registers[GB_CAMERA_SHOOT_AND_1D_FLAGS] & 1) {
+            return 0;
+        }
+
+        if (gb->mbc_ram_bank == 0 && addr >= 0xA100 && addr < 0xAF00) {
+            return GB_camera_read_image(gb, addr - 0xA100);
+        }
     }
 
     uint8_t effective_bank = gb->mbc_ram_bank;
@@ -482,6 +493,7 @@ internal uint8_t GB_read_oam(GB_gameboy_t *gb, uint8_t addr)
     switch (gb->model) {
         case GB_MODEL_CGB_E:
         case GB_MODEL_AGB_A:
+        case GB_MODEL_GBP_A:
             return (addr & 0xF0) | (addr >> 4);
             
         case GB_MODEL_CGB_D:
@@ -525,7 +537,7 @@ static uint8_t read_high_memory(GB_gameboy_t *gb, uint16_t addr)
             return 0xFF;
         }
         
-        if (GB_is_dma_active(gb)) {
+        if (GB_is_dma_active(gb) && (gb->dma_current_dest != 0 || gb->dma_restarting)) {
             /* Todo: Does reading from OAM during DMA causes the OAM bug? */
             return 0xFF;
         }
@@ -620,6 +632,10 @@ static uint8_t read_high_memory(GB_gameboy_t *gb, uint16_t addr)
             case GB_IO_JOYP:
                 gb->joyp_accessed = true;
                 GB_timing_sync(gb);
+                if (unlikely(gb->joyp_switching_delay)) {
+                    return (gb->io_registers[addr & 0xFF] & ~0x30) | (gb->joyp_switch_value & 0x30);
+                }
+                return gb->io_registers[addr & 0xFF];
             case GB_IO_TMA:
             case GB_IO_LCDC:
             case GB_IO_SCY:
@@ -739,6 +755,8 @@ void GB_set_read_memory_callback(GB_gameboy_t *gb, GB_read_memory_callback_t cal
 
 uint8_t GB_read_memory(GB_gameboy_t *gb, uint16_t addr)
 {
+    GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    
     if (unlikely(gb->n_watchpoints)) {
         GB_debugger_test_read_watchpoint(gb, addr);
     }
@@ -764,6 +782,18 @@ uint8_t GB_read_memory(GB_gameboy_t *gb, uint16_t addr)
     GB_apply_cheat(gb, addr, &data);
     if (unlikely(gb->read_memory_callback)) {
         data = gb->read_memory_callback(gb, addr, data);
+    }
+    
+    /* TODO: this is very naïve due to my lack of a cart that properly handles open-bus scnenarios,
+             but should be good enough */
+    if (bus_for_addr(gb, addr) == GB_BUS_MAIN && addr < 0xFF00) {
+        if (unlikely(gb->returned_open_bus)) {
+            gb->returned_open_bus = false;
+        }
+        else {
+            gb->data_bus = data;
+            gb->data_bus_decay_countdown = gb->data_bus_decay;
+        }
     }
     return data;
 }
@@ -892,7 +922,7 @@ static void write_mbc(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
         case GB_HUC3:
             switch (addr & 0xF000) {
                 case 0x0000: case 0x1000:
-                    gb->huc3.mode = value & 0xF;
+                    gb->huc3.mode = value;
                     gb->mbc_ram_enable = gb->huc3.mode == 0xA;
                     break;
                 case 0x2000: case 0x3000: gb->huc3.rom_bank  = value; break;
@@ -1219,7 +1249,12 @@ static void write_mbc_ram(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
     if (!gb->mbc_ram || !gb->mbc_ram_size) {
         return;
     }
-    
+
+    if (gb->cartridge_type->mbc_type == GB_CAMERA && (gb->camera_registers[GB_CAMERA_SHOOT_AND_1D_FLAGS] & 1)) {
+        /* Forbid writing to RAM while the camera is busy. */
+        return;
+    }
+
     uint8_t effective_bank = gb->mbc_ram_bank;
     if (gb->cartridge_type->mbc_type == GB_MBC3 && !gb->is_mbc30) {
         if (gb->cartridge_type->has_rtc) {
@@ -1263,6 +1298,7 @@ static void write_oam(GB_gameboy_t *gb, uint8_t addr, uint8_t value)
             break;
         case GB_MODEL_CGB_E:
         case GB_MODEL_AGB_A:
+        case GB_MODEL_GBP_A:
         case GB_MODEL_DMG_B:
         case GB_MODEL_MGB:
         case GB_MODEL_SGB_NTSC:
@@ -1420,8 +1456,11 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
 
 
             case GB_IO_LCDC:
-                if ((value & 0x80) && !(gb->io_registers[GB_IO_LCDC] & 0x80)) {
+                if ((value & GB_LCDC_ENABLE) && !(gb->io_registers[GB_IO_LCDC] & GB_LCDC_ENABLE)) {
                     // LCD turned on
+                    if (gb->lcd_status_callback) {
+                        gb->lcd_status_callback(gb, true);
+                    }
                     if (!gb->lcd_disabled_outside_of_vblank &&
                         (gb->cycles_since_vblank_callback > 10 * 456 || GB_is_sgb(gb))) {
                         // Trigger a vblank here so we don't exceed LCDC_PERIOD
@@ -1433,21 +1472,24 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                     gb->double_speed_alignment = 0;
                     gb->cycles_for_line = 0;
                     if (GB_is_sgb(gb)) {
-                        gb->frame_skip_state = GB_FRAMESKIP_SECOND_FRAME_RENDERED;
+                        gb->frame_skip_state = GB_FRAMESKIP_FIRST_FRAME_RENDERED;
                     }
-                    else if (gb->frame_skip_state == GB_FRAMESKIP_SECOND_FRAME_RENDERED) {
+                    else {
                         gb->frame_skip_state = GB_FRAMESKIP_LCD_TURNED_ON;
                     }
                     GB_timing_sync(gb);
                 }
-                else if (!(value & 0x80) && (gb->io_registers[GB_IO_LCDC] & 0x80)) {
+                else if (!(value & GB_LCDC_ENABLE) && (gb->io_registers[GB_IO_LCDC] & GB_LCDC_ENABLE)) {
                     /* Sync after turning off LCD */
+                    if (gb->lcd_status_callback) {
+                        gb->lcd_status_callback(gb, false);
+                    }
                     gb->double_speed_alignment = 0;
                     GB_timing_sync(gb);
                     GB_lcd_off(gb);
                 }
                 /* Handle disabling objects while already fetching an object */
-                if ((gb->io_registers[GB_IO_LCDC] & 2) && !(value & 2)) {
+                if ((gb->io_registers[GB_IO_LCDC] & GB_LCDC_OBJ_EN) && !(value & GB_LCDC_OBJ_EN)) {
                     if (gb->during_object_fetch) {
                         gb->cycles_for_line += gb->display_cycles;
                         gb->display_cycles = 0;
@@ -1455,7 +1497,7 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                     }
                 }
                 gb->io_registers[GB_IO_LCDC] = value;
-                if (!(value & 0x20)) {
+                if (!(value & GB_LCDC_WIN_ENABLE)) {
                     gb->wx_triggered = false;
                     gb->wx166_glitch = false;
                 }
@@ -1485,6 +1527,31 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                     GB_update_joyp(gb);
                 }
                 else if ((gb->io_registers[GB_IO_JOYP] & 0x30) != (value & 0x30)) {
+                    if (!GB_is_cgb(gb) && !GB_is_sgb(gb)) {
+                        if (gb->joyp_switching_delay) {
+                            gb->io_registers[GB_IO_JOYP] = (gb->joyp_switch_value & 0xF0) | (gb->io_registers[GB_IO_JOYP] & 0x0F);
+                        }
+                        gb->joyp_switch_value = value;
+                        uint8_t delay = 0;
+                        switch (((gb->io_registers[GB_IO_JOYP] & 0x30) >> 4) |
+                                ((value & 0x30) >> 2)) {
+                            case 0x4: delay = 48; break;
+                            case 0x6: delay = gb->model == GB_MODEL_MGB? 56 : 48; break;
+                            case 0x8: delay = 24; break;
+                            case 0x9: delay = 24; break;
+                            case 0xC: delay = 48; break;
+                            case 0xD: delay = 24; break;
+                            case 0xE: delay = 48; break;
+                        }
+                        if (delay && gb->model == GB_MODEL_MGB) {
+                            delay -= 16;
+                        }
+                        gb->joyp_switching_delay = MAX(gb->joyp_switching_delay, delay);
+                        if (gb->joyp_switching_delay) {
+                            value &= gb->io_registers[GB_IO_JOYP];
+                            gb->joypad_is_stable = false;
+                        }
+                    }
                     GB_sgb_write(gb, value);
                     gb->io_registers[GB_IO_JOYP] = (value & 0xF0) | (gb->io_registers[GB_IO_JOYP] & 0x0F);
                     GB_update_joyp(gb);
@@ -1503,6 +1570,7 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 return;
 
             case GB_IO_DMA:
+                gb->dma_restarting = (gb->dma_current_dest != 0xA1 && gb->dma_current_dest != 0xA0);
                 gb->dma_cycles = 0;
                 gb->dma_cycles_modulo = 2;
                 gb->dma_current_dest = 0xFF;
@@ -1680,8 +1748,14 @@ void GB_set_write_memory_callback(GB_gameboy_t *gb, GB_write_memory_callback_t c
 
 void GB_write_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
 {
+    GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    
     if (unlikely(gb->n_watchpoints)) {
         GB_debugger_test_write_watchpoint(gb, addr, value);
+    }
+    if (bus_for_addr(gb, addr) == GB_BUS_MAIN && addr < 0xFF00) {
+        gb->data_bus = value;
+        gb->data_bus_decay_countdown = gb->data_bus_decay;
     }
     
     if (unlikely(gb->write_memory_callback)) {
@@ -1772,16 +1846,19 @@ void GB_dma_run(GB_gameboy_t *gb)
 void GB_hdma_run(GB_gameboy_t *gb)
 {
     unsigned cycles = gb->cgb_double_speed? 4 : 2;
+    /* TODO: This portion of code is probably inaccurate because it probably depends on my specific GB-Live32 */
+    #if 0
     /* This is a bit cart, revision and unit specific. TODO: what if PC is in cart RAM? */
     if (gb->model < GB_MODEL_CGB_D || gb->pc > 0x8000) {
-        gb->hdma_open_bus = 0xFF;
+        gb->data_bus = 0xFF;
     }
+    #endif
     gb->addr_for_hdma_conflict = 0xFFFF;
     uint16_t vram_base = gb->cgb_vram_bank? 0x2000 : 0;
     gb->hdma_in_progress = true;
     GB_advance_cycles(gb, cycles);
     while (gb->hdma_on) {
-        uint8_t byte = gb->hdma_open_bus;
+        uint8_t byte = gb->data_bus;
         gb->addr_for_hdma_conflict = 0xFFFF;
         
         if (gb->hdma_current_src < 0x8000 ||
@@ -1794,11 +1871,11 @@ void GB_hdma_run(GB_gameboy_t *gb)
         }
         gb->hdma_current_src++;
         GB_advance_cycles(gb, cycles);
-        if (gb->addr_for_hdma_conflict == 0xFFFF /* || (gb->model >= GB_MODEL_AGB_B && gb->cgb_double_speed) */) {
+        if (gb->addr_for_hdma_conflict == 0xFFFF /* || ((gb->model & ~GB_MODEL_GBP_BIT) >= GB_MODEL_AGB_B && gb->cgb_double_speed) */) {
             uint16_t addr = (gb->hdma_current_dest++ & 0x1FFF);
             gb->vram[vram_base + addr] = byte;
             // TODO: vram_write_blocked might not be the correct timing
-            if (gb->vram_write_blocked /* && gb->model < GB_MODEL_AGB_B */) {
+            if (gb->vram_write_blocked /* && (gb->model & ~GB_MODEL_GBP_BIT) < GB_MODEL_AGB_B */) {
                 gb->vram[(vram_base ^ 0x2000) + addr] = byte;
             }
         }
@@ -1812,13 +1889,12 @@ void GB_hdma_run(GB_gameboy_t *gb)
                 uint16_t addr = (gb->hdma_current_dest & gb->addr_for_hdma_conflict & 0x1FFF);
                 gb->vram[vram_base + addr] = byte;
                 // TODO: vram_write_blocked might not be the correct timing
-                if (gb->vram_write_blocked /* && gb->model < GB_MODEL_AGB_B */) {
+                if (gb->vram_write_blocked /* && (gb->model & ~GB_MODEL_GBP_BIT) < GB_MODEL_AGB_B */) {
                     gb->vram[(vram_base ^ 0x2000) + addr] = byte;
                 }
             }
             gb->hdma_current_dest++;
         }
-        gb->hdma_open_bus = 0xFF;
         
         if ((gb->hdma_current_dest & 0xF) == 0) {
             if (--gb->hdma_steps_left == 0 || gb->hdma_current_dest == 0) {

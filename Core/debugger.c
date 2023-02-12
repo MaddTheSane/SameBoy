@@ -710,7 +710,7 @@ static const char *lstrip(const char *str)
 
 #define STOPPED_ONLY \
 if (!gb->debug_stopped) { \
-GB_log(gb, "Program is running. \n"); \
+GB_log(gb, "Program is running, use 'interrupt' to stop execution.\n"); \
 return false; \
 }
 
@@ -747,6 +747,24 @@ static bool cont(GB_gameboy_t *gb, char *arguments, char *modifiers, const debug
 
     gb->debug_stopped = false;
     return false;
+}
+
+static bool interrupt(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugger_command_t *command)
+{
+    NO_MODIFIERS
+    
+    if (strlen(lstrip(arguments))) {
+        print_usage(gb, command);
+        return true;
+    }
+    
+    if (gb->debug_stopped) {
+        GB_log(gb, "Program already stopped.\n");
+        return true;
+    }
+    
+    gb->debug_stopped = true;
+    return true;
 }
 
 static bool next(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugger_command_t *command)
@@ -1320,6 +1338,15 @@ static bool _should_break(GB_gameboy_t *gb, value_t addr, bool jump_to)
     uint32_t key = BP_KEY(addr);
 
     if (index < gb->n_breakpoints && gb->breakpoints[index].key == key && gb->breakpoints[index].is_jump_to == jump_to) {
+        if (addr.has_bank && !gb->boot_rom_finished) {
+            if (addr.value < 0x100) {
+                return false;
+            }
+            
+            if (addr.value >= 0x200 && addr.value < 0x900 && GB_is_cgb(gb)) {
+                return false;
+            }
+        }
         if (!gb->breakpoints[index].condition) {
             return true;
         }
@@ -1596,12 +1623,28 @@ static bool backtrace(GB_gameboy_t *gb, char *arguments, char *modifiers, const 
     return true;
 }
 
+static char *keep_completer(GB_gameboy_t *gb, const char *string, uintptr_t *context)
+{
+    size_t length = strlen(string);
+    const char *suggestions[] = {"keep"};
+    while (*context < sizeof(suggestions) / sizeof(suggestions[0])) {
+        if (memcmp(string, suggestions[*context], length) == 0) {
+            return strdup(suggestions[(*context)++] + length);
+        }
+        (*context)++;
+    }
+    return NULL;
+}
+
 static bool ticks(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugger_command_t *command)
 {
     NO_MODIFIERS
     STOPPED_ONLY
-
-    if (strlen(lstrip(arguments))) {
+    bool keep = false;
+    if (strcmp(lstrip(arguments), "keep") == 0) {
+        keep = true;
+    }
+    else if (lstrip(arguments)[0]) {
         print_usage(gb, command);
         return true;
     }
@@ -1610,8 +1653,10 @@ static bool ticks(GB_gameboy_t *gb, char *arguments, char *modifiers, const debu
     GB_log(gb, "M-cycles: %llu\n", (unsigned long long)gb->debugger_ticks / 4);
     GB_log(gb, "Absolute 8MHz ticks: %llu\n", (unsigned long long)gb->absolute_debugger_ticks);
     GB_log(gb, "Tick count reset.\n");
-    gb->debugger_ticks = 0;
-    gb->absolute_debugger_ticks = 0;
+    if (!keep) {
+        gb->debugger_ticks = 0;
+        gb->absolute_debugger_ticks = 0;
+    }
 
     return true;
 }
@@ -1680,15 +1725,15 @@ static bool lcd(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugg
         return true;
     }
     GB_log(gb, "LCDC:\n");
-    GB_log(gb, "    LCD enabled: %s\n",(gb->io_registers[GB_IO_LCDC] & 128)? "Enabled" : "Disabled");
+    GB_log(gb, "    LCD enabled: %s\n",(gb->io_registers[GB_IO_LCDC] & GB_LCDC_ENABLE)? "Enabled" : "Disabled");
     GB_log(gb, "    %s: %s\n", (gb->cgb_mode? "Object priority flags" : "Background and Window"),
-                               (gb->io_registers[GB_IO_LCDC] & 1)? "Enabled" : "Disabled");
-    GB_log(gb, "    Objects: %s\n", (gb->io_registers[GB_IO_LCDC] & 2)? "Enabled" : "Disabled");
-    GB_log(gb, "    Object size: %s\n", (gb->io_registers[GB_IO_LCDC] & 4)? "8x16" : "8x8");
-    GB_log(gb, "    Background tilemap: %s\n", (gb->io_registers[GB_IO_LCDC] & 8)? "$9C00" : "$9800");
-    GB_log(gb, "    Background and Window Tileset: %s\n", (gb->io_registers[GB_IO_LCDC] & 16)? "$8000" : "$8800");
-    GB_log(gb, "    Window: %s\n", (gb->io_registers[GB_IO_LCDC] & 32)? "Enabled" : "Disabled");
-    GB_log(gb, "    Window tilemap: %s\n", (gb->io_registers[GB_IO_LCDC] & 64)? "$9C00" : "$9800");
+                               (gb->io_registers[GB_IO_LCDC] & GB_LCDC_BG_EN)? "Enabled" : "Disabled");
+    GB_log(gb, "    Objects: %s\n", (gb->io_registers[GB_IO_LCDC] & GB_LCDC_OBJ_EN)? "Enabled" : "Disabled");
+    GB_log(gb, "    Object size: %s\n", (gb->io_registers[GB_IO_LCDC] & GB_LCDC_OBJ_SIZE)? "8x16" : "8x8");
+    GB_log(gb, "    Background tilemap: %s\n", (gb->io_registers[GB_IO_LCDC] & GB_LCDC_BG_MAP)? "$9C00" : "$9800");
+    GB_log(gb, "    Background and Window Tileset: %s\n", (gb->io_registers[GB_IO_LCDC] & GB_LCDC_TILE_SEL)? "$8000" : "$8800");
+    GB_log(gb, "    Window: %s\n", (gb->io_registers[GB_IO_LCDC] & GB_LCDC_WIN_ENABLE)? "Enabled" : "Disabled");
+    GB_log(gb, "    Window tilemap: %s\n", (gb->io_registers[GB_IO_LCDC] & GB_LCDC_WIN_MAP)? "$9C00" : "$9800");
 
     GB_log(gb, "\nSTAT:\n");
     static const char *modes[] = {"Mode 0, H-Blank", "Mode 1, V-Blank", "Mode 2, OAM", "Mode 3, Rendering"};
@@ -1703,7 +1748,7 @@ static bool lcd(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugg
 
     GB_log(gb, "\nCurrent line: %d\n", gb->current_line);
     GB_log(gb, "Current state: ");
-    if (!(gb->io_registers[GB_IO_LCDC] & 0x80)) {
+    if (!(gb->io_registers[GB_IO_LCDC] & GB_LCDC_ENABLE)) {
         GB_log(gb, "Off\n");
     }
     else if (gb->display_state == 7 || gb->display_state == 8) {
@@ -1728,6 +1773,17 @@ static bool lcd(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugg
     GB_log(gb, "LYC: %d\n", gb->io_registers[GB_IO_LYC]);
     GB_log(gb, "Window position: %d, %d\n", (signed) gb->io_registers[GB_IO_WX] - 7, gb->io_registers[GB_IO_WY]);
     GB_log(gb, "Interrupt line: %s\n", gb->stat_interrupt_line? "On" : "Off");
+    GB_log(gb, "Background shifter size: %d\n", gb->bg_fifo.size);
+    GB_log(gb, "Background fetcher state: %s\n", (const char *[]){
+        "Tile (1/2)",
+        "Tile (2/2)",
+        "Low data (1/2)",
+        "Low data (2/2)",
+        "High data (1/2)",
+        "High data (2/2)",
+        "Push (1/2)",
+        "Push (2/2)",
+    }[gb->fetcher_state & 7]);
 
     return true;
 }
@@ -1803,8 +1859,8 @@ static bool apu(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugg
 
         uint8_t duty = gb->io_registers[channel == GB_SQUARE_1? GB_IO_NR11 :GB_IO_NR21] >> 6;
         GB_log(gb, "    Duty cycle %s%% (%s), current index %u/8%s\n",
-               duty > 3? "" : (const char *[]){"12.5", "  25", "  50", "  75"}[duty],
-               duty > 3? "" : (const char *[]){"_______-", "-______-", "-____---", "_------_"}[duty],
+               duty > 3? "" : (const char *const[]){"12.5", "  25", "  50", "  75"}[duty],
+               duty > 3? "" : (const char *const[]){"_______-", "-______-", "-____---", "_------_"}[duty],
                gb->apu.square_channels[channel].current_sample_index,
                gb->apu.square_channels[channel].sample_surpressed ? " (suppressed)" : "");
 
@@ -1839,7 +1895,7 @@ static bool apu(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugg
         GB_log(gb, "    Current position: %u\n", gb->apu.wave_channel.current_sample_index);
 
         GB_log(gb, "    Volume %s (right-shifted %u times)\n",
-               gb->apu.wave_channel.shift > 4? "" : (const char *[]){"100%", "50%", "25%", "", "muted"}[gb->apu.wave_channel.shift],
+               gb->apu.wave_channel.shift > 4? "" : (const char *const[]){"100%", "50%", "25%", "", "muted"}[gb->apu.wave_channel.shift],
                gb->apu.wave_channel.shift);
 
         GB_log(gb, "    Current sample length: %u APU ticks (next in %u ticks)\n",
@@ -1961,11 +2017,11 @@ static bool undo(GB_gameboy_t *gb, char *arguments, char *modifiers, const debug
 
 static bool help(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugger_command_t *command);
 
-#define HELP_NEWLINE "\n             "
 
 /* Commands without implementations are aliases of the previous non-alias commands */
 static const debugger_command_t commands[] = {
     {"continue", 1, cont, "Continue running until next stop"},
+    {"interrupt", 1, interrupt, "Interrupt the program execution"},
     {"next", 1, next, "Run the next instruction, skipping over function calls"},
     {"step", 1, step, "Run the next instruction, stepping into function calls"},
     {"finish", 1, finish, "Run until the current function returns"},
@@ -1973,38 +2029,40 @@ static const debugger_command_t commands[] = {
     {"registers", 1, registers, "Print values of processor registers and other important registers"},
     {"backtrace", 2, backtrace, "Display the current call stack"},
     {"bt", 2, }, /* Alias */
-    {"print", 1, print, "Evaluate and print an expression" HELP_NEWLINE
-        "Use modifier to format as an address (a, default) or as a number in" HELP_NEWLINE
-        "decimal (d), hexadecimal (x), octal (o) or binary (b).",
-        "<expression>", "format", .argument_completer = symbol_completer, .modifiers_completer = format_completer},
+    {"print", 1, print, "Evaluate and print an expression "
+                        "Use modifier to format as an address (a, default) or as a number in "
+                        "decimal (d), hexadecimal (x), octal (o) or binary (b).",
+                        "<expression>", "format", .argument_completer = symbol_completer, .modifiers_completer = format_completer},
     {"eval", 2, }, /* Alias */
     {"examine", 2, examine, "Examine values at address", "<expression>", "count", .argument_completer = symbol_completer},
     {"x", 1, }, /* Alias */
     {"disassemble", 1, disassemble, "Disassemble instructions at address", "<expression>", "count", .argument_completer = symbol_completer},
-    {"breakpoint", 1, breakpoint, "Add a new breakpoint at the specified address/expression" HELP_NEWLINE
-        "Can also modify the condition of existing breakpoints." HELP_NEWLINE
-        "If the j modifier is used, the breakpoint will occur just before" HELP_NEWLINE
-        "jumping to the target.",
-        "<expression>[ if <condition expression>]", "j",
-        .argument_completer = symbol_completer, .modifiers_completer = j_completer},
+    {"breakpoint", 1, breakpoint, "Add a new breakpoint at the specified address/expression "
+                                  "Can also modify the condition of existing breakpoints. "
+                                  "If the j modifier is used, the breakpoint will occur just before "
+                                  "jumping to the target.",
+                                  "<expression>[ if <condition expression>]", "j",
+                                  .argument_completer = symbol_completer, .modifiers_completer = j_completer},
     {"delete", 2, delete, "Delete a breakpoint by its address, or all breakpoints", "[<expression>]", .argument_completer = symbol_completer},
-    {"watch", 1, watch, "Add a new watchpoint at the specified address/expression." HELP_NEWLINE
-        "Can also modify the condition and type of existing watchpoints." HELP_NEWLINE
-        "Default watchpoint type is write-only.",
-        "<expression>[ if <condition expression>]", "(r|w|rw)",
-        .argument_completer = symbol_completer, .modifiers_completer = rw_completer
+    {"watch", 1, watch, "Add a new watchpoint at the specified address/expression. "
+                        "Can also modify the condition and type of existing watchpoints. "
+                        "Default watchpoint type is write-only.",
+                        "<expression>[ if <condition expression>]", "(r|w|rw)",
+                        .argument_completer = symbol_completer, .modifiers_completer = rw_completer
     },
     {"unwatch", 3, unwatch, "Delete a watchpoint by its address, or all watchpoints", "[<expression>]", .argument_completer = symbol_completer},
-    {"softbreak", 2, softbreak, "Enable or disable software breakpoints", "(on|off)", .argument_completer = on_off_completer},
+    {"softbreak", 2, softbreak, "Enable or disable software breakpoints ('ld b, b' opcodes)", "(on|off)", .argument_completer = on_off_completer},
     {"list", 1, list, "List all set breakpoints and watchpoints"},
-    {"ticks", 2, ticks, "Display the number of CPU ticks since the last time 'ticks' was" HELP_NEWLINE
-                        "used"},
+    {"ticks", 2, ticks, "Display the number of CPU ticks since the last time 'ticks' was "
+                        "used. Use 'keep' as an argument to display ticks without reseeting "
+                        "the count.", "(keep)", .argument_completer = keep_completer},
     {"cartridge", 2, mbc, "Display information about the MBC and cartridge"},
     {"mbc", 3, }, /* Alias */
-    {"apu", 3, apu, "Display information about the current state of the audio processing unit", "[channel (1-4, 5 for NR5x)]"},
-    {"wave", 3, wave, "Print a visual representation of the wave RAM." HELP_NEWLINE
-                      "Modifiers can be used for a (f)ull print (the default)," HELP_NEWLINE
-        "a more (c)ompact one, or a one-(l)iner", "", "(f|c|l)", .modifiers_completer = wave_completer},
+    {"apu", 3, apu, "Display information about the current state of the audio processing "
+                    "unit", "[channel (1-4, 5 for NR5x)]"},
+    {"wave", 3, wave, "Print a visual representation of the wave RAM. "
+                      "Modifiers can be used for a (f)ull print (the default), "
+                      "a more (c)ompact one, or a one-(l)iner", "", "(f|c|l)", .modifiers_completer = wave_completer},
     {"lcd", 3, lcd, "Display information about the current state of the LCD controller"},
     {"palettes", 3, palettes, "Display the current CGB palettes"},
     {"dma", 3, dma, "Display the current OAM DMA status"},
@@ -2040,7 +2098,24 @@ static void print_command_description(GB_gameboy_t *gb, const debugger_command_t
 {
     print_command_shortcut(gb, command);
     GB_log(gb, ": ");
-    GB_log(gb, (const char *)&"           %s\n" + strlen(command->command), command->help_string);
+    GB_log(gb, "%s", (const char *)&"           " + strlen(command->command));
+    
+    const char *string = command->help_string;
+    const unsigned width = 80 - 13;
+    while (strlen(string) > width) {
+        const char *space = string + width;
+        while (*space != ' ') {
+            space--;
+            if (space == string) {
+                // This help string has some extra long word? Abort line-breaking, it's going to break anyway.
+                GB_log(gb, "%s\n", string);
+                return;
+            }
+        }
+        GB_log(gb, "%.*s\n             ", (unsigned)(space - string), string);
+        string = space + 1;
+    }
+    GB_log(gb, "%s\n", string);
 }
 
 static bool help(GB_gameboy_t *gb, char *arguments, char *modifiers, const debugger_command_t *ignored)
@@ -2079,6 +2154,7 @@ void GB_debugger_call_hook(GB_gameboy_t *gb, uint16_t call_addr)
         while (gb->backtrace_size) {
             if (gb->backtrace_sps[gb->backtrace_size - 1] < gb->sp) {
                 gb->backtrace_size--;
+                gb->debug_call_depth--;
             }
             else {
                 break;
@@ -2089,20 +2165,18 @@ void GB_debugger_call_hook(GB_gameboy_t *gb, uint16_t call_addr)
         gb->backtrace_returns[gb->backtrace_size].bank = bank_for_addr(gb, call_addr);
         gb->backtrace_returns[gb->backtrace_size].addr = call_addr;
         gb->backtrace_size++;
+        gb->debug_call_depth++;
     }
-
-    gb->debug_call_depth++;
 }
 
 void GB_debugger_ret_hook(GB_gameboy_t *gb)
 {
     /* Called just before the CPU runs ret/reti */
 
-    gb->debug_call_depth--;
-
     while (gb->backtrace_size) {
         if (gb->backtrace_sps[gb->backtrace_size - 1] <= gb->sp) {
             gb->backtrace_size--;
+            gb->debug_call_depth--;
         }
         else {
             break;
@@ -2203,6 +2277,11 @@ void GB_debugger_test_read_watchpoint(GB_gameboy_t *gb, uint16_t addr)
 /* Returns true if debugger waits for more commands */
 bool GB_debugger_execute_command(GB_gameboy_t *gb, char *input)
 {
+    GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    
+    while (*input == ' ') {
+        input++;
+    }
     if (!input[0]) {
         return true;
     }
@@ -2228,6 +2307,7 @@ bool GB_debugger_execute_command(GB_gameboy_t *gb, char *input)
         modifiers++;
     }
 
+    gb->help_shown = true;
     const debugger_command_t *command = find_command(command_string);
     if (command) {
         uint8_t *old_state = malloc(GB_get_save_state_size_no_bess(gb));
@@ -2256,7 +2336,7 @@ bool GB_debugger_execute_command(GB_gameboy_t *gb, char *input)
         return ret;
     }
     else {
-        GB_log(gb, "%s: no such command.\n", command_string);
+        GB_log(gb, "%s: no such command. Type 'help' to list the available debugger commands.\n", command_string);
         return true;
     }
 }
@@ -2338,10 +2418,14 @@ void GB_debugger_run(GB_gameboy_t *gb)
     if (gb->debug_next_command && gb->debug_call_depth <= 0 && !gb->halted) {
         gb->debug_stopped = true;
     }
-    if (gb->debug_fin_command && gb->debug_call_depth == -1) {
+    if (gb->debug_fin_command && gb->debug_call_depth <= -1) {
         gb->debug_stopped = true;
     }
     if (gb->debug_stopped) {
+        if (!gb->help_shown) {
+            gb->help_shown = true;
+            GB_log(gb, "Type 'help' to list the available debugger commands.\n");
+        }
         GB_cpu_disassemble(gb, gb->pc, 5);
     }
 next_command:
@@ -2516,6 +2600,8 @@ const char *GB_debugger_name_for_address(GB_gameboy_t *gb, uint16_t addr)
 /* The public version of debugger_evaluate */
 bool GB_debugger_evaluate(GB_gameboy_t *gb, const char *string, uint16_t *result, uint16_t *result_bank)
 {
+    GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    
     bool error = false;
     value_t value = debugger_evaluate(gb, string, strlen(string), &error, NULL, NULL);
     if (result) {

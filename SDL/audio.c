@@ -1,10 +1,12 @@
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <Core/gb.h>
 #include "audio/audio.h"
 #include "configuration.h"
 
-#define unlikely(x) __builtin_expect((bool)(x), 0)
+#define likely(x)   GB_likely(x)
+#define unlikely(x) GB_unlikely(x)
 
 static const GB_audio_driver_t *driver = NULL;
 
@@ -16,6 +18,9 @@ bool GB_audio_init(void)
         GB_AUDIO_DRIVER_REF(XAudio2_7),
 #endif
         GB_AUDIO_DRIVER_REF(SDL),
+#ifdef ENABLE_OPENAL
+        GB_AUDIO_DRIVER_REF(OpenAL),
+#endif
     };
     
     // First try the preferred driver
@@ -25,6 +30,9 @@ bool GB_audio_init(void)
             continue;
         }
         if (driver->audio_init()) {
+            if (driver->audio_deinit) {
+                atexit(driver->audio_deinit);
+            }
             return true;
         }
     }
@@ -33,6 +41,7 @@ bool GB_audio_init(void)
     for (unsigned i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
         driver = drivers[i];
         if (driver->audio_init()) {
+            atexit(driver->audio_deinit);
             return true;
         }
     }
@@ -91,6 +100,9 @@ const char *GB_audio_driver_name_at_index(unsigned index)
         GB_AUDIO_DRIVER_REF(XAudio2_7),
 #endif
         GB_AUDIO_DRIVER_REF(SDL),
+#ifdef ENABLE_OPENAL
+        GB_AUDIO_DRIVER_REF(OpenAL),
+#endif
     };
     if (index >= sizeof(drivers) / sizeof(drivers[0])) {
         return "";

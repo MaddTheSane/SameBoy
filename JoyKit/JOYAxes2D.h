@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "JOYInput.h"
 
 typedef NS_ENUM(int, JOYAxes2DUsage) {
     JOYAxes2DUsageNone,
@@ -11,10 +12,8 @@ typedef NS_ENUM(int, JOYAxes2DUsage) {
     JOYAxes2DUsageGeneric0 = 0x10000,
 };
 
-@interface JOYAxes2D : NSObject
-@property (nonatomic, readonly, copy) NSString *usageString;
+@interface JOYAxes2D : JOYInput
 + (NSString *)usageToString: (JOYAxes2DUsage) usage;
-@property (nonatomic, readonly) uint64_t uniqueID;
 @property (nonatomic, readonly) double distance;
 @property (nonatomic, readonly) double angle;
 @property (nonatomic, readonly) NSPoint value;

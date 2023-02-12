@@ -111,6 +111,8 @@
 	<string>SameBoy</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.github.liji32.sameboy</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.games</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -128,11 +130,11 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>10.9</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2015-2022 Lior Halphon</string>
+	<string>Copyright © 2015-@COPYRIGHT_YEAR Lior Halphon</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
+	<string>GBApp</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
@@ -213,7 +215,7 @@
 		</dict>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>SameBoy needs to access your camera to emulate the Game Boy Camera</string>
+	<string>SameBoy needs to access your device&apos;s camera to emulate the Game Boy Camera</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
 </dict>

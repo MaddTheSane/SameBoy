@@ -12,7 +12,7 @@ static const uint8_t duties[] = {
     0, 1, 1, 1, 1, 1, 1, 0,
 };
 
-static void refresh_channel(GB_gameboy_t *gb, unsigned index, unsigned cycles_offset)
+static void refresh_channel(GB_gameboy_t *gb, GB_channel_t index, unsigned cycles_offset)
 {
     unsigned multiplier = gb->apu_output.cycles_since_render + cycles_offset - gb->apu_output.last_update[index];
     gb->apu_output.summed_samples[index].left += gb->apu_output.current_sample[index].left * multiplier;
@@ -20,7 +20,7 @@ static void refresh_channel(GB_gameboy_t *gb, unsigned index, unsigned cycles_of
     gb->apu_output.last_update[index] = gb->apu_output.cycles_since_render + cycles_offset;
 }
 
-bool GB_apu_is_DAC_enabled(GB_gameboy_t *gb, unsigned index)
+bool GB_apu_is_DAC_enabled(GB_gameboy_t *gb, GB_channel_t index)
 {
     if (gb->model > GB_MODEL_CGB_E) {
         /* On the AGB, mixing is done digitally, so there are no per-channel
@@ -48,7 +48,7 @@ bool GB_apu_is_DAC_enabled(GB_gameboy_t *gb, unsigned index)
     return false;
 }
 
-static uint8_t agb_bias_for_channel(GB_gameboy_t *gb, unsigned index)
+static uint8_t agb_bias_for_channel(GB_gameboy_t *gb, GB_channel_t index)
 {
     if (!gb->apu.is_active[index]) return 0;
     
@@ -67,7 +67,7 @@ static uint8_t agb_bias_for_channel(GB_gameboy_t *gb, unsigned index)
     return 0;
 }
 
-static void update_sample(GB_gameboy_t *gb, unsigned index, int8_t value, unsigned cycles_offset)
+static void update_sample(GB_gameboy_t *gb, GB_channel_t index, int8_t value, unsigned cycles_offset)
 {
         
     if (gb->model > GB_MODEL_CGB_E) {
@@ -102,6 +102,10 @@ static void update_sample(GB_gameboy_t *gb, unsigned index, int8_t value, unsign
                 output.left = 0xF * left_volume;
             }
             
+            if (unlikely(gb->apu_output.channel_muted[index])) {
+                output.left = output.right = 0;
+            }
+            
             if (*(uint32_t *)&(gb->apu_output.current_sample[index]) != *(uint32_t *)&output) {
                 refresh_channel(gb, index, cycles_offset);
                 gb->apu_output.current_sample[index] = output;
@@ -129,7 +133,10 @@ static void update_sample(GB_gameboy_t *gb, unsigned index, int8_t value, unsign
         if (gb->io_registers[GB_IO_NR51] & (0x10 << index)) {
             left_volume = ((gb->io_registers[GB_IO_NR50] >> 4) & 7) + 1;
         }
-        GB_sample_t output = {(0xF - value * 2) * left_volume, (0xF - value * 2) * right_volume};
+        GB_sample_t output = {0, 0};
+        if (likely(!gb->apu_output.channel_muted[index])) {
+            output = (GB_sample_t){(0xF - value * 2) * left_volume, (0xF - value * 2) * right_volume};
+        }
         if (*(uint32_t *)&(gb->apu_output.current_sample[index]) != *(uint32_t *)&output) {
             refresh_channel(gb, index, cycles_offset);
             gb->apu_output.current_sample[index] = output;
@@ -154,7 +161,7 @@ static signed interference(GB_gameboy_t *gb)
             ret -= MAX_CH_AMP / 12;
         }
     }
-    if (gb->io_registers[GB_IO_LCDC] & 0x80) {
+    if (gb->io_registers[GB_IO_LCDC] & GB_LCDC_ENABLE) {
         ret += MAX_CH_AMP / 7;
         if ((gb->io_registers[GB_IO_STAT] & 3) == 3 && gb->model <= GB_MODEL_CGB_E) {
             ret += MAX_CH_AMP / 14;
@@ -294,7 +301,7 @@ static void render(GB_gameboy_t *gb)
     }
 }
 
-static void update_square_sample(GB_gameboy_t *gb, unsigned index)
+static void update_square_sample(GB_gameboy_t *gb, GB_channel_t index)
 {
     if (gb->apu.square_channels[index].sample_surpressed) {
         if (gb->model > GB_MODEL_CGB_E) {
@@ -324,6 +331,19 @@ static inline void update_wave_sample(GB_gameboy_t *gb, unsigned cycles)
     }
 }
 
+static inline void set_envelope_clock(GB_envelope_clock_t *clock, bool value, bool direction, uint8_t volume)
+{
+    if (clock->clock == value) return;
+    if (value) {
+        clock->clock = true;
+        clock->should_lock = (volume == 0xF && direction) || (volume == 0x0 && !direction);
+    }
+    else {
+        clock->clock = false;
+        clock->locked |= clock->should_lock;
+    }
+}
+
 static void _nrx2_glitch(uint8_t *volume, uint8_t value, uint8_t old_value, uint8_t *countdown, GB_envelope_clock_t *lock)
 {
     if (lock->clock) {
@@ -337,7 +357,7 @@ static void _nrx2_glitch(uint8_t *volume, uint8_t value, uint8_t old_value, uint
     }
     
     if (should_invert) {
-        // The weird way and over-the-top way clocks for this counter are connected cause
+        // The weird and over-the-top way clocks for this counter are connected cause
         // some weird ways for it to invert
         if (value & 8) {
             if (!(old_value & 7) && !lock->locked) {
@@ -364,27 +384,17 @@ static void _nrx2_glitch(uint8_t *volume, uint8_t value, uint8_t old_value, uint
         *volume &= 0xF;
     }
     else if (!(value & 7) && lock->clock) {
-        // *lock->locked = false; // Excepted from the schematics, but doesn't actually happen on any model?
-        if (!should_invert) {
-            if (*volume == 0xF && (value & 8)) {
-                lock->locked = true;
-            }
-            else if (*volume == 0 && !(value & 8)) {
-                lock->locked = true;
-            }
-        }
-        else if (*volume == 1 && !(value & 8)) {
-            lock->locked = true;
-        }
-        else if (*volume == 0xE && (value & 8)) {
-            lock->locked = true;
-        }
-        lock->clock = false;
+        set_envelope_clock(lock, false, 0, 0);
     }
 }
 
 static void nrx2_glitch(GB_gameboy_t *gb, uint8_t *volume, uint8_t value, uint8_t old_value, uint8_t *countdown, GB_envelope_clock_t *lock)
 {
+    /* Note: on pre-CGB models *some* of these are non-deterministic. Specifically,
+       $x0 writes seem to be  non-deterministic while  $x8 always work as expected.
+       TODO: Might be useful  to find which cases are  non-deterministic, and allow
+       the debugger to issue  warnings when they're used.  I suspect writes to/from
+       $xF are guaranteed to be deterministic. */
     if (gb->model <= GB_MODEL_CGB_C) {
         _nrx2_glitch(volume, 0xFF, old_value, countdown, lock);
         _nrx2_glitch(volume, value, 0xFF, countdown, lock);
@@ -394,11 +404,12 @@ static void nrx2_glitch(GB_gameboy_t *gb, uint8_t *volume, uint8_t value, uint8_
     }
 }
 
-static void tick_square_envelope(GB_gameboy_t *gb, enum GB_CHANNELS index)
+static void tick_square_envelope(GB_gameboy_t *gb, GB_channel_t index)
 {
+    set_envelope_clock(&gb->apu.square_channels[index].envelope_clock, false, 0, 0);
+    if (gb->apu.square_channels[index].envelope_clock.locked) return;
     uint8_t nrx2 = gb->io_registers[index == GB_SQUARE_1? GB_IO_NR12 : GB_IO_NR22];
     
-    if (gb->apu.square_channels[index].envelope_clock.locked) return;
     if (!(nrx2 & 7)) return;
     if (gb->cgb_double_speed) {
         if (index == GB_SQUARE_1) {
@@ -409,22 +420,14 @@ static void tick_square_envelope(GB_gameboy_t *gb, enum GB_CHANNELS index)
         }
     }
     
+    set_envelope_clock(&gb->apu.square_channels[index].envelope_clock, false, 0, 0);
+    
     if (nrx2 & 8) {
-        if (gb->apu.square_channels[index].current_volume < 0xF) {
             gb->apu.square_channels[index].current_volume++;
         }
         else {
-            gb->apu.square_channels[index].envelope_clock.locked = true;
-        }
-    }
-    else {
-        if (gb->apu.square_channels[index].current_volume > 0) {
             gb->apu.square_channels[index].current_volume--;
         }
-        else {
-            gb->apu.square_channels[index].envelope_clock.locked = true;
-        }
-    }
 
     if (gb->apu.is_active[index]) {
         update_square_sample(gb, index);
@@ -433,9 +436,10 @@ static void tick_square_envelope(GB_gameboy_t *gb, enum GB_CHANNELS index)
 
 static void tick_noise_envelope(GB_gameboy_t *gb)
 {
-    uint8_t nr42 = gb->io_registers[GB_IO_NR42];
-
+    set_envelope_clock(&gb->apu.noise_channel.envelope_clock, false, 0, 0);
     if (gb->apu.noise_channel.envelope_clock.locked) return;
+    
+    uint8_t nr42 = gb->io_registers[GB_IO_NR42];
     if (!(nr42 & 7)) return;
 
     if (gb->cgb_double_speed) {
@@ -443,21 +447,11 @@ static void tick_noise_envelope(GB_gameboy_t *gb)
     }
     
     if (nr42 & 8) {
-        if (gb->apu.noise_channel.current_volume < 0xF) {
             gb->apu.noise_channel.current_volume++;
         }
         else {
-            gb->apu.noise_channel.envelope_clock.locked = true;
-        }
-    }
-    else {
-        if (gb->apu.noise_channel.current_volume > 0) {
             gb->apu.noise_channel.current_volume--;
         }
-        else {
-            gb->apu.noise_channel.envelope_clock.locked = true;
-        }
-    }
 
     if (gb->apu.is_active[GB_NOISE]) {
         update_sample(gb, GB_NOISE,
@@ -522,13 +516,11 @@ void GB_apu_div_event(GB_gameboy_t *gb)
     unrolled for (unsigned i = GB_SQUARE_2 + 1; i--;) {
         if (gb->apu.square_channels[i].envelope_clock.clock) {
             tick_square_envelope(gb, i);
-            gb->apu.square_channels[i].envelope_clock.clock = false;
         }
     }
     
     if (gb->apu.noise_channel.envelope_clock.clock) {
         tick_noise_envelope(gb);
-        gb->apu.noise_channel.envelope_clock.clock = false;
     }
     
     if ((gb->apu.div_divider & 1) == 1) {
@@ -586,12 +578,19 @@ void GB_apu_div_secondary_event(GB_gameboy_t *gb)
     unrolled for (unsigned i = GB_SQUARE_2 + 1; i--;) {
         uint8_t nrx2 = gb->io_registers[i == GB_SQUARE_1? GB_IO_NR12 : GB_IO_NR22];
         if (gb->apu.is_active[i] && gb->apu.square_channels[i].volume_countdown == 0) {
-            gb->apu.square_channels[i].envelope_clock.clock = (gb->apu.square_channels[i].volume_countdown = nrx2 & 7);
+            set_envelope_clock(&gb->apu.square_channels[i].envelope_clock,
+                               (gb->apu.square_channels[i].volume_countdown = nrx2 & 7),
+                               nrx2 & 8,
+                               gb->apu.square_channels[i].current_volume);
+
         }
     }
     
     if (gb->apu.is_active[GB_NOISE] && gb->apu.noise_channel.volume_countdown == 0) {
-        gb->apu.noise_channel.envelope_clock.clock = (gb->apu.noise_channel.volume_countdown = gb->io_registers[GB_IO_NR42] & 7);
+        set_envelope_clock(&gb->apu.noise_channel.envelope_clock,
+                           (gb->apu.noise_channel.volume_countdown = gb->io_registers[GB_IO_NR42] & 7),
+                           gb->io_registers[GB_IO_NR42] & 8,
+                           gb->apu.noise_channel.current_volume);
     }
 }
 
@@ -988,6 +987,7 @@ static inline uint16_t effective_channel4_counter(GB_gameboy_t *gb)
             }
             break;
         case GB_MODEL_AGB_A:
+        case GB_MODEL_GBP_A:
             /* TODO: AGBs are not affected, but AGSes are. They don't seem to follow a simple
                pattern like the other revisions. */
             /* For the most part, AGS seems to do:
@@ -1080,7 +1080,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
 
         case GB_IO_NR11:
         case GB_IO_NR21: {
-            unsigned index = reg == GB_IO_NR21? GB_SQUARE_2: GB_SQUARE_1;
+            GB_channel_t index = reg == GB_IO_NR21? GB_SQUARE_2: GB_SQUARE_1;
             gb->apu.square_channels[index].pulse_length = (0x40 - (value & 0x3F));
             if (!gb->apu.global_enable) {
                 value &= 0x3F;
@@ -1090,7 +1090,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
 
         case GB_IO_NR12:
         case GB_IO_NR22: {
-            unsigned index = reg == GB_IO_NR22? GB_SQUARE_2: GB_SQUARE_1;
+            GB_channel_t index = reg == GB_IO_NR22? GB_SQUARE_2: GB_SQUARE_1;
             if ((value & 0xF8) == 0) {
                 /* This disables the DAC */
                 gb->io_registers[reg] = value;
@@ -1109,20 +1109,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
 
         case GB_IO_NR13:
         case GB_IO_NR23: {
-            unsigned index = reg == GB_IO_NR23? GB_SQUARE_2: GB_SQUARE_1;
-            if (gb->apu.is_active[index]) {
-                /* On an AGB, as well as on CGB C and earlier (TODO: Tested: 0, B and C), it behaves slightly different on
-                 double speed. */
-                if (gb->model == GB_MODEL_CGB_E || gb->model == GB_MODEL_CGB_D || gb->apu.square_channels[index].sample_countdown & 1) {
-                    if (gb->apu.square_channels[index].did_tick &&
-                        gb->apu.square_channels[index].sample_countdown >> 1 == (gb->apu.square_channels[index].sample_length ^ 0x7FF)) {
-                        gb->apu.square_channels[index].current_sample_index--;
-                        gb->apu.square_channels[index].current_sample_index &= 7;
-                        gb->apu.square_channels[index].sample_surpressed = false;
-                    }
-                }
-            }
-            
+            GB_channel_t index = reg == GB_IO_NR23? GB_SQUARE_2: GB_SQUARE_1;
             gb->apu.square_channels[index].sample_length &= ~0xFF;
             gb->apu.square_channels[index].sample_length |= value & 0xFF;
             break;
@@ -1130,12 +1117,12 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
 
         case GB_IO_NR14:
         case GB_IO_NR24: {
-            unsigned index = reg == GB_IO_NR24? GB_SQUARE_2: GB_SQUARE_1;
+            GB_channel_t index = reg == GB_IO_NR24? GB_SQUARE_2: GB_SQUARE_1;
             bool was_active = gb->apu.is_active[index];
-            /* TODO: When the sample length changes right before being updated, the countdown should change to the
-                     old length, but the current sample should not change. Because our write timing isn't accurate to
-                     the T-cycle, we hack around it by stepping the sample index backwards. */
-            if ((value & 0x80) == 0 && gb->apu.is_active[index]) {
+            /* TODO: When the sample length changes right before being updated from ≥$700 to <$700, the countdown
+                     should change to the old length, but the current sample should not change. Because our write
+                     timing isn't accurate to the T-cycle, we hack around it by stepping the sample index backwards. */
+            if ((value & 0x80) == 0 && gb->apu.is_active[index] && (gb->io_registers[reg] & 0x7) == 7 && (value & 7) != 7) {
                 /* On an AGB, as well as on CGB C and earlier (TODO: Tested: 0, B and C), it behaves slightly different on
                    double speed. */
                 if (gb->model == GB_MODEL_CGB_E || gb->model == GB_MODEL_CGB_D || gb->apu.square_channels[index].sample_countdown & 1) {
@@ -1291,7 +1278,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
             gb->apu.wave_channel.pulse_length = (0x100 - value);
             break;
         case GB_IO_NR32:
-            gb->apu.wave_channel.shift = (uint8_t[]){4, 0, 1, 2}[(value >> 5) & 3];
+            gb->apu.wave_channel.shift = (const uint8_t[]){4, 0, 1, 2}[(value >> 5) & 3];
             if (gb->apu.is_active[GB_WAVE]) {
                 update_wave_sample(gb, 0);
             }
@@ -1406,11 +1393,11 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                 if (!divisor) divisor = 2;
                 if (gb->model > GB_MODEL_CGB_C) {
                     gb->apu.noise_channel.counter_countdown =
-                    divisor + (divisor == 2? 0 : (uint8_t[]){2, 1, 0, 3}[(gb->apu.noise_channel.alignment) & 3]);
+                    divisor + (divisor == 2? 0 : (const uint8_t[]){2, 1, 0, 3}[(gb->apu.noise_channel.alignment) & 3]);
                 }
                 else {
                     gb->apu.noise_channel.counter_countdown =
-                    divisor + (divisor == 2? 0 : (uint8_t[]){2, 1, 4, 3}[(gb->apu.noise_channel.alignment) & 3]);
+                    divisor + (divisor == 2? 0 : (const uint8_t[]){2, 1, 4, 3}[(gb->apu.noise_channel.alignment) & 3]);
                 }
                 gb->apu.noise_channel.delta = 0;
             }
@@ -1454,10 +1441,10 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                     }
                     else {
                         if (gb->model <= GB_MODEL_CGB_C) {
-                            gb->apu.noise_channel.counter_countdown += (uint8_t[]){2, 1, 4, 3}[gb->apu.noise_channel.alignment & 3];
+                            gb->apu.noise_channel.counter_countdown += (const uint8_t[]){2, 1, 4, 3}[gb->apu.noise_channel.alignment & 3];
                         }
                         else {
-                            gb->apu.noise_channel.counter_countdown += (uint8_t[]){2, 1, 0, 3}[gb->apu.noise_channel.alignment & 3];
+                            gb->apu.noise_channel.counter_countdown += (const uint8_t[]){2, 1, 0, 3}[gb->apu.noise_channel.alignment & 3];
                         }
                         if (((gb->apu.noise_channel.alignment + 1) & 3) < 2) {
                             if ((gb->io_registers[GB_IO_NR43] & 0x07) == 1) {
@@ -1749,4 +1736,16 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
     int ret  = gb->apu_output.output_error;
     gb->apu_output.output_error = 0;
     return ret;
+}
+
+
+void GB_set_channel_muted(GB_gameboy_t *gb, GB_channel_t channel, bool muted)
+{
+    assert(channel < GB_N_CHANNELS);
+    gb->apu_output.channel_muted[channel] = muted;
+}
+
+bool GB_is_channel_muted(GB_gameboy_t *gb, GB_channel_t channel)
+{
+    return gb->apu_output.channel_muted[channel];
 }

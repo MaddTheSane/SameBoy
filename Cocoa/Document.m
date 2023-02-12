@@ -3,7 +3,7 @@
 #import <Core/gb.h>
 #import "GBAudioClient.h"
 #import "Document.h"
-#import "AppDelegate.h"
+#import "GBApp.h"
 #import "HexFiend/HexFiend.h"
 #import "GBMemoryByteArray.h"
 #import "GBWarningPopover.h"
@@ -13,6 +13,9 @@
 #import "GBPaletteEditorController.h"
 #import "GBObjectView.h"
 #import "GBPaletteView.h"
+
+#define likely(x)   GB_likely(x)
+#define unlikely(x) GB_unlikely(x)
 
 @implementation NSString (relativePath)
 
@@ -50,10 +53,21 @@ enum model {
     MODEL_AGB,
     MODEL_SGB,
     MODEL_MGB,
+    
+    MODEL_QUICK_RESET = -1,
 };
 
 @interface Document ()
+@property GBAudioClient *audioClient;
+@end
+
+@implementation Document
 {
+    GB_gameboy_t gb;
+    volatile bool running;
+    volatile bool stopping;
+    NSConditionLock *has_debugger_input;
+    NSMutableArray *debugger_input_queue;
     
     NSMutableAttributedString *pending_console_output;
     NSRecursiveLock *console_output_lock;
@@ -62,11 +76,12 @@ enum model {
     
     bool fullScreen;
     bool in_sync_input;
+    NSString *_debuggerCommandWhilePaused;
     HFController *hex_controller;
-
+    
     NSString *lastConsoleInput;
     HFLineCountingRepresenter *lineRep;
-
+    
     CVImageBufferRef cameraImage;
     AVCaptureSession *cameraSession;
     AVCaptureConnection *cameraConnection;
@@ -75,7 +90,6 @@ enum model {
     GB_oam_info_t _oamInfo[40];
     
     NSMutableData *currentPrinterImageData;
-    enum {GBAccessoryNone, GBAccessoryPrinter, GBAccessoryWorkboy, GBAccessoryLinkCable} accessory;
     
     bool rom_warning_issued;
     
@@ -104,26 +118,11 @@ enum model {
     
     NSSavePanel *_audioSavePanel;
     bool _isRecordingAudio;
+    
+    void (^ volatile _pendingAtomicBlock)();
+    
+    NSDate *_fileModificationTime;
 }
-
-@property GBAudioClient *audioClient;
-- (void) vblank;
-- (void) log: (const char *) log withAttributes: (GB_log_attributes) attributes;
-- (char *) getDebuggerInput;
-- (char *) getAsyncDebuggerInput;
-- (void) cameraRequestUpdate;
-- (uint8_t) cameraGetPixelAtX:(uint8_t)x andY:(uint8_t)y;
-- (void) printImage:(uint32_t *)image height:(unsigned) height
-          topMargin:(unsigned) topMargin bottomMargin: (unsigned) bottomMargin
-           exposure:(unsigned) exposure;
-- (void) gotNewSample:(GB_sample_t *)sample;
-- (void) rumbleChanged:(double)amp;
-- (void) loadBootROM:(GB_boot_rom_t)type;
-- (void)linkCableBitStart:(bool)bit;
-- (bool)linkCableBitEnd;
-- (void)infraredStateChanged:(bool)state;
-
-@end
 
 static void boot_rom_load(GB_gameboy_t *gb, GB_boot_rom_t type)
 {
@@ -134,7 +133,7 @@ static void boot_rom_load(GB_gameboy_t *gb, GB_boot_rom_t type)
 static void vblank(GB_gameboy_t *gb, GB_vblank_type_t type)
 {
     Document *self = (__bridge Document *)GB_get_user_data(gb);
-    [self vblank];
+    [self vblankWithType:type];
 }
 
 static void consoleLog(GB_gameboy_t *gb, const char *string, GB_log_attributes attributes)
@@ -180,6 +179,12 @@ static void printImage(GB_gameboy_t *gb, uint32_t *image, uint8_t height,
     [self printImage:image height:height topMargin:top_margin bottomMargin:bottom_margin exposure:exposure];
 }
 
+static void printDone(GB_gameboy_t *gb)
+{
+    Document *self = (__bridge Document *)GB_get_user_data(gb);
+    [self printDone];
+}
+
 static void setWorkboyTime(GB_gameboy_t *gb, time_t t)
 {
     [[NSUserDefaults standardUserDefaults] setInteger:time(NULL) - t forKey:@"GBWorkboyTimeOffset"];
@@ -221,15 +226,6 @@ static void infraredStateChanged(GB_gameboy_t *gb, bool on)
     [self infraredStateChanged:on];
 }
 
-
-@implementation Document
-{
-    GB_gameboy_t gb;
-    volatile bool running;
-    volatile bool stopping;
-    NSConditionLock *has_debugger_input;
-    NSMutableArray *debugger_input_queue;
-}
 
 - (instancetype)init 
 {
@@ -280,6 +276,7 @@ static void infraredStateChanged(GB_gameboy_t *gb, bool on)
             return (GB_model_t)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBDMGModel"];
             
         case MODEL_NONE:
+        case MODEL_QUICK_RESET:
         case MODEL_CGB:
             return (GB_model_t)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBCGBModel"];
             
@@ -295,7 +292,7 @@ static void infraredStateChanged(GB_gameboy_t *gb, bool on)
             return GB_MODEL_MGB;
         
         case MODEL_AGB:
-            return GB_MODEL_AGB;
+            return (GB_model_t)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBAGBModel"];
     }
 }
 
@@ -350,26 +347,29 @@ static void infraredStateChanged(GB_gameboy_t *gb, bool on)
     self.osdView.usesSGBScale = GB_get_screen_width(&gb) == 256;
 }
 
-- (void) vblank
+- (void) vblankWithType:(GB_vblank_type_t)type
 {
     if (_gbsVisualizer) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self->_gbsVisualizer setNeedsDisplay:true];
         });
     }
-    [self.view flip];
-    if (borderModeChanged) {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            size_t previous_width = GB_get_screen_width(&gb);
-            GB_set_border_mode(&gb, (GB_border_mode_t) [[NSUserDefaults standardUserDefaults] integerForKey:@"GBBorderMode"]);
-            if (GB_get_screen_width(&gb) != previous_width) {
-                [self.view screenSizeChanged];
-                [self updateMinSize];
-            }
-        });
-        borderModeChanged = false;
+    if (type != GB_VBLANK_TYPE_REPEAT) {
+        [self.view flip];
+        if (borderModeChanged) {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                size_t previous_width = GB_get_screen_width(&gb);
+                GB_set_border_mode(&gb, (GB_border_mode_t) [[NSUserDefaults standardUserDefaults] integerForKey:@"GBBorderMode"]);
+                if (GB_get_screen_width(&gb) != previous_width) {
+                    [self.view screenSizeChanged];
+                    [self updateMinSize];
+                }
+            });
+            borderModeChanged = false;
+        }
+        GB_set_pixels_output(&gb, self.view.pixels);
     }
-    GB_set_pixels_output(&gb, self.view.pixels);
+    
     if (self.vramWindow.isVisible) {
         dispatch_async(dispatch_get_main_queue(), ^{
             self.view.mouseHidingEnabled = (self.mainWindow.styleMask & NSWindowStyleMaskFullScreen) != 0;
@@ -378,7 +378,7 @@ static void infraredStateChanged(GB_gameboy_t *gb, bool on)
     }
     if (self.view.isRewinding) {
         rewind = true;
-        [self.osdView displayText:@"Rewinding..."];
+        [self.osdView displayText:@"Rewinding…"];
     }
 }
 
@@ -491,7 +491,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     return ret;
 }
 
-- (void) run
+- (void)run
 {
     assert(!master);
     [self preRun];
@@ -505,6 +505,10 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
             }
             else {
                 linkOffset -= masterTable[GB_run(&slave->gb)];
+            }
+            if (unlikely(_pendingAtomicBlock)) {
+                _pendingAtomicBlock();
+                _pendingAtomicBlock = nil;
             }
         }
         free(masterTable);
@@ -522,6 +526,10 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
             }
             else {
                 GB_run(&gb);
+            }
+            if (unlikely(_pendingAtomicBlock)) {
+                _pendingAtomicBlock();
+                _pendingAtomicBlock = nil;
             }
         }
     }
@@ -565,6 +573,10 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 
 - (void) start
 {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self updateDebuggerButtons];
+        [slave updateDebuggerButtons];
+    });
     self.gbsPlayPauseButton.state = true;
     self.view.mouseHidingEnabled = (self.mainWindow.styleMask & NSWindowStyleMaskFullScreen) != 0;
     if (master) {
@@ -578,6 +590,10 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 
 - (void) stop
 {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self updateDebuggerButtons];
+        [slave updateDebuggerButtons];
+    });
     self.gbsPlayPauseButton.state = false;
     if (master) {
         if (!master->running) return;
@@ -631,7 +647,12 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         current_model = (enum model)[sender tag];
     }
     
-    GB_switch_model_and_reset(&gb, [self internalModel]);
+    if ([sender tag] == MODEL_QUICK_RESET) {
+        GB_quick_reset(&gb);
+    }
+    else {
+        GB_switch_model_and_reset(&gb, [self internalModel]);
+    }
     
     if (old_width != GB_get_screen_width(&gb)) {
         [self.view screenSizeChanged];
@@ -639,7 +660,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     
     [self updateMinSize];
     
-    if ([sender tag] != 0) {
+    if ([sender tag] > MODEL_NONE) {
         /* User explictly selected a model, save the preference */
         [[NSUserDefaults standardUserDefaults] setBool:current_model == MODEL_DMG forKey:@"EmulateDMG"];
         [[NSUserDefaults standardUserDefaults] setBool:current_model == MODEL_SGB forKey:@"EmulateSGB"];
@@ -733,7 +754,8 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     
     
     self.consoleWindow.title = [NSString stringWithFormat:@"Debug Console – %@", [self.fileURL.path lastPathComponent]];
-    self.debuggerSplitView.dividerColor = [NSColor clearColor];
+    self.debuggerSplitView.dividerColor = self.debuggerVerticalLine.borderColor;
+    [self.debuggerVerticalLine removeFromSuperview]; // No longer used, just there for the color
     if (@available(macOS 11.0, *)) {
         self.memoryWindow.toolbarStyle = NSWindowToolbarStyleExpanded;
         self.printerFeedWindow.toolbarStyle = NSWindowToolbarStyleUnifiedCompact;
@@ -813,6 +835,12 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
                                                object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(agbModelChanged)
+                                                 name:@"GBAGBModelChanged"
+                                               object:nil];
+    
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(updateVolume)
                                                  name:@"GBVolumeChanged"
                                                object:nil];
@@ -887,6 +915,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [layoutView setFrame:layoutViewFrame];
     [layoutView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable | NSViewMaxYMargin];
     [self.memoryView addSubview:layoutView];
+    self.memoryView = layoutView;
 
     self.memoryBankItem.enabled = false;
 }
@@ -1057,6 +1086,16 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     return fileName;
 }
 
+static bool is_path_writeable(const char *path)
+{
+    if (!access(path, W_OK)) return true;
+    int fd = creat(path, 0644);
+    if (fd == -1) return false;
+    close(fd);
+    unlink(path);
+    return true;
+}
+
 - (int) loadROM
 {
     __block int ret = 0;
@@ -1085,11 +1124,18 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         else {
             ret = GB_load_rom(&self->gb, [fileName fileSystemRepresentation]);
         }
-        GB_load_battery(&self->gb, self.savPath.fileSystemRepresentation);
-        GB_load_cheats(&self->gb, self.chtPath.fileSystemRepresentation);
-        [self.cheatWindowController cheatsUpdated];
-        GB_debugger_load_symbol_file(&self->gb, [[[NSBundle mainBundle] pathForResource:@"registers" ofType:@"sym"] fileSystemRepresentation]);
-        GB_debugger_load_symbol_file(&self->gb, [[fileName stringByDeletingPathExtension] stringByAppendingPathExtension:@"sym"].fileSystemRepresentation);
+        if (GB_save_battery_size(&gb)) {
+            if (!is_path_writeable(self.savPath.fileSystemRepresentation)) {
+                GB_log(&gb, "The save path for this ROM is not writeable, progress will not be saved.\n");
+            }
+        }
+        GB_load_battery(&gb, self.savPath.fileSystemRepresentation);
+        GB_load_cheats(&gb, self.chtPath.fileSystemRepresentation);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.cheatWindowController cheatsUpdated];
+        });
+        GB_debugger_load_symbol_file(&gb, [[[NSBundle mainBundle] pathForResource:@"registers" ofType:@"sym"] fileSystemRepresentation]);
+        GB_debugger_load_symbol_file(&gb, [[fileName stringByDeletingPathExtension] stringByAppendingPathExtension:@"sym"].fileSystemRepresentation);
     }];
     if (ret) {
         NSAlert *alert = [[NSAlert alloc] init];
@@ -1101,7 +1147,18 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         rom_warning_issued = true;
         [GBWarningPopover popoverWithContents:rom_warnings onWindow:self.mainWindow];
     }
+    _fileModificationTime = [[NSFileManager defaultManager] attributesOfItemAtPath:fileName error:nil][NSFileModificationDate];
     return ret;
+}
+
+- (void)showWindows
+{
+    if (GB_is_inited(&gb)) {
+        if (![_fileModificationTime isEqualToDate:[[NSFileManager defaultManager] attributesOfItemAtPath:self.fileName error:nil][NSFileModificationDate]]) {
+            [self reset:nil];
+        }
+    }
+    [super showWindows];
 }
 
 - (void)close
@@ -1143,19 +1200,24 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [[NSUserDefaults standardUserDefaults] setBool:!_audioClient.isPlaying forKey:@"Mute"];
 }
 
+- (bool) isPaused
+{
+    if (self.partner) {
+        return !self.partner->running || GB_debugger_is_stopped(&gb) || GB_debugger_is_stopped(&self.partner->gb);
+    }
+    return (!running) || GB_debugger_is_stopped(&gb);
+}
+
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)anItem
 {
     if ([anItem action] == @selector(mute:)) {
         [(NSMenuItem *)anItem setState:!_audioClient.isPlaying];
     }
     else if ([anItem action] == @selector(togglePause:)) {
-        if (master) {
-            [(NSMenuItem *)anItem setState:(!master->running) || (GB_debugger_is_stopped(&gb)) || (GB_debugger_is_stopped(&gb))];
-        }
-        [(NSMenuItem *)anItem setState:(!running) || (GB_debugger_is_stopped(&gb))];
+        [(NSMenuItem *)anItem setState:self.isPaused];
         return !GB_debugger_is_stopped(&gb);
     }
-    else if ([anItem action] == @selector(reset:) && anItem.tag != MODEL_NONE) {
+    else if ([anItem action] == @selector(reset:) && anItem.tag != MODEL_NONE && anItem.tag != MODEL_QUICK_RESET) {
         [(NSMenuItem *)anItem setState:anItem.tag == current_model];
     }
     else if ([anItem action] == @selector(interrupt:)) {
@@ -1164,13 +1226,13 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         }
     }
     else if ([anItem action] == @selector(disconnectAllAccessories:)) {
-        [(NSMenuItem *)anItem setState:accessory == GBAccessoryNone];
+        [(NSMenuItem *)anItem setState:GB_get_built_in_accessory(&gb) == GB_ACCESSORY_NONE && !self.partner];
     }
     else if ([anItem action] == @selector(connectPrinter:)) {
-        [(NSMenuItem *)anItem setState:accessory == GBAccessoryPrinter];
+        [(NSMenuItem *)anItem setState:GB_get_built_in_accessory(&gb) == GB_ACCESSORY_PRINTER];
     }
     else if ([anItem action] == @selector(connectWorkboy:)) {
-        [(NSMenuItem *)anItem setState:accessory == GBAccessoryWorkboy];
+        [(NSMenuItem *)anItem setState:GB_get_built_in_accessory(&gb) == GB_ACCESSORY_WORKBOY];
     }
     else if ([anItem action] == @selector(connectLinkCable:)) {
         [(NSMenuItem *)anItem setState:[(NSMenuItem *)anItem representedObject] == master ||
@@ -1187,6 +1249,9 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     }
     else if ([anItem action] == @selector(toggleAudioRecording:)) {
         [(NSMenuItem *)anItem setTitle:_isRecordingAudio? @"Stop Audio Recording" : @"Start Audio Recording…"];
+    }
+    else if ([anItem action] == @selector(toggleAudioChannel:)) {
+        [(NSMenuItem *)anItem setState:!GB_is_channel_muted(&gb, [anItem tag])];
     }
     
     return [super validateUserInterfaceItem:anItem];
@@ -1311,6 +1376,25 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [self.consoleWindow orderBack:nil];
 }
 
+- (void)queueDebuggerCommand:(NSString *)command
+{
+    if (!master && !running && !GB_debugger_is_stopped(&gb)) {
+        _debuggerCommandWhilePaused = command;
+        GB_debugger_break(&gb);
+        [self start];
+        return;
+    }
+        
+    if (!in_sync_input) {
+        [self log:">"];
+    }
+    [self log:[command UTF8String]];
+    [self log:"\n"];
+    [has_debugger_input lock];
+    [debugger_input_queue addObject:command];
+    [has_debugger_input unlockWithCondition:1];
+}
+
 - (IBAction)consoleInput:(NSTextField *)sender 
 {
     NSString *line = [sender stringValue];
@@ -1323,15 +1407,8 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     else {
         line = @"";
     }
-
-    if (!in_sync_input) {
-        [self log:">"];
-    }
-    [self log:[line UTF8String]];
-    [self log:"\n"];
-    [has_debugger_input lock];
-    [debugger_input_queue addObject:line];
-    [has_debugger_input unlockWithCondition:1];
+    
+    [self queueDebuggerCommand: line];
 
     [sender setStringValue:@""];
 }
@@ -1379,7 +1456,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [console_output_lock unlock];
 }
 
-- (char *) getDebuggerInput
+- (char *)getDebuggerInput
 {
     bool isPlaying = _audioClient.isPlaying;
     if (isPlaying) {
@@ -1388,9 +1465,20 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [audioLock lock];
     [audioLock signal];
     [audioLock unlock];
-    [self updateSideView];
-    [self log:">"];
     in_sync_input = true;
+    [self updateSideView];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self updateDebuggerButtons];
+    });
+    [self.partner updateDebuggerButtons];
+    [self log:">"];
+    if (_debuggerCommandWhilePaused) {
+        NSString *command = _debuggerCommandWhilePaused;
+        _debuggerCommandWhilePaused = nil;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self queueDebuggerCommand:command];
+        });
+    }
     [has_debugger_input lockWhenCondition:1];
     NSString *input = [debugger_input_queue firstObject];
     [debugger_input_queue removeObjectAtIndex:0];
@@ -1402,6 +1490,8 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
             self->shouldClearSideView = false;
             [self.debuggerSideView setString:@""];
         }
+        [self updateDebuggerButtons];
+        [self.partner updateDebuggerButtons];
     });
     if (isPlaying) {
         [_audioClient start];
@@ -1499,20 +1589,25 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 - (void) performAtomicBlock: (void (^)(void))block
 {
     while (!GB_is_inited(&gb));
-    bool was_running = running && !GB_debugger_is_stopped(&gb);
+    bool isRunning = running && !GB_debugger_is_stopped(&gb);
     if (master) {
-        was_running |= master->running;
+        isRunning |= master->running;
     }
-    if (was_running) {
-        [self stop];
+    if (!isRunning) {
+        block();
+        return;
     }
-    block();
-    if (was_running) {
-        [self start];
+    
+    if (master) {
+        [master performAtomicBlock:block];
+        return;
     }
+    
+    _pendingAtomicBlock = block;
+    while (_pendingAtomicBlock);
 }
 
-- (NSString *) captureOutputForBlock: (void (^)(void))block
+- (NSString *)captureOutputForBlock: (void (^)())block
 {
     capturedOutput = [[NSMutableString alloc] init];
     [self performAtomicBlock:block];
@@ -1640,9 +1735,17 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
             GB_log(&self->gb, "Value $%04x is out of range.\n", addr);
             return;
         }
-        [self->hex_controller setSelectedContentsRanges:@[[HFRangeWrapper withRange:HFRangeMake(addr, 0)]]];
-        [self->hex_controller _ensureVisibilityOfLocation:addr];
-        [self.memoryWindow makeFirstResponder:self.memoryView.subviews[0].subviews[0]];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [hex_controller setSelectedContentsRanges:@[[HFRangeWrapper withRange:HFRangeMake(addr, 0)]]];
+            [hex_controller _ensureVisibilityOfLocation:addr];
+            for (HFRepresenter *representer in hex_controller.representers) {
+                if ([representer isKindOfClass:[HFHexTextRepresenter class]]) {
+                    [self.memoryWindow makeFirstResponder:representer.view];
+                    break;
+                }
+            }
+        });
     }];
     if (error) {
         NSBeep();
@@ -1689,8 +1792,10 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         bank %= n_banks;
 
         [sender setStringValue:[NSString stringWithFormat:@"$%x", bank]];
-        [(GBMemoryByteArray *)(self->hex_controller.byteArray) setSelectedBank:bank];
-        [self->hex_controller reloadData];
+        [(GBMemoryByteArray *)(hex_controller.byteArray) setSelectedBank:bank];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [hex_controller reloadData];
+        });
     }];
     
     if (error && !ignore_errors) {
@@ -1735,7 +1840,9 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     }
     [self.memoryBankInput setStringValue:[NSString stringWithFormat:@"$%x", byteArray.selectedBank]];
     [hex_controller reloadData];
-    [self.memoryView setNeedsDisplay:true];
+    for (NSView *view in self.memoryView.subviews) {
+        [view setNeedsDisplay:true];
+    }
 }
 
 - (GB_gameboy_t *) gameboy
@@ -1773,18 +1880,20 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
                 NSError *error;
                 AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType: AVMediaTypeVideo];
                 AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice: device error: &error];
-                CMVideoDimensions dimensions = CMVideoFormatDescriptionGetDimensions([[[device formats] firstObject] formatDescription]);
+                CMVideoDimensions dimensions = CMVideoFormatDescriptionGetDimensions([[[device formats] lastObject] formatDescription]);
 
                 if (!input) {
                     GB_camera_updated(&self->gb);
                     return;
                 }
+                
+                double ratio = MAX(130.0 / dimensions.width, 114.0 / dimensions.height);
 
                 self->cameraOutput = [[AVCaptureStillImageOutput alloc] init];
                 /* Greyscale is not widely supported, so we use YUV, whose first element is the brightness. */
-                [self->cameraOutput setOutputSettings: @{(id)kCVPixelBufferPixelFormatTypeKey: @(kYUVSPixelFormat),
-                                                   (id)kCVPixelBufferWidthKey: @(MAX(128, 112 * dimensions.width / dimensions.height)),
-                                                   (id)kCVPixelBufferHeightKey: @(MAX(112, 128 * dimensions.height / dimensions.width)),}];
+                [cameraOutput setOutputSettings: @{(id)kCVPixelBufferPixelFormatTypeKey: @(kYUVSPixelFormat),
+                                                   (id)kCVPixelBufferWidthKey: @(round(dimensions.width * ratio)),
+                                                   (id)kCVPixelBufferHeightKey: @(round(dimensions.height * ratio)),}];
 
 
                 self->cameraSession = [AVCaptureSession new];
@@ -1820,7 +1929,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     });
 }
 
-- (uint8_t)cameraGetPixelAtX:(uint8_t)x andY:(uint8_t) y
+- (uint8_t)cameraGetPixelAtX:(unsigned)x andY:(unsigned)y
 {
     if (!cameraImage) {
         return 0;
@@ -1828,8 +1937,8 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 
     uint8_t *baseAddress = (uint8_t *)CVPixelBufferGetBaseAddress(cameraImage);
     size_t bytesPerRow = CVPixelBufferGetBytesPerRow(cameraImage);
-    uint8_t offsetX = (CVPixelBufferGetWidth(cameraImage) - 128) / 2;
-    uint8_t offsetY = (CVPixelBufferGetHeight(cameraImage) - 112) / 2;
+    unsigned offsetX = (CVPixelBufferGetWidth(cameraImage) - 128) / 2;
+    unsigned offsetY = (CVPixelBufferGetHeight(cameraImage) - 112) / 2;
     uint8_t ret = baseAddress[(x + offsetX) * 2 + (y + offsetY) * bytesPerRow];
 
     return ret;
@@ -1917,12 +2026,12 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         uint8_t lcdc = ((uint8_t *)GB_get_direct_access(&gb, GB_DIRECT_ACCESS_IO, NULL, NULL))[GB_IO_LCDC];
         uint8_t *vram = GB_get_direct_access(&gb, GB_DIRECT_ACCESS_VRAM, NULL, NULL);
         
-        if (map_type == GB_MAP_9C00 || (map_type == GB_MAP_AUTO && lcdc & 0x08)) {
+        if (map_type == GB_MAP_9C00 || (map_type == GB_MAP_AUTO && lcdc & GB_LCDC_BG_MAP)) {
             map_base = 0x1C00;
         }
         
         if (tileset_type == GB_TILESET_AUTO) {
-            tileset_type = (lcdc & 0x10)? GB_TILESET_8800 : GB_TILESET_8000;
+            tileset_type = (lcdc & GB_LCDC_TILE_SEL)? GB_TILESET_8800 : GB_TILESET_8000;
         }
         
         uint8_t tile = vram[map_base + map_offset];
@@ -1970,9 +2079,9 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [self reloadVRAMData: nil];
 }
 
-- (void) printImage:(uint32_t *)imageBytes height:(unsigned) height
-          topMargin:(unsigned) topMargin bottomMargin: (unsigned) bottomMargin
-           exposure:(unsigned) exposure
+- (void)printImage:(uint32_t *)imageBytes height:(unsigned) height
+         topMargin:(unsigned) topMargin bottomMargin: (unsigned) bottomMargin
+          exposure:(unsigned) exposure
 {
     uint32_t paddedImage[160 * (topMargin + height + bottomMargin)];
     memset(paddedImage, 0xFF, sizeof(paddedImage));
@@ -1983,7 +2092,8 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [currentPrinterImageData appendBytes:paddedImage length:sizeof(paddedImage)];
     /* UI related code must run on main thread. */
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.feedImageView.image = [Document imageFromData:self->currentPrinterImageData
+        [_printerSpinner startAnimation:nil];
+        self.feedImageView.image = [Document imageFromData:currentPrinterImageData
                                                      width:160
                                                     height:self->currentPrinterImageData.length / 160 / sizeof(imageBytes[0])
                                                      scale:2.0];
@@ -1995,6 +2105,13 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         [self.printerFeedWindow orderFront:NULL];
     });
     
+}
+
+- (void)printDone
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_printerSpinner stopAnimation:nil];
+    });
 }
 
 - (void)printDocument:(id)sender
@@ -2035,8 +2152,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 {
     [self disconnectLinkCable];
     [self performAtomicBlock:^{
-        self->accessory = GBAccessoryNone;
-        GB_disconnect_serial(&self->gb);
+        GB_disconnect_serial(&gb);
     }];
 }
 
@@ -2044,8 +2160,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 {
     [self disconnectLinkCable];
     [self performAtomicBlock:^{
-        self->accessory = GBAccessoryPrinter;
-        GB_connect_printer(&self->gb, printImage);
+        GB_connect_printer(&gb, printImage, printDone);
     }];
 }
 
@@ -2053,8 +2168,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 {
     [self disconnectLinkCable];
     [self performAtomicBlock:^{
-        self->accessory = GBAccessoryWorkboy;
-        GB_connect_workboy(&self->gb, setWorkboyTime, getWorkboyTime);
+        GB_connect_workboy(&gb, setWorkboyTime, getWorkboyTime);
     }];
 }
 
@@ -2139,6 +2253,15 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     modelsChanging = false;
 }
 
+- (void)agbModelChanged
+{
+    modelsChanging = true;
+    if (current_model == MODEL_AGB) {
+        [self reset:nil];
+    }
+    modelsChanging = false;
+}
+
 - (void)setFileURL:(NSURL *)fileURL
 {
     [super setFileURL:fileURL];
@@ -2178,11 +2301,6 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     if ([[[splitview arrangedSubviews] firstObject] frame].size.width < 600) {
         [splitview setPosition:600 ofDividerAtIndex:0];
     }
-    /* NSSplitView renders its separator without the proper vibrancy, so we made it transparent and move an
-       NSBox-based separator that renders properly so it acts like the split view's separator. */
-    NSRect rect = self.debuggerVerticalLine.frame;
-    rect.origin.x = [[[splitview arrangedSubviews] firstObject] frame].size.width - 1;
-    self.debuggerVerticalLine.frame = rect;
 }
 
 - (IBAction)showCheats:(id)sender
@@ -2212,8 +2330,6 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         }
         GB_set_turbo_mode(&gb, false, false);
         GB_set_turbo_mode(&partner->gb, false, false);
-        partner->accessory = GBAccessoryNone;
-        accessory = GBAccessoryNone;
     }
 }
 
@@ -2230,8 +2346,6 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     slave = partner;
     partner->master = self;
     linkOffset = 0;
-    partner->accessory = GBAccessoryLinkCable;
-    accessory = GBAccessoryLinkCable;
     GB_set_serial_transfer_bit_start_callback(&gb, linkCableBitStart);
     GB_set_serial_transfer_bit_start_callback(&partner->gb, linkCableBitStart);
     GB_set_serial_transfer_bit_end_callback(&gb, linkCableBitEnd);
@@ -2484,6 +2598,88 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
             _audioSavePanel.allowedFileTypes = @[@"wav"];
             break;
     }
+}
+
+- (IBAction)toggleAudioChannel:(NSMenuItem *)sender
+{
+    GB_set_channel_muted(&gb, sender.tag, !GB_is_channel_muted(&gb, sender.tag));
+}
+
+- (IBAction)cartSwap:(id)sender
+{
+    bool wasRunning = running;
+    if (wasRunning) {
+        [self stop];
+    }
+    [[NSDocumentController sharedDocumentController] beginOpenPanelWithCompletionHandler:^(NSArray<NSURL *> *urls) {
+        if (urls.count == 1) {
+            bool ok = true;
+            for (Document *document in [NSDocumentController sharedDocumentController].documents) {
+                if ([document.fileURL isEqual:urls.firstObject]) {
+                    NSAlert *alert = [[NSAlert alloc] init];
+                    [alert setMessageText:[NSString stringWithFormat:@"‘%@’ is already open in another window. Close ‘%@’ before hot swapping it into this instance.",
+                                                                     urls.firstObject.lastPathComponent, urls.firstObject.lastPathComponent]];
+                    [alert setAlertStyle:NSAlertStyleCritical];
+                    [alert runModal];
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok) {
+                GB_save_battery(&gb, self.savPath.UTF8String);
+                self.fileURL = urls.firstObject;
+                [self loadROM];
+            }
+        }
+        if (wasRunning) {
+            [self start];
+        }
+    }];
+}
+
+- (void)updateDebuggerButtons
+{
+    bool updateContinue = false;
+    if (@available(macOS 10.10, *)) {
+        if ([self.consoleInput.placeholderAttributedString.string isEqualToString:self.debuggerContinueButton.alternateTitle]) {
+            [self.debuggerContinueButton mouseExited:nil];
+            updateContinue = true;
+        }
+    }
+    if (self.isPaused) {
+        self.debuggerContinueButton.toolTip = self.debuggerContinueButton.title = @"Continue";
+        self.debuggerContinueButton.alternateTitle = @"continue";
+        self.debuggerContinueButton.imagePosition = NSImageOnly;
+        if (@available(macOS 10.14, *)) {
+            self.debuggerContinueButton.contentTintColor = nil;
+        }
+        self.debuggerContinueButton.image = [NSImage imageNamed:@"ContinueTemplate"];
+        
+        self.debuggerNextButton.enabled = true;
+        self.debuggerStepButton.enabled = true;
+        self.debuggerFinishButton.enabled = true;
+    }
+    else {
+        self.debuggerContinueButton.toolTip = self.debuggerContinueButton.title = @"Interrupt";
+        self.debuggerContinueButton.alternateTitle = @"interrupt";
+        self.debuggerContinueButton.imagePosition = NSImageOnly;
+        if (@available(macOS 10.14, *)) {
+            self.debuggerContinueButton.contentTintColor = [NSColor controlAccentColor];
+        }
+        self.debuggerContinueButton.image = [NSImage imageNamed:@"InterruptTemplate"];
+        
+        self.debuggerNextButton.enabled = false;
+        self.debuggerStepButton.enabled = false;
+        self.debuggerFinishButton.enabled = false;
+    }
+    if (updateContinue) {
+        [self.debuggerContinueButton mouseEntered:nil];
+    }
+}
+
+- (IBAction)debuggerButtonPressed:(NSButton *)sender
+{
+    [self queueDebuggerCommand:sender.alternateTitle];
 }
 
 @end

@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 
 static uint8_t *state_compress(const uint8_t *prev, const uint8_t *data, size_t uncompressed_size)
 {
@@ -109,6 +110,10 @@ static void state_decompress(const uint8_t *prev, uint8_t *data, uint8_t *dest, 
 void GB_rewind_push(GB_gameboy_t *gb)
 {
     const size_t save_size = GB_get_save_state_size_no_bess(gb);
+    if (gb->rewind_state_size != save_size) {
+        GB_rewind_reset(gb);
+        gb->rewind_state_size = save_size;
+    }
     if (!gb->rewind_sequences) {
         if (gb->rewind_buffer_length) {
             gb->rewind_sequences = malloc(sizeof(*gb->rewind_sequences) * gb->rewind_buffer_length);
@@ -132,7 +137,7 @@ void GB_rewind_push(GB_gameboy_t *gb)
         for (unsigned i = 0; i < GB_REWIND_FRAMES_PER_KEY; i++) {
             if (gb->rewind_sequences[gb->rewind_pos].compressed_states[i]) {
                 free(gb->rewind_sequences[gb->rewind_pos].compressed_states[i]);
-                gb->rewind_sequences[gb->rewind_pos].compressed_states[i] = 0;
+                gb->rewind_sequences[gb->rewind_pos].compressed_states[i] = NULL;
             }
         }
         gb->rewind_sequences[gb->rewind_pos].pos = 0;
@@ -144,6 +149,7 @@ void GB_rewind_push(GB_gameboy_t *gb)
     }
     else {
         uint8_t *save_state = malloc(save_size);
+        assert(gb->rewind_sequences[gb->rewind_pos].key_state);
         GB_save_state_to_buffer_no_bess(gb, save_state);
         gb->rewind_sequences[gb->rewind_pos].compressed_states[gb->rewind_sequences[gb->rewind_pos].pos++] =
             state_compress(gb->rewind_sequences[gb->rewind_pos].key_state, save_state, save_size);
@@ -154,6 +160,8 @@ void GB_rewind_push(GB_gameboy_t *gb)
 
 bool GB_rewind_pop(GB_gameboy_t *gb)
 {
+    GB_ASSERT_NOT_RUNNING(gb)
+    
     if (!gb->rewind_sequences || !gb->rewind_sequences[gb->rewind_pos].key_state) {
         return false;
     }
@@ -179,8 +187,10 @@ bool GB_rewind_pop(GB_gameboy_t *gb)
     return true;
 }
 
-void GB_rewind_free(GB_gameboy_t *gb)
+void GB_rewind_reset(GB_gameboy_t *gb)
 {
+    GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    
     if (!gb->rewind_sequences) return;
     for (unsigned i = 0; i < gb->rewind_buffer_length; i++) {
         if (gb->rewind_sequences[i].key_state) {
@@ -198,7 +208,7 @@ void GB_rewind_free(GB_gameboy_t *gb)
 
 void GB_set_rewind_length(GB_gameboy_t *gb, double seconds)
 {
-    GB_rewind_free(gb);
+    GB_rewind_reset(gb);
     if (seconds == 0) {
         gb->rewind_buffer_length = 0;
     }
