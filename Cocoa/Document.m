@@ -2526,7 +2526,9 @@ static bool is_path_writeable(const char *path)
               romPath,
               [[NSURL fileURLWithPath:romPath].fileReferenceURL.absoluteString substringFromIndex:strlen("file://")]
             ] writeToURL:[savePanel.URL URLByAppendingPathComponent:@"rom.gbl"] atomically:false encoding:NSUTF8StringEncoding error:nil];
-            [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:savePanel.URL display:true completionHandler:nil];
+            [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:savePanel.URL display:true completionHandler:^(NSDocument * _Nullable document, BOOL documentWasAlreadyOpen, NSError * _Nullable error) {
+                //Do nothing?
+            }];
         }
         if (shouldResume) {
             [self start];
