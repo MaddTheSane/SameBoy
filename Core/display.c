@@ -579,7 +579,6 @@ static uint8_t data_for_tile_sel_glitch(GB_gameboy_t *gb, bool *should_use, bool
         *should_use = false;
         gb->io_registers[GB_IO_LCDC] &= ~GB_LCDC_TILE_SEL;
         if (gb->fetcher_state == 3) {
-            *should_use = false;
             *cgb_d_glitch = true;
             return 0;
         }
@@ -929,7 +928,7 @@ static void advance_fetcher_state_machine(GB_gameboy_t *gb, unsigned *cycles)
             }
             gb->last_tile_data_address = tile_address +  ((y & 7) ^ y_flip) * 2 + 1 - cgb_d_glitch;
             if (!use_glitched) {
-                gb->current_tile_data[1] =
+                gb->data_for_sel_glitch = gb->current_tile_data[1] =
                     vram_read(gb, gb->last_tile_data_address);
             }
             if ((gb->io_registers[GB_IO_LCDC] & GB_LCDC_TILE_SEL) && gb->tile_sel_glitch) {
@@ -1826,14 +1825,17 @@ void GB_display_run(GB_gameboy_t *gb, unsigned cycles, bool force)
                     
                     gb->during_object_fetch = false;
                     gb->cycles_for_line++;
+                    gb->object_low_line_address = get_object_line_address(gb,
+                                                                          gb->objects_y[gb->n_visible_objs - 1],
+                                                                          gb->mode2_y_bus,
+                                                                          gb->object_flags);
                     GB_SLEEP(gb, display, 40, 1);
                     
-                    /* TODO: timing not verified */
+                    /* TODO: timing not verified. Probably happens a cycle earlier, but needs to verify it doesn't
+                             break any DMA tests. { */
                     dma_sync(gb, &cycles);
-                    gb->object_tile_data[1] = vram_read(gb, get_object_line_address(gb,
-                                                                                    gb->objects_y[gb->n_visible_objs - 1],
-                                                                                    gb->mode2_y_bus,
-                                                                                    gb->object_flags) + 1);
+                    gb->object_tile_data[1] = vram_read(gb, gb->object_low_line_address + 1);
+                    /* } */
 
                     
                     uint8_t palette = (gb->object_flags & 0x10) ? 1 : 0;
