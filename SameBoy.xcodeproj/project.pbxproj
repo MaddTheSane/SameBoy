@@ -1780,6 +1780,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1787,6 +1788,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
+					"GB_COPYRIGHT_YEAR='\"2023\"'",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -1840,8 +1843,14 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
+					"GB_COPYRIGHT_YEAR='\"2023\"'",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -1868,12 +1877,12 @@
 				DEAD_CODE_STRIPPING = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
 					OSATOMIC_USE_INLINED,
 					OSSPINLOCK_USE_INLINED,
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_FILE = Cocoa/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1894,12 +1903,12 @@
 				DEAD_CODE_STRIPPING = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
 					OSATOMIC_USE_INLINED,
 					OSSPINLOCK_USE_INLINED,
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_FILE = Cocoa/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1973,18 +1982,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = iOS/jailbreak.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
 					"GB_DISABLE_DEBUGGER=1",
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_FILE = iOS/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2004,18 +2011,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = iOS/jailbreak.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
 					"GB_DISABLE_DEBUGGER=1",
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_FILE = iOS/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2044,7 +2049,6 @@
 				EXPORTED_SYMBOLS_FILE = QuickLook/exports.sym;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
 					"GB_COPYRIGHT_YEAR='\"2023\"'",
 					GB_INTERNAL,
 				);
@@ -2074,7 +2078,6 @@
 				EXPORTED_SYMBOLS_FILE = QuickLook/exports.sym;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
 					"GB_COPYRIGHT_YEAR='\"2023\"'",
 					GB_INTERNAL,
 				);
@@ -2108,8 +2111,6 @@
 				ENABLE_MODULE_VERIFIER = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
-					"GB_COPYRIGHT_YEAR='\"2023\"'",
 					GB_INTERNAL,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2149,8 +2150,6 @@
 				ENABLE_MODULE_VERIFIER = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
-					"GB_COPYRIGHT_YEAR='\"2023\"'",
 					GB_INTERNAL,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
