@@ -159,6 +159,57 @@
 		558DA31826228C990019146B /* JOYAxes2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 558DA30226228C990019146B /* JOYAxes2D.h */; };
 		558DA31E26228CB20019146B /* libJoyKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 558DA2E526228C880019146B /* libJoyKit.a */; };
 		558DA32626228D770019146B /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 558DA32526228D770019146B /* AudioUnit.framework */; };
+		55970F982B32F20600E3B538 /* GBVerticalLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F6A2B32F20400E3B538 /* GBVerticalLayout.m */; };
+		55970F992B32F20600E3B538 /* GBBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F6B2B32F20400E3B538 /* GBBackgroundView.m */; };
+		55970F9A2B32F20600E3B538 /* GBLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F6D2B32F20400E3B538 /* GBLayout.m */; };
+		55970F9C2B32F20600E3B538 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55970F702B32F20400E3B538 /* Assets.xcassets */; };
+		55970F9D2B32F20600E3B538 /* GBROMManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F712B32F20400E3B538 /* GBROMManager.m */; };
+		55970F9E2B32F20600E3B538 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F732B32F20400E3B538 /* main.m */; };
+		55970FA02B32F20600E3B538 /* GBMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F752B32F20400E3B538 /* GBMenuViewController.m */; };
+		55970FA12B32F20600E3B538 /* GBMenuButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F762B32F20400E3B538 /* GBMenuButton.m */; };
+		55970FA22B32F20600E3B538 /* GBViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F782B32F20400E3B538 /* GBViewController.m */; };
+		55970FA32B32F20600E3B538 /* GBAboutController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F792B32F20400E3B538 /* GBAboutController.m */; };
+		55970FA42B32F20600E3B538 /* ColorCartridge.png in Resources */ = {isa = PBXBuildFile; fileRef = 55970F7B2B32F20400E3B538 /* ColorCartridge.png */; };
+		55970FA52B32F20600E3B538 /* GBHorizontalLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F862B32F20500E3B538 /* GBHorizontalLayout.m */; };
+		55970FA62B32F20600E3B538 /* GBSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F872B32F20500E3B538 /* GBSettingsViewController.m */; };
+		55970FA72B32F20600E3B538 /* GBStatesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F892B32F20500E3B538 /* GBStatesViewController.m */; };
+		55970FA82B32F20600E3B538 /* GBView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F8A2B32F20500E3B538 /* GBView.m */; };
+		55970FA92B32F20600E3B538 /* GBHapticManagerLegacy.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F8B2B32F20500E3B538 /* GBHapticManagerLegacy.m */; };
+		55970FAA2B32F20600E3B538 /* GBHapticManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F8C2B32F20500E3B538 /* GBHapticManager.m */; };
+		55970FAB2B32F20600E3B538 /* GBOptionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F8D2B32F20500E3B538 /* GBOptionViewController.m */; };
+		55970FAC2B32F20600E3B538 /* License.html in Resources */ = {isa = PBXBuildFile; fileRef = 55970F8F2B32F20500E3B538 /* License.html */; };
+		55970FAD2B32F20600E3B538 /* Cartridge.png in Resources */ = {isa = PBXBuildFile; fileRef = 55970F912B32F20500E3B538 /* Cartridge.png */; };
+		55970FAE2B32F20600E3B538 /* GBSlotButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F922B32F20500E3B538 /* GBSlotButton.m */; };
+		55970FB12B32F20600E3B538 /* GBLoadROMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F962B32F20500E3B538 /* GBLoadROMTableViewController.m */; };
+		55970FB22B32F20600E3B538 /* GBTemperatureSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F972B32F20600E3B538 /* GBTemperatureSlider.m */; };
+		55970FB32B32F40700E3B538 /* gb.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6525A54AF1004D2482 /* gb.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FB42B32F42000E3B538 /* Shaders in Resources */ = {isa = PBXBuildFile; fileRef = 556038C226C0952200CD1984 /* Shaders */; };
+		55970FB52B32F43500E3B538 /* sgb_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC402998F25500D554FB /* sgb_boot.bin */; };
+		55970FB62B32F43500E3B538 /* cgb0_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC452998F25500D554FB /* cgb0_boot.bin */; };
+		55970FB72B32F43500E3B538 /* cgb_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC422998F25500D554FB /* cgb_boot.bin */; };
+		55970FB82B32F43500E3B538 /* sgb2_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC462998F25500D554FB /* sgb2_boot.bin */; };
+		55970FB92B32F43500E3B538 /* agb_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC442998F25500D554FB /* agb_boot.bin */; };
+		55970FBA2B32F43500E3B538 /* dmg_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC412998F25500D554FB /* dmg_boot.bin */; };
+		55970FBB2B32F43500E3B538 /* mgb_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC432998F25500D554FB /* mgb_boot.bin */; };
+		55970FBC2B32F46D00E3B538 /* mbc.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7425A54AF1004D2482 /* mbc.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FBD2B32F46D00E3B538 /* printer.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7225A54AF1004D2482 /* printer.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FBE2B32F46D00E3B538 /* sm83_cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7325A54AF1004D2482 /* sm83_cpu.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FBF2B32F46D00E3B538 /* workboy.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD8525A54AF1004D2482 /* workboy.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FC02B32F46D00E3B538 /* cheats.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5F25A54AF1004D2482 /* cheats.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FC12B32F46D00E3B538 /* rumble.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6C25A54AF1004D2482 /* rumble.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FC22B32F46D00E3B538 /* save_state.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7625A54AF1004D2482 /* save_state.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FC32B32F46D00E3B538 /* sgb.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7025A54AF1004D2482 /* sgb.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FC42B32F46D00E3B538 /* apu.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6325A54AF1004D2482 /* apu.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FC52B32F46D00E3B538 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6D25A54AF1004D2482 /* random.c */; };
+		55970FC72B32F46D00E3B538 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7D25A54AF1004D2482 /* camera.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FC92B32F46D00E3B538 /* joypad.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6825A54AF1004D2482 /* joypad.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FCA2B32F46D00E3B538 /* rewind.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7B25A54AF1004D2482 /* rewind.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FCB2B32F46D00E3B538 /* display.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5E25A54AF1004D2482 /* display.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FCD2B32F46D00E3B538 /* timing.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7C25A54AF1004D2482 /* timing.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FCE2B32F46D00E3B538 /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6125A54AF1004D2482 /* memory.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55970FCF2B32F71400E3B538 /* GBViewBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478B35299889E200056C6A /* GBViewBase.m */; };
+		55970FD02B32F71400E3B538 /* GBViewMetal.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD325A064DA00CADDCE /* GBViewMetal.m */; };
+		55970FD12B32F71400E3B538 /* GBAudioClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD425A064DA00CADDCE /* GBAudioClient.m */; };
 		55DF028D27DAF3E700B339A6 /* GBObjectViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55DF028A27DAF3E700B339A6 /* GBObjectViewItem.xib */; };
 		55DF028E27DAF3E700B339A6 /* GBObjectView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55DF028C27DAF3E700B339A6 /* GBObjectView.m */; };
 		55DF029227DAF40900B339A6 /* GBPaletteViewRow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55DF029027DAF40900B339A6 /* GBPaletteViewRow.xib */; };
@@ -529,6 +580,54 @@
 		558DA30126228C990019146B /* JOYFullReportElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JOYFullReportElement.h; sourceTree = "<group>"; };
 		558DA30226228C990019146B /* JOYAxes2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JOYAxes2D.h; sourceTree = "<group>"; };
 		558DA32526228D770019146B /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
+		55970F502B32F18400E3B538 /* SameBoy-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SameBoy-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		55970F692B32F20400E3B538 /* GBSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBSettingsViewController.h; sourceTree = "<group>"; };
+		55970F6A2B32F20400E3B538 /* GBVerticalLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBVerticalLayout.m; sourceTree = "<group>"; };
+		55970F6B2B32F20400E3B538 /* GBBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBBackgroundView.m; sourceTree = "<group>"; };
+		55970F6C2B32F20400E3B538 /* GBView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBView.h; sourceTree = "<group>"; };
+		55970F6D2B32F20400E3B538 /* GBLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBLayout.m; sourceTree = "<group>"; };
+		55970F6E2B32F20400E3B538 /* GBViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBViewController.h; sourceTree = "<group>"; };
+		55970F6F2B32F20400E3B538 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		55970F702B32F20400E3B538 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		55970F712B32F20400E3B538 /* GBROMManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBROMManager.m; sourceTree = "<group>"; };
+		55970F722B32F20400E3B538 /* GBROMManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBROMManager.h; sourceTree = "<group>"; };
+		55970F732B32F20400E3B538 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		55970F742B32F20400E3B538 /* deb-postinst */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "deb-postinst"; sourceTree = "<group>"; };
+		55970F752B32F20400E3B538 /* GBMenuViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBMenuViewController.m; sourceTree = "<group>"; };
+		55970F762B32F20400E3B538 /* GBMenuButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBMenuButton.m; sourceTree = "<group>"; };
+		55970F772B32F20400E3B538 /* GBOptionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBOptionViewController.h; sourceTree = "<group>"; };
+		55970F782B32F20400E3B538 /* GBViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBViewController.m; sourceTree = "<group>"; };
+		55970F792B32F20400E3B538 /* GBAboutController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBAboutController.m; sourceTree = "<group>"; };
+		55970F7A2B32F20400E3B538 /* GBBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBBackgroundView.h; sourceTree = "<group>"; };
+		55970F7B2B32F20400E3B538 /* ColorCartridge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ColorCartridge.png; sourceTree = "<group>"; };
+		55970F7C2B32F20400E3B538 /* GBMenuViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBMenuViewController.h; sourceTree = "<group>"; };
+		55970F7D2B32F20400E3B538 /* GBMenuButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBMenuButton.h; sourceTree = "<group>"; };
+		55970F7E2B32F20400E3B538 /* GBSlotButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBSlotButton.h; sourceTree = "<group>"; };
+		55970F7F2B32F20500E3B538 /* GBHorizontalLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBHorizontalLayout.h; sourceTree = "<group>"; };
+		55970F802B32F20500E3B538 /* GBVerticalLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBVerticalLayout.h; sourceTree = "<group>"; };
+		55970F812B32F20500E3B538 /* jailbreak.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = jailbreak.entitlements; sourceTree = "<group>"; };
+		55970F822B32F20500E3B538 /* GBAboutController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBAboutController.h; sourceTree = "<group>"; };
+		55970F832B32F20500E3B538 /* GBLoadROMTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBLoadROMTableViewController.h; sourceTree = "<group>"; };
+		55970F842B32F20500E3B538 /* GBHapticManagerLegacy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBHapticManagerLegacy.h; sourceTree = "<group>"; };
+		55970F852B32F20500E3B538 /* GBLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBLayout.h; sourceTree = "<group>"; };
+		55970F862B32F20500E3B538 /* GBHorizontalLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBHorizontalLayout.m; sourceTree = "<group>"; };
+		55970F872B32F20500E3B538 /* GBSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBSettingsViewController.m; sourceTree = "<group>"; };
+		55970F882B32F20500E3B538 /* GBStatesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBStatesViewController.h; sourceTree = "<group>"; };
+		55970F892B32F20500E3B538 /* GBStatesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBStatesViewController.m; sourceTree = "<group>"; };
+		55970F8A2B32F20500E3B538 /* GBView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBView.m; sourceTree = "<group>"; };
+		55970F8B2B32F20500E3B538 /* GBHapticManagerLegacy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBHapticManagerLegacy.m; sourceTree = "<group>"; };
+		55970F8C2B32F20500E3B538 /* GBHapticManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBHapticManager.m; sourceTree = "<group>"; };
+		55970F8D2B32F20500E3B538 /* GBOptionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBOptionViewController.m; sourceTree = "<group>"; };
+		55970F8E2B32F20500E3B538 /* GBTemperatureSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBTemperatureSlider.h; sourceTree = "<group>"; };
+		55970F8F2B32F20500E3B538 /* License.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = License.html; sourceTree = "<group>"; };
+		55970F902B32F20500E3B538 /* reregister.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = reregister.entitlements; sourceTree = "<group>"; };
+		55970F912B32F20500E3B538 /* Cartridge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Cartridge.png; sourceTree = "<group>"; };
+		55970F922B32F20500E3B538 /* GBSlotButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBSlotButton.m; sourceTree = "<group>"; };
+		55970F932B32F20500E3B538 /* reregister.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = reregister.m; sourceTree = "<group>"; };
+		55970F942B32F20500E3B538 /* GBHapticManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBHapticManager.h; sourceTree = "<group>"; };
+		55970F952B32F20500E3B538 /* deb-control */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "deb-control"; sourceTree = "<group>"; };
+		55970F962B32F20500E3B538 /* GBLoadROMTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBLoadROMTableViewController.m; sourceTree = "<group>"; };
+		55970F972B32F20600E3B538 /* GBTemperatureSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBTemperatureSlider.m; sourceTree = "<group>"; };
 		55DF028A27DAF3E700B339A6 /* GBObjectViewItem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GBObjectViewItem.xib; sourceTree = "<group>"; };
 		55DF028B27DAF3E700B339A6 /* GBObjectView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBObjectView.h; sourceTree = "<group>"; };
 		55DF028C27DAF3E700B339A6 /* GBObjectView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBObjectView.m; sourceTree = "<group>"; };
@@ -592,6 +691,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		558DA2E326228C880019146B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55970F4D2B32F18400E3B538 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -711,6 +817,7 @@
 				5579AC8D25A05E5F00CADDCE /* SameBoy */,
 				55E7FBFE2998EB3000D554FB /* SameQL */,
 				55E7FC312998EF7E00D554FB /* SBThumb */,
+				55970F512B32F18400E3B538 /* iOS */,
 				558DA24026228A9A0019146B /* Frameworks */,
 				5579AC8C25A05E5F00CADDCE /* Products */,
 			);
@@ -726,6 +833,7 @@
 				55E7FBC72998DDBA00D554FB /* SameBoyQL.qlgenerator */,
 				55E7FBFD2998EB3000D554FB /* SameQL.framework */,
 				55E7FC2C2998EF7E00D554FB /* SBThumb.appex */,
+				55970F502B32F18400E3B538 /* SameBoy-iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -943,6 +1051,60 @@
 			path = JoyKit;
 			sourceTree = "<group>";
 		};
+		55970F512B32F18400E3B538 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				55970F702B32F20400E3B538 /* Assets.xcassets */,
+				55970F912B32F20500E3B538 /* Cartridge.png */,
+				55970F7B2B32F20400E3B538 /* ColorCartridge.png */,
+				55970F952B32F20500E3B538 /* deb-control */,
+				55970F742B32F20400E3B538 /* deb-postinst */,
+				55970F822B32F20500E3B538 /* GBAboutController.h */,
+				55970F792B32F20400E3B538 /* GBAboutController.m */,
+				55970F7A2B32F20400E3B538 /* GBBackgroundView.h */,
+				55970F6B2B32F20400E3B538 /* GBBackgroundView.m */,
+				55970F942B32F20500E3B538 /* GBHapticManager.h */,
+				55970F8C2B32F20500E3B538 /* GBHapticManager.m */,
+				55970F842B32F20500E3B538 /* GBHapticManagerLegacy.h */,
+				55970F8B2B32F20500E3B538 /* GBHapticManagerLegacy.m */,
+				55970F7F2B32F20500E3B538 /* GBHorizontalLayout.h */,
+				55970F862B32F20500E3B538 /* GBHorizontalLayout.m */,
+				55970F852B32F20500E3B538 /* GBLayout.h */,
+				55970F6D2B32F20400E3B538 /* GBLayout.m */,
+				55970F832B32F20500E3B538 /* GBLoadROMTableViewController.h */,
+				55970F962B32F20500E3B538 /* GBLoadROMTableViewController.m */,
+				55970F7D2B32F20400E3B538 /* GBMenuButton.h */,
+				55970F762B32F20400E3B538 /* GBMenuButton.m */,
+				55970F7C2B32F20400E3B538 /* GBMenuViewController.h */,
+				55970F752B32F20400E3B538 /* GBMenuViewController.m */,
+				55970F772B32F20400E3B538 /* GBOptionViewController.h */,
+				55970F8D2B32F20500E3B538 /* GBOptionViewController.m */,
+				55970F722B32F20400E3B538 /* GBROMManager.h */,
+				55970F712B32F20400E3B538 /* GBROMManager.m */,
+				55970F692B32F20400E3B538 /* GBSettingsViewController.h */,
+				55970F872B32F20500E3B538 /* GBSettingsViewController.m */,
+				55970F7E2B32F20400E3B538 /* GBSlotButton.h */,
+				55970F922B32F20500E3B538 /* GBSlotButton.m */,
+				55970F882B32F20500E3B538 /* GBStatesViewController.h */,
+				55970F892B32F20500E3B538 /* GBStatesViewController.m */,
+				55970F8E2B32F20500E3B538 /* GBTemperatureSlider.h */,
+				55970F972B32F20600E3B538 /* GBTemperatureSlider.m */,
+				55970F802B32F20500E3B538 /* GBVerticalLayout.h */,
+				55970F6A2B32F20400E3B538 /* GBVerticalLayout.m */,
+				55970F6C2B32F20400E3B538 /* GBView.h */,
+				55970F8A2B32F20500E3B538 /* GBView.m */,
+				55970F6E2B32F20400E3B538 /* GBViewController.h */,
+				55970F782B32F20400E3B538 /* GBViewController.m */,
+				55970F6F2B32F20400E3B538 /* Info.plist */,
+				55970F812B32F20500E3B538 /* jailbreak.entitlements */,
+				55970F8F2B32F20500E3B538 /* License.html */,
+				55970F732B32F20400E3B538 /* main.m */,
+				55970F902B32F20500E3B538 /* reregister.entitlements */,
+				55970F932B32F20500E3B538 /* reregister.m */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
 		55E7FBCB2998DFF400D554FB /* QuickLook */ = {
 			isa = PBXGroup;
 			children = (
@@ -1115,6 +1277,23 @@
 			productReference = 558DA2E526228C880019146B /* libJoyKit.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		55970F4F2B32F18400E3B538 /* SameBoy-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55970F682B32F18800E3B538 /* Build configuration list for PBXNativeTarget "SameBoy-iOS" */;
+			buildPhases = (
+				55970F4C2B32F18400E3B538 /* Sources */,
+				55970F4D2B32F18400E3B538 /* Frameworks */,
+				55970F4E2B32F18400E3B538 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SameBoy-iOS";
+			productName = "SameBoy-iOS";
+			productReference = 55970F502B32F18400E3B538 /* SameBoy-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 		55E7FBC62998DDBA00D554FB /* SameBoyQL */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 55E7FBCA2998DDBA00D554FB /* Build configuration list for PBXNativeTarget "SameBoyQL" */;
@@ -1186,6 +1365,9 @@
 					558DA2E426228C880019146B = {
 						CreatedOnToolsVersion = 12.4;
 					};
+					55970F4F2B32F18400E3B538 = {
+						CreatedOnToolsVersion = 15.1;
+					};
 					55E7FBC62998DDBA00D554FB = {
 						CreatedOnToolsVersion = 14.2;
 					};
@@ -1211,6 +1393,7 @@
 			projectRoot = "";
 			targets = (
 				5579AC8A25A05E5F00CADDCE /* SameBoy */,
+				55970F4F2B32F18400E3B538 /* SameBoy-iOS */,
 				558DA24726228B960019146B /* HexFiend */,
 				558DA2E426228C880019146B /* JoyKit */,
 				55E7FBC62998DDBA00D554FB /* SameBoyQL */,
@@ -1242,6 +1425,25 @@
 				5579ACA825A0636F00CADDCE /* Preferences.xib in Resources */,
 				5579AC9225A05E6000CADDCE /* Assets.xcassets in Resources */,
 				55DF028D27DAF3E700B339A6 /* GBObjectViewItem.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55970F4E2B32F18400E3B538 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55970FB92B32F43500E3B538 /* agb_boot.bin in Resources */,
+				55970F9C2B32F20600E3B538 /* Assets.xcassets in Resources */,
+				55970FB62B32F43500E3B538 /* cgb0_boot.bin in Resources */,
+				55970FB72B32F43500E3B538 /* cgb_boot.bin in Resources */,
+				55970FBB2B32F43500E3B538 /* mgb_boot.bin in Resources */,
+				55970FB82B32F43500E3B538 /* sgb2_boot.bin in Resources */,
+				55970FB42B32F42000E3B538 /* Shaders in Resources */,
+				55970FAD2B32F20600E3B538 /* Cartridge.png in Resources */,
+				55970FBA2B32F43500E3B538 /* dmg_boot.bin in Resources */,
+				55970FA42B32F20600E3B538 /* ColorCartridge.png in Resources */,
+				55970FB52B32F43500E3B538 /* sgb_boot.bin in Resources */,
+				55970FAC2B32F20600E3B538 /* License.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1393,6 +1595,52 @@
 				558DA30326228C990019146B /* JOYAxis.m in Sources */,
 				558DA30A26228C990019146B /* JOYSubElement.m in Sources */,
 				558DA30726228C990019146B /* JOYController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55970F4C2B32F18400E3B538 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55970F9E2B32F20600E3B538 /* main.m in Sources */,
+				55970FC22B32F46D00E3B538 /* save_state.c in Sources */,
+				55970FC72B32F46D00E3B538 /* camera.c in Sources */,
+				55970FB12B32F20600E3B538 /* GBLoadROMTableViewController.m in Sources */,
+				55970FCF2B32F71400E3B538 /* GBViewBase.m in Sources */,
+				55970F982B32F20600E3B538 /* GBVerticalLayout.m in Sources */,
+				55970FA92B32F20600E3B538 /* GBHapticManagerLegacy.m in Sources */,
+				55970FC12B32F46D00E3B538 /* rumble.c in Sources */,
+				55970FBE2B32F46D00E3B538 /* sm83_cpu.c in Sources */,
+				55970FAE2B32F20600E3B538 /* GBSlotButton.m in Sources */,
+				55970FA52B32F20600E3B538 /* GBHorizontalLayout.m in Sources */,
+				55970FBF2B32F46D00E3B538 /* workboy.c in Sources */,
+				55970FBC2B32F46D00E3B538 /* mbc.c in Sources */,
+				55970FAB2B32F20600E3B538 /* GBOptionViewController.m in Sources */,
+				55970FD02B32F71400E3B538 /* GBViewMetal.m in Sources */,
+				55970F992B32F20600E3B538 /* GBBackgroundView.m in Sources */,
+				55970FD12B32F71400E3B538 /* GBAudioClient.m in Sources */,
+				55970FCA2B32F46D00E3B538 /* rewind.c in Sources */,
+				55970FCB2B32F46D00E3B538 /* display.c in Sources */,
+				55970FAA2B32F20600E3B538 /* GBHapticManager.m in Sources */,
+				55970FC32B32F46D00E3B538 /* sgb.c in Sources */,
+				55970FA12B32F20600E3B538 /* GBMenuButton.m in Sources */,
+				55970FCE2B32F46D00E3B538 /* memory.c in Sources */,
+				55970FA32B32F20600E3B538 /* GBAboutController.m in Sources */,
+				55970FCD2B32F46D00E3B538 /* timing.c in Sources */,
+				55970FC92B32F46D00E3B538 /* joypad.c in Sources */,
+				55970FA82B32F20600E3B538 /* GBView.m in Sources */,
+				55970F9A2B32F20600E3B538 /* GBLayout.m in Sources */,
+				55970FB22B32F20600E3B538 /* GBTemperatureSlider.m in Sources */,
+				55970FB32B32F40700E3B538 /* gb.c in Sources */,
+				55970FBD2B32F46D00E3B538 /* printer.c in Sources */,
+				55970FA62B32F20600E3B538 /* GBSettingsViewController.m in Sources */,
+				55970FA22B32F20600E3B538 /* GBViewController.m in Sources */,
+				55970FC42B32F46D00E3B538 /* apu.c in Sources */,
+				55970FC02B32F46D00E3B538 /* cheats.c in Sources */,
+				55970FA02B32F20600E3B538 /* GBMenuViewController.m in Sources */,
+				55970F9D2B32F20600E3B538 /* GBROMManager.m in Sources */,
+				55970FC52B32F46D00E3B538 /* random.c in Sources */,
+				55970FA72B32F20600E3B538 /* GBStatesViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1616,6 +1864,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
+					OSATOMIC_USE_INLINED,
+					OSSPINLOCK_USE_INLINED,
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_FILE = Cocoa/Info.plist;
@@ -1639,6 +1889,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
+					OSATOMIC_USE_INLINED,
+					OSSPINLOCK_USE_INLINED,
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_FILE = Cocoa/Info.plist;
@@ -1704,6 +1956,67 @@
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		55970F662B32F18800E3B538 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
+					"GB_DISABLE_DEBUGGER=1",
+				);
+				HEADER_SEARCH_PATHS = "$(SRCROOT)";
+				INFOPLIST_FILE = iOS/Info.plist;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		55970F672B32F18800E3B538 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
+					"GB_DISABLE_DEBUGGER=1",
+				);
+				HEADER_SEARCH_PATHS = "$(SRCROOT)";
+				INFOPLIST_FILE = iOS/Info.plist;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -1928,6 +2241,15 @@
 			buildConfigurations = (
 				558DA2E726228C880019146B /* Debug */,
 				558DA2E826228C880019146B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55970F682B32F18800E3B538 /* Build configuration list for PBXNativeTarget "SameBoy-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55970F662B32F18800E3B538 /* Debug */,
+				55970F672B32F18800E3B538 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
