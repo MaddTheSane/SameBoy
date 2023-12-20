@@ -1,5 +1,4 @@
-#ifndef apu_h
-#define apu_h
+#pragma once
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -71,12 +70,13 @@ typedef struct
                     // need to divide the signal.
 
     uint8_t square_sweep_countdown; // In 128Hz
-    uint8_t square_sweep_calculate_countdown; // In 2 MHz
+    uint8_t square_sweep_calculate_countdown; // In 1 MHz
+    uint8_t square_sweep_calculate_countdown_reload_timer; // In 1 Mhz, for glitches related to reloading square_sweep_calculate_countdown
     uint16_t sweep_length_addend;
     uint16_t shadow_sweep_sample_length;
     bool unshifted_sweep;
-    bool enable_zombie_calculate_stepping;
-    
+    bool square_sweep_instant_calculation_done;
+
     uint8_t channel_1_restart_hold;
     uint16_t channel1_completed_addend;
     struct {
@@ -162,6 +162,7 @@ typedef struct {
     GB_sample_t summed_samples[GB_N_CHANNELS];
     double dac_discharge[GB_N_CHANNELS];
     bool channel_muted[GB_N_CHANNELS];
+    bool edge_triggered[GB_N_CHANNELS];
 
     GB_highpass_mode_t highpass_mode;
     double highpass_rate;
@@ -176,6 +177,8 @@ typedef struct {
     GB_audio_format_t output_format;
     int output_error;
     
+    /* Not output related, but it's temp state so I'll put it here */
+    bool square_sweep_disable_stepping;
 } GB_apu_output_t;
 
 void GB_set_channel_muted(GB_gameboy_t *gb, GB_channel_t channel, bool muted);
@@ -188,6 +191,11 @@ void GB_set_interference_volume(GB_gameboy_t *gb, double volume);
 void GB_apu_set_sample_callback(GB_gameboy_t *gb, GB_sample_callback_t callback);
 int GB_start_audio_recording(GB_gameboy_t *gb, const char *path, GB_audio_format_t format);
 int GB_stop_audio_recording(GB_gameboy_t *gb);
+uint8_t GB_get_channel_volume(GB_gameboy_t *gb, GB_channel_t channel);
+uint8_t GB_get_channel_amplitude(GB_gameboy_t *gb, GB_channel_t channel);
+uint16_t GB_get_channel_period(GB_gameboy_t *gb, GB_channel_t channel);
+void GB_get_apu_wave_table(GB_gameboy_t *gb, uint8_t *wave_table);
+bool GB_get_channel_edge_triggered(GB_gameboy_t *gb, GB_channel_t channel);
 #ifdef GB_INTERNAL
 internal bool GB_apu_is_DAC_enabled(GB_gameboy_t *gb, GB_channel_t index);
 internal void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value);
@@ -197,6 +205,3 @@ internal void GB_apu_div_secondary_event(GB_gameboy_t *gb);
 internal void GB_apu_init(GB_gameboy_t *gb);
 internal void GB_apu_run(GB_gameboy_t *gb, bool force);
 #endif
-
-#endif
-

@@ -67,6 +67,11 @@
 		5579ACEF25A064DA00CADDCE /* GBViewMetal.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD325A064DA00CADDCE /* GBViewMetal.m */; };
 		5579ACF025A064DA00CADDCE /* GBAudioClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD425A064DA00CADDCE /* GBAudioClient.m */; };
 		5579ACF325A064DA00CADDCE /* GBCompleteByteSlice.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACDB25A064DA00CADDCE /* GBCompleteByteSlice.m */; };
+		5584AE182B329EF400FBAB98 /* NSObject+DefaultsObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */; };
+		5584AE222B32A25600FBAB98 /* GBPreferencePopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1E2B32A25600FBAB98 /* GBPreferencePopUpButton.m */; };
+		5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1F2B32A25600FBAB98 /* GBPreferencesSlider.m */; };
+		5584AE242B32A25600FBAB98 /* GBPreferenceButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE202B32A25600FBAB98 /* GBPreferenceButton.m */; };
+		5584AE272B32A27000FBAB98 /* GBHexStatusBarRepresenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE262B32A27000FBAB98 /* GBHexStatusBarRepresenter.m */; };
 		558DA24226228A9A0019146B /* PreferencePanes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 558DA24126228A9A0019146B /* PreferencePanes.framework */; };
 		558DA29126228BBD0019146B /* HFHexTextRepresenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 558DA24F26228BBD0019146B /* HFHexTextRepresenter.h */; };
 		558DA29226228BBD0019146B /* HFTextRepresenter_KeyBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 558DA25026228BBD0019146B /* HFTextRepresenter_KeyBinding.m */; };
@@ -93,7 +98,6 @@
 		558DA2A726228BBD0019146B /* HFBTreeByteArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 558DA26526228BBD0019146B /* HFBTreeByteArray.m */; };
 		558DA2A826228BBD0019146B /* HFSharedMemoryByteSlice.m in Sources */ = {isa = PBXBuildFile; fileRef = 558DA26626228BBD0019146B /* HFSharedMemoryByteSlice.m */; };
 		558DA2A926228BBD0019146B /* HFFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 558DA26726228BBD0019146B /* HFFunctions.m */; };
-		558DA2AA26228BBD0019146B /* HFStatusBarRepresenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 558DA26826228BBD0019146B /* HFStatusBarRepresenter.m */; };
 		558DA2AB26228BBD0019146B /* HFLineCountingView.h in Headers */ = {isa = PBXBuildFile; fileRef = 558DA26926228BBD0019146B /* HFLineCountingView.h */; };
 		558DA2AC26228BBD0019146B /* HFBTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 558DA26A26228BBD0019146B /* HFBTree.h */; };
 		558DA2AD26228BBD0019146B /* HFRepresenterTextViewCallout.m in Sources */ = {isa = PBXBuildFile; fileRef = 558DA26B26228BBD0019146B /* HFRepresenterTextViewCallout.m */; };
@@ -130,7 +134,6 @@
 		558DA2CD26228BBD0019146B /* HFRepresenterTextViewCallout.h in Headers */ = {isa = PBXBuildFile; fileRef = 558DA28C26228BBD0019146B /* HFRepresenterTextViewCallout.h */; };
 		558DA2CE26228BBD0019146B /* HFBTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 558DA28D26228BBD0019146B /* HFBTree.m */; };
 		558DA2CF26228BBD0019146B /* HFLineCountingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 558DA28E26228BBD0019146B /* HFLineCountingView.m */; };
-		558DA2D026228BBD0019146B /* HFStatusBarRepresenter.h in Headers */ = {isa = PBXBuildFile; fileRef = 558DA28F26228BBD0019146B /* HFStatusBarRepresenter.h */; };
 		558DA2D126228BBD0019146B /* HFFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = 558DA29026228BBD0019146B /* HFFunctions.h */; };
 		558DA2D426228BCE0019146B /* libHexFiend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 558DA24826228B960019146B /* libHexFiend.a */; };
 		558DA30326228C990019146B /* JOYAxis.m in Sources */ = {isa = PBXBuildFile; fileRef = 558DA2ED26228C980019146B /* JOYAxis.m */; };
@@ -426,6 +429,16 @@
 		5579ACD825A064DA00CADDCE /* KeyboardShortcutPrivateAPIs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcutPrivateAPIs.h; sourceTree = "<group>"; };
 		5579ACD925A064DA00CADDCE /* GBMemoryByteArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBMemoryByteArray.h; sourceTree = "<group>"; };
 		5579ACDB25A064DA00CADDCE /* GBCompleteByteSlice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBCompleteByteSlice.m; sourceTree = "<group>"; };
+		5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+DefaultsObserver.m"; sourceTree = "<group>"; };
+		5584AE172B329EF400FBAB98 /* NSObject+DefaultsObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DefaultsObserver.h"; sourceTree = "<group>"; };
+		5584AE1A2B32A25600FBAB98 /* GBPreferencePopUpButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBPreferencePopUpButton.h; sourceTree = "<group>"; };
+		5584AE1C2B32A25600FBAB98 /* GBPreferenceButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBPreferenceButton.h; sourceTree = "<group>"; };
+		5584AE1D2B32A25600FBAB98 /* GBPreferencesSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBPreferencesSlider.h; sourceTree = "<group>"; };
+		5584AE1E2B32A25600FBAB98 /* GBPreferencePopUpButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBPreferencePopUpButton.m; sourceTree = "<group>"; };
+		5584AE1F2B32A25600FBAB98 /* GBPreferencesSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBPreferencesSlider.m; sourceTree = "<group>"; };
+		5584AE202B32A25600FBAB98 /* GBPreferenceButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBPreferenceButton.m; sourceTree = "<group>"; };
+		5584AE252B32A27000FBAB98 /* GBHexStatusBarRepresenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBHexStatusBarRepresenter.h; sourceTree = "<group>"; };
+		5584AE262B32A27000FBAB98 /* GBHexStatusBarRepresenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBHexStatusBarRepresenter.m; sourceTree = "<group>"; };
 		558DA24126228A9A0019146B /* PreferencePanes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PreferencePanes.framework; path = System/Library/Frameworks/PreferencePanes.framework; sourceTree = SDKROOT; };
 		558DA24826228B960019146B /* libHexFiend.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHexFiend.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		558DA24F26228BBD0019146B /* HFHexTextRepresenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HFHexTextRepresenter.h; sourceTree = "<group>"; };
@@ -453,7 +466,6 @@
 		558DA26526228BBD0019146B /* HFBTreeByteArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFBTreeByteArray.m; sourceTree = "<group>"; };
 		558DA26626228BBD0019146B /* HFSharedMemoryByteSlice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFSharedMemoryByteSlice.m; sourceTree = "<group>"; };
 		558DA26726228BBD0019146B /* HFFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFFunctions.m; sourceTree = "<group>"; };
-		558DA26826228BBD0019146B /* HFStatusBarRepresenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFStatusBarRepresenter.m; sourceTree = "<group>"; };
 		558DA26926228BBD0019146B /* HFLineCountingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HFLineCountingView.h; sourceTree = "<group>"; };
 		558DA26A26228BBD0019146B /* HFBTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HFBTree.h; sourceTree = "<group>"; };
 		558DA26B26228BBD0019146B /* HFRepresenterTextViewCallout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFRepresenterTextViewCallout.m; sourceTree = "<group>"; };
@@ -492,7 +504,6 @@
 		558DA28C26228BBD0019146B /* HFRepresenterTextViewCallout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HFRepresenterTextViewCallout.h; sourceTree = "<group>"; };
 		558DA28D26228BBD0019146B /* HFBTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFBTree.m; sourceTree = "<group>"; };
 		558DA28E26228BBD0019146B /* HFLineCountingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFLineCountingView.m; sourceTree = "<group>"; };
-		558DA28F26228BBD0019146B /* HFStatusBarRepresenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HFStatusBarRepresenter.h; sourceTree = "<group>"; };
 		558DA29026228BBD0019146B /* HFFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HFFunctions.h; sourceTree = "<group>"; };
 		558DA2E526228C880019146B /* libJoyKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libJoyKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		558DA2ED26228C980019146B /* JOYAxis.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JOYAxis.m; sourceTree = "<group>"; };
@@ -751,6 +762,8 @@
 				55478B2C2998894B00056C6A /* GBDebuggerButton.m */,
 				5579ACAF25A064D900CADDCE /* GBGLShader.h */,
 				5579ACCF25A064DA00CADDCE /* GBGLShader.m */,
+				5584AE252B32A27000FBAB98 /* GBHexStatusBarRepresenter.h */,
+				5584AE262B32A27000FBAB98 /* GBHexStatusBarRepresenter.m */,
 				55FE438D27955B6C007F79E7 /* GBHueSliderCell.h */,
 				55FE438E27955B6C007F79E7 /* GBHueSliderCell.m */,
 				5579ACBE25A064DA00CADDCE /* GBImageView.h */,
@@ -773,6 +786,12 @@
 				55DF028F27DAF40900B339A6 /* GBPaletteView.h */,
 				55DF029127DAF40900B339A6 /* GBPaletteView.m */,
 				55DF029027DAF40900B339A6 /* GBPaletteViewRow.xib */,
+				5584AE1C2B32A25600FBAB98 /* GBPreferenceButton.h */,
+				5584AE202B32A25600FBAB98 /* GBPreferenceButton.m */,
+				5584AE1A2B32A25600FBAB98 /* GBPreferencePopUpButton.h */,
+				5584AE1E2B32A25600FBAB98 /* GBPreferencePopUpButton.m */,
+				5584AE1D2B32A25600FBAB98 /* GBPreferencesSlider.h */,
+				5584AE1F2B32A25600FBAB98 /* GBPreferencesSlider.m */,
 				5579ACAE25A064D900CADDCE /* GBPreferencesWindow.h */,
 				5579ACB625A064DA00CADDCE /* GBPreferencesWindow.m */,
 				556038BA26C0918800CD1984 /* GBS.xib */,
@@ -795,6 +814,8 @@
 				5579ACD825A064DA00CADDCE /* KeyboardShortcutPrivateAPIs.h */,
 				5579AC9725A05E6000CADDCE /* main.m */,
 				5579ACA625A0636F00CADDCE /* MainMenu.xib */,
+				5584AE172B329EF400FBAB98 /* NSObject+DefaultsObserver.h */,
+				5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */,
 				5579ACAD25A064D900CADDCE /* NSObject+MavericksCompat.m */,
 				5579ACB025A064D900CADDCE /* NSString+StringForKey.h */,
 				5579ACAC25A064D900CADDCE /* NSString+StringForKey.m */,
@@ -873,8 +894,6 @@
 				558DA26B26228BBD0019146B /* HFRepresenterTextViewCallout.m */,
 				558DA27F26228BBD0019146B /* HFSharedMemoryByteSlice.h */,
 				558DA26626228BBD0019146B /* HFSharedMemoryByteSlice.m */,
-				558DA28F26228BBD0019146B /* HFStatusBarRepresenter.h */,
-				558DA26826228BBD0019146B /* HFStatusBarRepresenter.m */,
 				558DA27626228BBD0019146B /* HFStringEncodingTextRepresenter.h */,
 				558DA25A26228BBD0019146B /* HFStringEncodingTextRepresenter.m */,
 				558DA25826228BBD0019146B /* HFTextRepresenter_Internal.h */,
@@ -992,7 +1011,6 @@
 				558DA2A626228BBD0019146B /* HFFullMemoryByteSlice.h in Headers */,
 				558DA2C526228BBD0019146B /* HFRepresenterStringEncodingTextView.h in Headers */,
 				558DA2C026228BBD0019146B /* HFTypes.h in Headers */,
-				558DA2D026228BBD0019146B /* HFStatusBarRepresenter.h in Headers */,
 				558DA29926228BBD0019146B /* HFLayoutRepresenter.h in Headers */,
 				558DA29A26228BBD0019146B /* HFTextRepresenter_Internal.h in Headers */,
 				558DA29F26228BBD0019146B /* HFRepresenterHexTextView.h in Headers */,
@@ -1288,13 +1306,16 @@
 				5579ACF325A064DA00CADDCE /* GBCompleteByteSlice.m in Sources */,
 				556AFD8F25A54AF1004D2482 /* joypad.c in Sources */,
 				556AFD8A25A54AF1004D2482 /* display.c in Sources */,
+				5584AE182B329EF400FBAB98 /* NSObject+DefaultsObserver.m in Sources */,
 				5579AC9825A05E6000CADDCE /* main.m in Sources */,
 				5579ACE225A064DA00CADDCE /* GBView.m in Sources */,
 				556AFD8C25A54AF1004D2482 /* memory.c in Sources */,
+				5584AE222B32A25600FBAB98 /* GBPreferencePopUpButton.m in Sources */,
 				556038C026C091A100CD1984 /* GBOSDView.m in Sources */,
 				55478B2F2998894B00056C6A /* GBJoyConManager.m in Sources */,
 				5579ACE525A064DA00CADDCE /* GBViewGL.m in Sources */,
 				5579ACEF25A064DA00CADDCE /* GBViewMetal.m in Sources */,
+				5584AE242B32A25600FBAB98 /* GBPreferenceButton.m in Sources */,
 				5579ACEB25A064DA00CADDCE /* GBButtons.m in Sources */,
 				5579ACE425A064DA00CADDCE /* GBTerminalTextFieldCell.m in Sources */,
 				5579ACDE25A064DA00CADDCE /* GBWarningPopover.m in Sources */,
@@ -1304,9 +1325,11 @@
 				55FE438F27955B6C007F79E7 /* GBHueSliderCell.m in Sources */,
 				556038C126C091A100CD1984 /* GBVisualizerView.m in Sources */,
 				556AFD8E25A54AF1004D2482 /* gb.c in Sources */,
+				5584AE272B32A27000FBAB98 /* GBHexStatusBarRepresenter.m in Sources */,
 				556AFD8D25A54AF1004D2482 /* apu.c in Sources */,
 				556AFD9725A54AF1004D2482 /* mbc.c in Sources */,
 				5579ACDF25A064DA00CADDCE /* GBPreferencesWindow.m in Sources */,
+				5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */,
 				556AFD9A25A54AF1004D2482 /* rewind.c in Sources */,
 				55FE438C27955B4B007F79E7 /* GBPaletteEditorController.m in Sources */,
 				5579AC9025A05E5F00CADDCE /* GBApp.m in Sources */,
@@ -1349,7 +1372,6 @@
 				558DA2BD26228BBD0019146B /* HFHexTextView.m in Sources */,
 				558DA2C726228BBD0019146B /* HFTextRepresenter.m in Sources */,
 				558DA2B126228BBD0019146B /* HFPasteboardOwner.m in Sources */,
-				558DA2AA26228BBD0019146B /* HFStatusBarRepresenter.m in Sources */,
 				558DA2B526228BBD0019146B /* HFRepresenterHexTextView.m in Sources */,
 				558DA2B026228BBD0019146B /* HFRepresenterTextView.m in Sources */,
 			);
@@ -1522,7 +1544,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1574,7 +1596,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;

@@ -1,5 +1,4 @@
-#include <TargetConditionals.h>
-#include <Core/gb.h>
+#import <TargetConditionals.h>
 
 #if TARGET_OS_IPHONE
 #define NSView UIView
@@ -7,6 +6,8 @@
 #else
 #import <Cocoa/Cocoa.h>
 #endif
+
+#import <Core/gb.h>
 
 typedef enum {
     GB_FRAME_BLENDING_MODE_DISABLED,

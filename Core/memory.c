@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "gb.h"
 
 typedef uint8_t read_function_t(GB_gameboy_t *gb, uint16_t addr);
@@ -297,28 +298,42 @@ static uint8_t read_vram(GB_gameboy_t *gb, uint16_t addr)
         GB_display_sync(gb);
     }
     else {
-        if ((gb->dma_current_dest & 0xE000) == 0x8000) {
+        if (unlikely((gb->dma_current_dest & 0xE000) == 0x8000)) {
             // TODO: verify conflict behavior
-            return gb->vram[(addr & 0x1FFF) + (gb->cgb_vram_bank? 0x2000 : 0)];
+            return gb->cpu_vram_bus = gb->vram[(addr & 0x1FFF) + (gb->cgb_vram_bank? 0x2000 : 0)];
         }
     }
     
     if (unlikely(gb->vram_read_blocked && !gb->in_dma_read)) {
         return 0xFF;
     }
-    if (unlikely(gb->display_state == 22 && GB_is_cgb(gb) && !gb->cgb_double_speed)) {
-        if (addr & 0x1000) {
-            addr = gb->last_tile_index_address;
+    if (unlikely(gb->display_state == 22)) {
+        if (!GB_is_cgb(gb)) {
+            if (addr & 0x1000 && !(gb->last_tile_data_address & 0x1000)) {
+                addr &= ~0x1000; // TODO: verify
+            }
         }
-        else if (gb->last_tile_data_address & 0x1000) {
-            /* TODO: This is case is more complicated then the rest and differ between revisions
-               It's probably affected by how VRAM is layed out, might be easier after a decap is done*/
-        }
-        else {
-            addr = gb->last_tile_data_address;
+        else if (!gb->cgb_double_speed) {
+            if (addr & 0x1000) {
+                if (gb->model <= GB_MODEL_CGB_C && !(gb->last_tile_data_address & 0x1000)) {
+                    return 0;
+                }
+                addr = gb->last_tile_index_address;
+            }
+            else if (gb->last_tile_data_address & 0x1000) {
+                if (gb->model >= GB_MODEL_CGB_E) {
+                    uint8_t ret = gb->cpu_vram_bus;
+                    gb->cpu_vram_bus = gb->vram[(addr & 0x1FFF) + (gb->cgb_vram_bank? 0x2000 : 0)];
+                    return ret;
+                }
+                return gb->cpu_vram_bus;
+            }
+            else {
+                addr = gb->last_tile_data_address;
+            }
         }
     }
-    return gb->vram[(addr & 0x1FFF) + (gb->cgb_vram_bank? 0x2000 : 0)];
+    return gb->cpu_vram_bus = gb->vram[(addr & 0x1FFF) + (gb->cgb_vram_bank? 0x2000 : 0)];
 }
 
 static uint8_t read_mbc7_ram(GB_gameboy_t *gb, uint16_t addr)
@@ -665,7 +680,8 @@ static uint8_t read_high_memory(GB_gameboy_t *gb, uint16_t addr)
                 if (!gb->cgb_mode) {
                     return 0xFF;
                 }
-                return gb->cgb_ram_bank | ~0x7;
+
+                return gb->io_registers[GB_IO_SVBK];
             case GB_IO_VBK:
                 if (!GB_is_cgb(gb)) {
                     return 0xFF;
@@ -700,7 +716,8 @@ static uint8_t read_high_memory(GB_gameboy_t *gb, uint16_t addr)
                     return 0xFF;
                 }
                 return (gb->io_registers[GB_IO_KEY1] & 0x7F) | (gb->cgb_double_speed? 0xFE : 0x7E);
-
+            case GB_IO_BANK:
+                return 0xFE | gb->boot_rom_finished;
             case GB_IO_RP: {
                 if (!gb->cgb_mode) return 0xFF;
                 /* You will read your own IR LED if it's on. */
@@ -757,9 +774,11 @@ uint8_t GB_read_memory(GB_gameboy_t *gb, uint16_t addr)
 {
     GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
     
+#ifndef GB_DISABLE_DEBUGGER
     if (unlikely(gb->n_watchpoints)) {
         GB_debugger_test_read_watchpoint(gb, addr);
     }
+#endif
     if (unlikely(is_addr_in_dma_use(gb, addr))) {
         if (GB_is_cgb(gb) && bus_for_addr(gb, addr) == GB_BUS_MAIN && gb->dma_current_src >= 0xE000) {
             /* This is cart specific! Everdrive 7X on a CGB-A or 0 behaves differently. */
@@ -1504,18 +1523,29 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 return;
 
             case GB_IO_STAT:
-                /* Delete previous R/W bits */
                 gb->io_registers[GB_IO_STAT] &= 7;
-                /* Set them by value */
                 gb->io_registers[GB_IO_STAT] |= value & ~7;
-                /* Set unused bit to 1 */
                 gb->io_registers[GB_IO_STAT] |= 0x80;
                 
-                GB_STAT_update(gb);
+                /* Annoying edge timing case */
+                if (gb->cgb_double_speed &&
+                    gb->display_state == 8 &&
+                    gb->oam_search_index == 0 &&
+                    gb->display_cycles == 0 &&
+                    (value & 0x20)) {
+                    gb->mode_for_interrupt = 2;
+                    GB_STAT_update(gb);
+                    gb->mode_for_interrupt = -1;
+                }
+                else {
+                    GB_STAT_update(gb);
+                }
                 return;
 
             case GB_IO_DIV:
+                gb->during_div_write = true;
                 GB_set_internal_div_counter(gb, 0);
+                gb->during_div_write = false;
                 /* Reset the div state machine */
                 gb->div_state = 0;
                 gb->div_cycles = 0;
@@ -1559,7 +1589,7 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 return;
 
             case GB_IO_BANK:
-                gb->boot_rom_finished = true;
+                gb->boot_rom_finished |= value & 1;
                 return;
 
             case GB_IO_KEY0:
@@ -1584,6 +1614,7 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                     if (!gb->cgb_ram_bank) {
                         gb->cgb_ram_bank++;
                     }
+                    gb->io_registers[GB_IO_SVBK] = value | ~0x7;
                 }
                 return;
             case GB_IO_VBK:
@@ -1661,6 +1692,7 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 return;
             case GB_IO_HDMA5:
                 if (!gb->cgb_mode) return;
+                gb->hdma_steps_left = (value & 0x7F) + 1;
                 if ((value & 0x80) == 0 && gb->hdma_on_hblank) {
                     gb->hdma_on_hblank = false;
                     return;
@@ -1670,8 +1702,6 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 if (gb->hdma_on_hblank && (gb->io_registers[GB_IO_STAT] & 3) == 0 && gb->display_state != 7) {
                     gb->hdma_on = true;
                 }
-                gb->io_registers[GB_IO_HDMA5] = value;
-                gb->hdma_steps_left = (gb->io_registers[GB_IO_HDMA5] & 0x7F) + 1;
                 return;
 
             /*  TODO: What happens when starting a transfer during external clock?
@@ -1749,10 +1779,11 @@ void GB_set_write_memory_callback(GB_gameboy_t *gb, GB_write_memory_callback_t c
 void GB_write_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
 {
     GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
-    
+#ifndef GB_DISABLE_DEBUGGER
     if (unlikely(gb->n_watchpoints)) {
         GB_debugger_test_write_watchpoint(gb, addr, value);
     }
+#endif
     if (bus_for_addr(gb, addr) == GB_BUS_MAIN && addr < 0xFF00) {
         gb->data_bus = value;
         gb->data_bus_decay_countdown = gb->data_bus_decay;
@@ -1900,7 +1931,6 @@ void GB_hdma_run(GB_gameboy_t *gb)
             if (--gb->hdma_steps_left == 0 || gb->hdma_current_dest == 0) {
                 gb->hdma_on = false;
                 gb->hdma_on_hblank = false;
-                gb->io_registers[GB_IO_HDMA5] &= 0x7F;
             }
             else if (gb->hdma_on_hblank) {
                 gb->hdma_on = false;

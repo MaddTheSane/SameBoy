@@ -254,17 +254,17 @@ static inline uint8_t scale_channel(uint8_t x)
 
 static inline uint8_t scale_channel_with_curve(uint8_t x)
 {
-    return (const uint8_t[]){0,6,12,20,28,36,45,56,66,76,88,100,113,125,137,149,161,172,182,192,202,210,218,225,232,238,243,247,250,252,254,255}[x];
+    return inline_const(uint8_t[], {0,6,12,20,28,36,45,56,66,76,88,100,113,125,137,149,161,172,182,192,202,210,218,225,232,238,243,247,250,252,254,255})[x];
 }
 
 static inline uint8_t scale_channel_with_curve_agb(uint8_t x)
 {
-    return (const uint8_t[]){0,3,8,14,20,26,33,40,47,54,62,70,78,86,94,103,112,120,129,138,147,157,166,176,185,195,205,215,225,235,245,255}[x];
+    return inline_const(uint8_t[], {0,3,8,14,20,26,33,40,47,54,62,70,78,86,94,103,112,120,129,138,147,157,166,176,185,195,205,215,225,235,245,255})[x];
 }
 
 static inline uint8_t scale_channel_with_curve_sgb(uint8_t x)
 {
-    return (const uint8_t[]){0,2,5,9,15,20,27,34,42,50,58,67,76,85,94,104,114,123,133,143,153,163,173,182,192,202,211,220,229,238,247,255}[x];
+    return inline_const(uint8_t[], {0,2,5,9,15,20,27,34,42,50,58,67,76,85,94,104,114,123,133,143,153,163,173,182,192,202,211,220,229,238,247,255})[x];
 }
 
 
@@ -403,7 +403,7 @@ void GB_set_color_correction_mode(GB_gameboy_t *gb, GB_color_correction_mode_t m
 {
     gb->color_correction_mode = mode;
     if (GB_is_cgb(gb)) {
-        for (unsigned i = 0; i < 32; i++) {
+        nounroll for (unsigned i = 0; i < 32; i++) {
             GB_palette_changed(gb, false, i * 2);
             GB_palette_changed(gb, true, i * 2);
         }
@@ -414,21 +414,12 @@ void GB_set_light_temperature(GB_gameboy_t *gb, double temperature)
 {
     gb->light_temperature = temperature;
     if (GB_is_cgb(gb)) {
-        for (unsigned i = 0; i < 32; i++) {
+        nounroll for (unsigned i = 0; i < 32; i++) {
             GB_palette_changed(gb, false, i * 2);
             GB_palette_changed(gb, true, i * 2);
         }
     }
 }
-
-/*
- STAT interrupt is implemented based on this finding:
- http://board.byuu.org/phpbb3/viewtopic.php?p=25527#p25531
- 
- General timing is based on GiiBiiAdvance's documents:
- https://github.com/AntonioND/giibiiadvance
- 
- */
 
 void GB_STAT_update(GB_gameboy_t *gb)
 {
@@ -1063,7 +1054,7 @@ static void render_line(GB_gameboy_t *gb)
 
         while (gb->n_visible_objs) {
             unsigned object_index = gb->visible_objs[gb->n_visible_objs - 1];
-            unsigned priority = gb->object_priority == GB_OBJECT_PRIORITY_X? 0 : object_index;
+            unsigned priority = (gb->object_priority == GB_OBJECT_PRIORITY_X)? 0 : object_index;
             const object_t *object = &objects[object_index];
             gb->n_visible_objs--;
             
@@ -1172,7 +1163,7 @@ object_buffer_pointer++\
     data0 <<= fractional_scroll;
     data1 <<= fractional_scroll;
     bool check_window = gb->wy_triggered && (gb->io_registers[GB_IO_LCDC] & GB_LCDC_WIN_ENABLE);
-    for (unsigned i = fractional_scroll; i < 8; i++) {
+    nounroll for (unsigned i = fractional_scroll; i < 8; i++) {
         if (check_window && gb->io_registers[GB_IO_WX] == pixels + 7) {
 activate_window:
             check_window = false;
@@ -1187,7 +1178,7 @@ activate_window:
     
     while (pixels < 160 - 8) {
         get_tile_data(gb, tile_x, y, map, &attributes, &data0, &data1);
-        for (unsigned i = 0; i < 8; i++) {
+        nounroll for (unsigned i = 0; i < 8; i++) {
             if (check_window && gb->io_registers[GB_IO_WX] == pixels + 7) {
                 goto activate_window;
             }
@@ -1313,7 +1304,7 @@ object_buffer_pointer++\
     data0 <<= fractional_scroll;
     data1 <<= fractional_scroll;
     bool check_window = gb->wy_triggered && (gb->io_registers[GB_IO_LCDC] & GB_LCDC_WIN_ENABLE);
-    for (unsigned i = fractional_scroll; i < 8; i++) {
+    nounroll for (unsigned i = fractional_scroll; i < 8; i++) {
         if (check_window && gb->io_registers[GB_IO_WX] == pixels + 7) {
         activate_window:
             check_window = false;
@@ -1328,7 +1319,7 @@ object_buffer_pointer++\
     
     while (pixels < 160 - 8) {
         get_tile_data(gb, tile_x, y, map, &attributes, &data0, &data1);
-        for (unsigned i = 0; i < 8; i++) {
+        nounroll for (unsigned i = 0; i < 8; i++) {
             if (check_window && gb->io_registers[GB_IO_WX] == pixels + 7) {
                 goto activate_window;
             }
@@ -1829,13 +1820,10 @@ void GB_display_run(GB_gameboy_t *gb, unsigned cycles, bool force)
                                                                           gb->objects_y[gb->n_visible_objs - 1],
                                                                           gb->mode2_y_bus,
                                                                           gb->object_flags);
-                    GB_SLEEP(gb, display, 40, 1);
-                    
-                    /* TODO: timing not verified. Probably happens a cycle earlier, but needs to verify it doesn't
-                             break any DMA tests. { */
+
                     dma_sync(gb, &cycles);
                     gb->object_tile_data[1] = vram_read(gb, gb->object_low_line_address + 1);
-                    /* } */
+                    GB_SLEEP(gb, display, 40, 1);
 
                     
                     uint8_t palette = (gb->object_flags & 0x10) ? 1 : 0;
@@ -2040,7 +2028,6 @@ skip_slow_mode_3:
             GB_SLEEP(gb, display, 13, LINE_LENGTH - 5);
         }
         
-        /* TODO: Verified on SGB2 and CGB-E. Actual interrupt timings not tested. */
         /* Lines 153 */
         gb->ly_for_comparison = -1;
         GB_STAT_update(gb);

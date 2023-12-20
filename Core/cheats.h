@@ -1,5 +1,5 @@
-#ifndef cheats_h
-#define cheats_h
+#pragma once
+#ifndef GB_DISABLE_CHEATS
 #include "defs.h"
 
 #define GB_CHEAT_ANY_BANK 0xFFFF
@@ -17,11 +17,7 @@ void GB_load_cheats(GB_gameboy_t *gb, const char *path);
 int GB_save_cheats(GB_gameboy_t *gb, const char *path);
 
 #ifdef GB_INTERNAL
-#ifdef GB_DISABLE_CHEATS
-#define GB_apply_cheat(...)
-#else
 internal void GB_apply_cheat(GB_gameboy_t *gb, uint16_t address, uint8_t *value);
-#endif
 #endif
 
 typedef struct {
@@ -38,5 +34,8 @@ struct GB_cheat_s {
     bool enabled;
     char description[128];
 };
-
-#endif
+#else
+#ifdef GB_INTERNAL
+#define GB_apply_cheat(...)
+#endif // GB_INTERNAL
+#endif // GB_DISABLE_CHEATS

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <errno.h>
+#include <string.h>
+#include <stdlib.h>
 
 static inline uint8_t hash_addr(uint16_t addr)
 {
@@ -30,10 +32,8 @@ static uint16_t bank_for_addr(GB_gameboy_t *gb, uint16_t addr)
     return 0;
 }
 
-void GB_apply_cheat(GB_gameboy_t *gb, uint16_t address, uint8_t *value)
+static noinline void apply_cheat(GB_gameboy_t *gb, uint16_t address, uint8_t *value)
 {
-    if (likely(!gb->cheat_enabled)) return;
-    if (likely(gb->cheat_count == 0)) return; // Optimization
     if (unlikely(!gb->boot_rom_finished)) return;
     const GB_cheat_hash_t *hash = gb->cheat_hash[hash_addr(address)];
     if (likely(!hash)) return;
@@ -47,6 +47,13 @@ void GB_apply_cheat(GB_gameboy_t *gb, uint16_t address, uint8_t *value)
             }
         }
     }
+}
+
+void GB_apply_cheat(GB_gameboy_t *gb, uint16_t address, uint8_t *value)
+{
+    if (likely(!gb->cheat_enabled)) return;
+    if (likely(gb->cheat_count == 0)) return; // Optimization
+    apply_cheat(gb, address, value);
 }
 
 bool GB_cheats_enabled(GB_gameboy_t *gb)
@@ -125,7 +132,7 @@ void GB_remove_cheat(GB_gameboy_t *gb, const GB_cheat_t *cheat)
                 *hash = NULL;
             }
             else {
-                *hash = malloc(sizeof(GB_cheat_hash_t) + sizeof(cheat) * (*hash)->size);
+                *hash = realloc(*hash, sizeof(GB_cheat_hash_t) + sizeof(cheat) * (*hash)->size);
             }
             break;
         }
@@ -221,7 +228,7 @@ void GB_update_cheat(GB_gameboy_t *gb, const GB_cheat_t *_cheat, const char *des
                     *hash = NULL;
                 }
                 else {
-                    *hash = malloc(sizeof(GB_cheat_hash_t) + sizeof(cheat) * (*hash)->size);
+                    *hash = realloc(*hash, sizeof(GB_cheat_hash_t) + sizeof(cheat) * (*hash)->size);
                 }
                 break;
             }

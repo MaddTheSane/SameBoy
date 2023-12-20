@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22505" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22505"/>
         <capability name="System colors introduced in macOS 10.14" minToolsVersion="10.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -15,6 +15,7 @@
                 <outlet property="consoleInput" destination="l22-S8-uji" id="Heu-am-YgB"/>
                 <outlet property="consoleOutput" destination="doS-dM-hnl" id="Gn5-ju-Wb0"/>
                 <outlet property="consoleWindow" destination="21F-Ah-yHX" id="eQ4-ug-LsT"/>
+                <outlet property="debuggerBackstepButton" destination="onn-R8-3vg" id="gi1-dC-tJj"/>
                 <outlet property="debuggerContinueButton" destination="G4h-KO-Z3g" id="Dad-5e-XYM"/>
                 <outlet property="debuggerFinishButton" destination="vtb-n5-Qlz" id="9vv-fJ-gxp"/>
                 <outlet property="debuggerNextButton" destination="cOi-Rs-9gS" id="Xjx-uM-D0u"/>
@@ -29,6 +30,7 @@
                 <outlet property="mainWindow" destination="xOd-HO-29H" id="h8M-YB-vcC"/>
                 <outlet property="memoryBankInput" destination="rdV-q6-hc6" id="KBx-9T-2mX"/>
                 <outlet property="memoryBankItem" destination="bWC-FW-IYP" id="Lf2-dh-z32"/>
+                <outlet property="memorySpaceButton" destination="vfJ-vu-gqJ" id="ris-gF-9U7"/>
                 <outlet property="memoryView" destination="8hr-8o-3rN" id="fF0-rh-8ND"/>
                 <outlet property="memoryWindow" destination="mRm-dL-mCj" id="VPR-lu-vtI"/>
                 <outlet property="objectView" destination="fIM-GT-QXJ" id="jzs-q8-Z2U"/>
@@ -50,7 +52,7 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="xOd-HO-29H" userLabel="Window">
+        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" tabbingMode="disallowed" id="xOd-HO-29H" userLabel="Window">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <rect key="contentRect" x="0.0" y="0.0" width="160" height="144"/>
@@ -218,6 +220,18 @@
                                         <connections>
                                             <action selector="debuggerButtonPressed:" target="-2" id="PwN-rf-AcB"/>
                                             <outlet property="textField" destination="l22-S8-uji" id="blK-B3-MWI"/>
+                                        </connections>
+                                    </button>
+                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="onn-R8-3vg" customClass="GBDebuggerButton">
+                                        <rect key="frame" x="102" y="26" width="26" height="26"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <buttonCell key="cell" type="bevel" title="Step Backwards" alternateTitle="backstep" bezelStyle="rounded" image="BackstepTemplate" imagePosition="only" alignment="center" enabled="NO" imageScaling="proportionallyDown" inset="2" id="WtK-kD-bf6">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="debuggerButtonPressed:" target="-2" id="S9a-jV-Z6g"/>
+                                            <outlet property="textField" destination="l22-S8-uji" id="1gw-Lc-QFS"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -428,9 +442,6 @@
                                         </imageView>
                                         <popUpButton focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TLv-xS-X5K">
                                             <rect key="frame" x="4" y="390" width="128" height="15"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="128" id="AxT-5W-7Zu"/>
-                                            </constraints>
                                             <popUpButtonCell key="cell" type="roundRect" title="None" bezelStyle="roundedRect" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" state="on" borderStyle="border" focusRingType="none" imageScaling="proportionallyDown" inset="2" selectedItem="G8p-CH-PlV" id="1jI-s4-4YY">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="miniSystem"/>
@@ -456,6 +467,9 @@
                                                     </items>
                                                 </menu>
                                             </popUpButtonCell>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="128" id="AxT-5W-7Zu"/>
+                                            </constraints>
                                             <connections>
                                                 <action selector="reloadVRAMData:" target="-2" id="Qtf-p4-Rqh"/>
                                             </connections>
@@ -728,7 +742,6 @@
                 <defaultToolbarItems>
                     <toolbarItem reference="CBz-1N-o0Q"/>
                     <toolbarItem reference="mtd-zS-DXa"/>
-                    <toolbarItem reference="Q0x-n5-Q2Y"/>
                     <toolbarItem reference="CJX-Ff-7iQ"/>
                 </defaultToolbarItems>
             </toolbar>
@@ -811,8 +824,9 @@
                                     <outlet property="delegate" destination="v7q-gT-jHT" id="zyw-h0-hRP"/>
                                 </connections>
                             </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="C3V-Ep-bMj">
-                                <rect key="frame" x="230" y="12" width="56" height="23"/>
+                            <button verticalHuggingPriority="750" id="C3V-Ep-bMj">
+                                <rect key="frame" x="203" y="12" width="83" height="23"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="roundTextured" title="Import" bezelStyle="texturedRounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mMP-KW-YNy">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -918,13 +932,13 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" alternatingRowBackgroundColors="YES" columnReordering="NO" columnResizing="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="pvX-uJ-qK5" id="tA3-8T-bxb">
-                                    <rect key="frame" x="0.0" y="0.0" width="408" height="256"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="398" height="256"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                     <tableColumns>
-                                        <tableColumn width="52" minWidth="32" maxWidth="1000" id="JNd-HW-LvS">
+                                        <tableColumn width="32" minWidth="32" maxWidth="1000" id="JNd-HW-LvS">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -935,7 +949,7 @@
                                             </buttonCell>
                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         </tableColumn>
-                                        <tableColumn width="60" minWidth="40" maxWidth="1000" id="9DZ-oW-Scx">
+                                        <tableColumn width="40" minWidth="40" maxWidth="1000" id="9DZ-oW-Scx">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Enabled">
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -946,7 +960,7 @@
                                             </buttonCell>
                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         </tableColumn>
-                                        <tableColumn editable="NO" width="141" minWidth="40" maxWidth="1000" id="4Qa-FQ-QWY">
+                                        <tableColumn editable="NO" width="133" minWidth="40" maxWidth="1000" id="4Qa-FQ-QWY">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Description">
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -978,7 +992,7 @@
                                 </tableView>
                             </subviews>
                         </clipView>
-                        <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="3Hg-LL-VqH">
+                        <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="3Hg-LL-VqH">
                             <rect key="frame" x="1" y="258" width="398" height="16"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
@@ -987,7 +1001,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <tableHeaderView key="headerView" wantsLayer="YES" id="pvX-uJ-qK5">
-                            <rect key="frame" x="0.0" y="0.0" width="408" height="17"/>
+                            <rect key="frame" x="0.0" y="0.0" width="398" height="17"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </tableHeaderView>
                     </scrollView>
@@ -1010,6 +1024,7 @@
         </customObject>
     </objects>
     <resources>
+        <image name="BackstepTemplate" width="14" height="14"/>
         <image name="FinishTemplate" width="14" height="14"/>
         <image name="HelpTemplate" width="14" height="14"/>
         <image name="InterruptTemplate" width="14" height="14"/>

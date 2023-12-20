@@ -16,7 +16,7 @@ endif
 ifeq ($(PLATFORM),windows32)
 _ := $(shell chcp 65001)
 EXESUFFIX:=.exe
-NATIVE_CC = clang -IWindows -Wno-deprecated-declarations --target=i386-pc-windows
+NATIVE_CC = clang -IWindows -Wno-deprecated-declarations --target=x86_64-pc-windows
 SDL_AUDIO_DRIVERS ?= xaudio2 xaudio2_7 sdl
 else
 EXESUFFIX:=
@@ -33,7 +33,12 @@ else
 DEFAULT := sdl
 endif
 
-ifneq ($(shell which xdg-open)$(FREEDESKTOP),)
+NULL := /dev/null
+ifeq ($(PLATFORM),windows32)
+NULL := NUL
+endif
+
+ifneq ($(shell which xdg-open 2> $(NULL))$(FREEDESKTOP),)
 # Running on an FreeDesktop environment, configure for (optional) installation
 DESTDIR ?= 
 PREFIX ?= /usr/local
@@ -47,6 +52,46 @@ ifeq ($(MAKECMDGOALS),)
 MAKECMDGOALS := $(DEFAULT)
 endif
 
+ifneq ($(DISABLE_TIMEKEEPING),)
+CFLAGS += -DGB_DISABLE_TIMEKEEPING
+CPPP_FLAGS += -DGB_DISABLE_TIMEKEEPING
+else
+CPPP_FLAGS += -UGB_DISABLE_TIMEKEEPING
+endif
+
+ifneq ($(DISABLE_REWIND),)
+CFLAGS += -DGB_DISABLE_REWIND
+CPPP_FLAGS += -DGB_DISABLE_REWIND
+CORE_FILTER += Core/rewind.c
+else
+CPPP_FLAGS += -UGB_DISABLE_REWIND
+endif
+
+ifneq ($(DISABLE_DEBUGGER),)
+CFLAGS += -DGB_DISABLE_DEBUGGER
+CPPP_FLAGS += -DGB_DISABLE_DEBUGGER
+CORE_FILTER += Core/debugger.c Core/sm83_disassembler.c Core/symbol_hash.c
+else
+CPPP_FLAGS += -UGB_DISABLE_DEBUGGER
+endif
+
+ifneq ($(DISABLE_CHEATS),)
+CFLAGS += -DGB_DISABLE_CHEATS
+CPPP_FLAGS += -DGB_DISABLE_CHEATS
+CORE_FILTER += Core/cheats.c
+else
+CPPP_FLAGS += -UGB_DISABLE_CHEATS
+endif
+
+ifneq ($(CORE_FILTER)$(DISABLE_TIMEKEEPING),)
+ifneq ($(MAKECMDGOALS),lib)
+$(error SameBoy features can only be disabled when compiling the 'lib' target)
+endif
+endif
+
+CPPP_FLAGS += -UGB_INTERNAL
+
+
 include version.mk
 COPYRIGHT_YEAR := $(shell grep -oE "20[2-9][0-9]" LICENSE)
 export VERSION
@@ -54,6 +99,9 @@ CONF ?= debug
 
 BIN := build/bin
 OBJ := build/obj
+INC := build/include/sameboy
+LIB := build/lib
+
 BOOTROMS_DIR ?= $(BIN)/BootROMs
 
 ifdef DATA_DIR
@@ -64,13 +112,13 @@ endif
 
 # Use clang if it's available.
 ifeq ($(origin CC),default)
-ifneq (, $(shell which clang))
+ifneq (, $(shell which clang 2> $(NULL)))
 CC := clang 
 endif
 endif
 
 # Find libraries with pkg-config if available.
-ifneq (, $(shell which pkg-config))
+ifneq (, $(shell which pkg-config 2> $(NULL)))
 # But not on macOS, it's annoying
 ifneq ($(PLATFORM),Darwin)
 PKG_CONFIG := pkg-config
@@ -95,16 +143,19 @@ override CONF := release
 FAT_FLAGS += -arch x86_64 -arch arm64
 endif
 
+# Support out-of-PATH RGBDS
+RGBASM  := $(RGBDS)rgbasm
+RGBLINK := $(RGBDS)rgblink
+RGBGFX  := $(RGBDS)rgbgfx
+
 
 
 # Set compilation and linkage flags based on target, platform and configuration
 
 OPEN_DIALOG = OpenDialog/gtk.c
-NULL := /dev/null
 
 ifeq ($(PLATFORM),windows32)
 OPEN_DIALOG = OpenDialog/windows.c
-NULL := NUL
 endif
 
 ifeq ($(PLATFORM),Darwin)
@@ -169,8 +220,8 @@ GL_LDFLAGS := $(shell $(PKG_CONFIG) --libs gl || echo -lGL)
 endif
 
 ifeq ($(PLATFORM),windows32)
-CFLAGS += -IWindows -Drandom=rand --target=i386-pc-windows
-LDFLAGS += -lmsvcrt -lcomdlg32 -luser32 -lshell32 -lole32 -lSDL2main -Wl,/MANIFESTFILE:NUL --target=i386-pc-windows
+CFLAGS += -IWindows -Drandom=rand --target=x86_64-pc-windows
+LDFLAGS += -lmsvcrt -lcomdlg32 -luser32 -lshell32 -lole32 -lSDL2main -Wl,/MANIFESTFILE:NUL --target=x86_64-pc-windows
 SDL_LDFLAGS := -lSDL2
 GL_LDFLAGS := -lopengl32
 else
@@ -183,12 +234,13 @@ SYSROOT := $(shell xcodebuild -sdk iphoneos -version Path 2> $(NULL))
 ifeq ($(SYSROOT),)
 $(error Could not find an iOS SDK)
 endif
-CFLAGS += -arch arm64 -miphoneos-version-min=11.0 -isysroot $(SYSROOT) -IAppleCommon
+CFLAGS += -arch arm64 -miphoneos-version-min=11.0 -isysroot $(SYSROOT) -IAppleCommon -DGB_DISABLE_DEBUGGER
+CORE_FILTER += Core/debugger.c Core/sm83_disassembler.c Core/symbol_hash.c
 LDFLAGS += -arch arm64
 OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -isysroot $(SYSROOT)
 LDFLAGS += -miphoneos-version-min=11.0  -isysroot $(SYSROOT)
 REREGISTER_LDFLAGS := $(LDFLAGS) -lobjc -framework CoreServices -framework Foundation
-LDFLAGS += -lobjc -framework UIKit -framework Foundation -framework CoreGraphics -framework Metal -framework MetalKit -framework AudioToolbox -framework AVFoundation -framework QuartzCore -framework CoreMotion -framework CoreVideo -framework CoreMedia -framework CoreImage -weak_framework CoreHaptics 
+LDFLAGS += -lobjc -framework UIKit -framework Foundation -framework CoreGraphics -framework Metal -framework MetalKit -framework AudioToolbox -framework AVFoundation -framework QuartzCore -framework CoreMotion -framework CoreVideo -framework CoreMedia -framework CoreImage -framework UserNotifications -weak_framework CoreHaptics 
 CODESIGN := codesign -fs -
 else
 ifeq ($(PLATFORM),Darwin)
@@ -212,10 +264,22 @@ LDFLAGS += -Wl,/NODEFAULTLIB:libcmt.lib
 endif
 endif
 
+LIBFLAGS := -nostdlib -Wl,-r
+ifneq ($(PLATFORM),Darwin)
+LIBFLAGS += -no-pie
+endif
+
 ifeq ($(CONF),debug)
 CFLAGS += -g
 else ifeq ($(CONF), release)
-CFLAGS += -O3 -DNDEBUG
+CFLAGS += -O3 -ffast-math -DNDEBUG
+# The frontend code is not time-critical, prefer reducing the size for less memory use and better cache utilization 
+ifeq ($(shell $(CC) -x c -c $(NULL) -o $(NULL) -Werror -Oz 2> $(NULL); echo $$?),0)
+FRONTEND_CFLAGS += -Oz
+else
+FRONTEND_CFLAGS += -Os
+endif
+
 STRIP := strip
 CODESIGN := true
 ifeq ($(PLATFORM),Darwin)
@@ -233,6 +297,8 @@ LDFLAGS += -Wno-lto-type-mismatch # For GCC's LTO
 else
 $(error Invalid value for CONF: $(CONF). Use "debug", "release" or "native_release")
 endif
+
+
 
 # Define our targets
 
@@ -252,11 +318,20 @@ tester: $(TESTER_TARGET) $(BIN)/tester/dmg_boot.bin $(BIN)/tester/cgb_boot.bin $
 _ios: $(BIN)/SameBoy-iOS.app $(OBJ)/reregister
 ios-ipa: $(BIN)/SameBoy-iOS.ipa
 ios-deb: $(BIN)/SameBoy-iOS.deb
-all: cocoa sdl tester libretro
+ifeq ($(PLATFORM),windows32)
+lib: lib-unsupported
+else
+lib: $(LIB)/libsameboy.o $(LIB)/libsameboy.a
+endif
+all: sdl tester libretro lib
+ifeq ($(PLATFORM),Darwin)
+all: cocoa ios-ipa ios-deb
+endif
 
 # Get a list of our source files and their respective object file targets
 
-CORE_SOURCES := $(shell ls Core/*.c)
+CORE_SOURCES := $(filter-out $(CORE_FILTER),$(shell ls Core/*.c))
+CORE_HEADERS := $(shell ls Core/*.h)
 SDL_SOURCES := $(shell ls SDL/*.c) $(OPEN_DIALOG) $(patsubst %,SDL/audio/%.c,$(SDL_AUDIO_DRIVERS))
 TESTER_SOURCES := $(shell ls Tester/*.c)
 IOS_SOURCES := $(filter-out iOS/reregister.m, $(shell ls iOS/*.m)) $(shell ls AppleCommon/*.m)
@@ -268,11 +343,14 @@ CORE_SOURCES += $(shell ls Windows/*.c)
 endif
 
 CORE_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(CORE_SOURCES))
+PUBLIC_HEADERS := $(patsubst Core/%,$(INC)/%,$(CORE_HEADERS))
 COCOA_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(COCOA_SOURCES))
 IOS_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(IOS_SOURCES))
 QUICKLOOK_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(QUICKLOOK_SOURCES))
 SDL_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(SDL_SOURCES))
 TESTER_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(TESTER_SOURCES))
+
+lib: $(PUBLIC_HEADERS)
 
 # Automatic dependency generation
 
@@ -312,25 +390,25 @@ $(OBJ)/Core/%.c.o: Core/%.c
 
 $(OBJ)/SDL/%.c.o: SDL/%.c
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $(CFLAGS) $(FAT_FLAGS) $(SDL_CFLAGS) $(GL_CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(FRONTEND_CFLAGS) $(FAT_FLAGS) $(SDL_CFLAGS) $(GL_CFLAGS) -c $< -o $@
 
 $(OBJ)/OpenDialog/%.c.o: OpenDialog/%.c
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $(CFLAGS) $(FAT_FLAGS) $(SDL_CFLAGS) $(GL_CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(FRONTEND_CFLAGS) $(FAT_FLAGS) $(SDL_CFLAGS) $(GL_CFLAGS) -c $< -o $@
 
 
 $(OBJ)/%.c.o: %.c
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $(CFLAGS) $(FAT_FLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(FRONTEND_CFLAGS) $(FAT_FLAGS) -c $< -o $@
 	
 # HexFiend requires more flags
 $(OBJ)/HexFiend/%.m.o: HexFiend/%.m
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $(CFLAGS) $(FAT_FLAGS) $(OCFLAGS) -c $< -o $@ -fno-objc-arc -include HexFiend/HexFiend_2_Framework_Prefix.pch
+	$(CC) $(CFLAGS) $(FRONTEND_CFLAGS) $(FAT_FLAGS) $(OCFLAGS) -c $< -o $@ -fno-objc-arc -include HexFiend/HexFiend_2_Framework_Prefix.pch
 	
 $(OBJ)/%.m.o: %.m
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $(CFLAGS) $(FAT_FLAGS) $(OCFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(FRONTEND_CFLAGS) $(FAT_FLAGS) $(OCFLAGS) -c $< -o $@
     
 # iOS Port
 
@@ -383,7 +461,7 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
                     $(BIN)/SameBoy.app/Contents/Resources/agb_boot.bin \
                     $(BIN)/SameBoy.app/Contents/Resources/sgb_boot.bin \
                     $(BIN)/SameBoy.app/Contents/Resources/sgb2_boot.bin \
-                    $(patsubst %.xib,%.nib,$(addprefix $(BIN)/SameBoy.app/Contents/Resources/Base.lproj/,$(shell cd Cocoa;ls *.xib))) \
+                    $(patsubst %.xib,%.nib,$(addprefix $(BIN)/SameBoy.app/Contents/Resources/,$(shell cd Cocoa;ls *.xib))) \
                     $(BIN)/SameBoy.qlgenerator \
                     Shaders
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Resources
@@ -407,8 +485,8 @@ ifeq ($(CONF), release)
 	$(STRIP) $@
 endif
 
-$(BIN)/SameBoy.app/Contents/Resources/Base.lproj/%.nib: Cocoa/%.xib
-	ibtool --compile $@ $^ 2>&1 | cat -
+$(BIN)/SameBoy.app/Contents/Resources/%.nib: Cocoa/%.xib
+	ibtool --target-device mac --minimum-deployment-target 10.9 --compile $@ $^ 2>&1 | cat -
 	
 # Quick Look generator
 
@@ -530,11 +608,11 @@ $(BIN)/SDL/Palettes: Misc/Palettes
 
 $(OBJ)/%.2bpp: %.png
 	-@$(MKDIR) -p $(dir $@)
-	rgbgfx $(if $(filter $(shell echo 'print __RGBDS_MAJOR__ || (!__RGBDS_MAJOR__ && __RGBDS_MINOR__ > 5)' | rgbasm -), $$0), -h -u, -Z -u -c embedded) -o $@ $<
+	$(RGBGFX) $(if $(filter $(shell echo 'print __RGBDS_MAJOR__ || (!__RGBDS_MAJOR__ && __RGBDS_MINOR__ > 5)' | $(RGBASM) -), $$0), -h -u, -Z -u -c embedded) -o $@ $<
 
 $(OBJ)/BootROMs/SameBoyLogo.pb12: $(OBJ)/BootROMs/SameBoyLogo.2bpp $(PB12_COMPRESS)
 	-@$(MKDIR) -p $(dir $@)
-	$(realpath $(PB12_COMPRESS)) < $< > $@
+	"$(realpath $(PB12_COMPRESS))" < $< > $@
 	
 $(PB12_COMPRESS): BootROMs/pb12.c
 	-@$(MKDIR) -p $(dir $@)
@@ -547,8 +625,8 @@ $(BIN)/BootROMs/sgb2_boot: BootROMs/sgb_boot.asm
 
 $(BIN)/BootROMs/%.bin: BootROMs/%.asm $(OBJ)/BootROMs/SameBoyLogo.pb12
 	-@$(MKDIR) -p $(dir $@)
-	rgbasm -i $(OBJ)/BootROMs/ -i BootROMs/ -o $@.tmp $<
-	rgblink -o $@.tmp2 $@.tmp
+	$(RGBASM) -i $(OBJ)/BootROMs/ -i BootROMs/ -o $@.tmp $<
+	$(RGBLINK) -o $@.tmp2 $@.tmp
 	dd if=$@.tmp2 of=$@ count=1 bs=$(if $(findstring dmg,$@)$(findstring sgb,$@)$(findstring mgb,$@),256,2304) 2> $(NULL)
 	@rm $@.tmp $@.tmp2
 
@@ -605,7 +683,7 @@ ios:
 $(BIN)/SameBoy-iOS.ipa: ios
 	$(MKDIR) -p $(OBJ)/Payload
 	cp -rf $(BIN)/SameBoy-iOS.app $(OBJ)/Payload/SameBoy-iOS.app
-	(cd $(OBJ) && zip $(abspath $@) -r Payload)
+	(cd $(OBJ) && zip -q $(abspath $@) -r Payload)
 	rm -rf $(OBJ)/Payload
 
     
@@ -618,22 +696,44 @@ $(OBJ)/data.tar.gz: ios iOS/jailbreak.entitlements
 	cp -rf $(BIN)/SameBoy-iOS.app $(OBJ)/Applications/SameBoy-iOS.app
 	cp build/obj-ios/reregister iOS/reregister.entitlements $(OBJ)/Applications/SameBoy-iOS.app
 	codesign -fs - --entitlements iOS/jailbreak.entitlements $(OBJ)/Applications/SameBoy-iOS.app
-	(cd $(OBJ) && tar -czf $(abspath $@) ./Applications)
+	(cd $(OBJ) && tar -czf $(abspath $@) --format ustar ./Applications)
 	rm -rf $(OBJ)/Applications
 	
 $(OBJ)/control.tar.gz: iOS/deb-postinst iOS/deb-control
 	-@$(MKDIR) -p $(dir $@)
 	sed "s/@VERSION/$(VERSION)/" < iOS/deb-control > $(OBJ)/control
 	ln iOS/deb-postinst $(OBJ)/postinst
-	(cd $(OBJ) && tar -czf $(abspath $@) ./control ./postinst)
+	(cd $(OBJ) && tar -czf $(abspath $@) --format ustar ./control ./postinst)
 	rm $(OBJ)/control $(OBJ)/postinst
 	
 $(OBJ)/debian-binary:
 	-@$(MKDIR) -p $(dir $@)
 	echo 2.0 > $@
+    
+$(LIB)/libsameboy.o: $(CORE_OBJECTS)
+	-@$(MKDIR) -p $(dir $@)
+	@# This is a somewhat simple hack to force Clang and GCC to build a native object file out of one or many LTO objects
+	echo "static const char __attribute__((used)) x=0;"| $(CC) $(filter-out -flto,$(CFLAGS)) -c -x c - -o $(OBJ)/lto_hack.o
+	@# And this is a somewhat complicated hack to invoke the correct LTO-enabled LD command in a mostly cross-platform nature
+	$(CC) $(FAT_FLAGS) $(CFLAGS) $(LIBFLAGS) $^ $(OBJ)/lto_hack.o -o $@
+	-@rm $(OBJ)/lto_hack.o
+    
+$(LIB)/libsameboy.a: $(LIB)/libsameboy.o
+	-@$(MKDIR) -p $(dir $@)
+	-@rm -f $@
+	ar -crs $@ $^
+	
+$(INC)/%.h: Core/%.h
+	-@$(MKDIR) -p $(dir $@)
+	-@# CPPP doesn't like multibyte characters, so we replace the single quote character before processing so it doesn't complain
+	sed "s/'/@SINGLE_QUOTE@/g" $^ | cppp $(CPPP_FLAGS) | sed "s/@SINGLE_QUOTE@/'/g" > $@
+
+lib-unsupported:
+	@echo Due to limitations of lld-link, compiling SameBoy as a library on Windows is not supported.
+	@false
 	
 # Clean
 clean:
 	rm -rf build
 
-.PHONY: libretro tester cocoa ios _ios
+.PHONY: libretro tester cocoa ios _ios ios-ipa ios-deb liblib-unsupported bootroms
