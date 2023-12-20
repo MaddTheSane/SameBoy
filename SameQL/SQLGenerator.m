@@ -59,6 +59,7 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
     
     /* Convert the screenshot to a magnified NSImage */
     NSImage *screenshot = [[NSImage alloc] initWithCGImage:iref size:NSMakeSize(160, 144)];
+    CGImageRelease(iref);
     /* Draw the screenshot */
     if (showBorder) {
         [screenshot drawInRect:NSMakeRect(192, 150, 640, 576)];
@@ -91,7 +92,6 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
     
     CGColorSpaceRelease(colorSpaceRef);
     CGDataProviderRelease(provider);
-    CGImageRelease(iref);
     
     return noErr;
 }

@@ -13,9 +13,9 @@ static OSStatus render(CGContextRef cgContext, CFURLRef url, bool showBorder)
     if (showBorder) {
         dispatch_once(&onceToken, ^{
             bundle = [NSBundle bundleWithIdentifier:@"com.github.liji32.sameboy.previewer"];
-            template = [[NSImage alloc] initWithContentsOfFile:[bundle pathForResource:@"CartridgeTemplate" ofType:@"png"]];
-            templateUniversal = [[NSImage alloc] initWithContentsOfFile:[bundle pathForResource:@"UniversalCartridgeTemplate" ofType:@"png"]];
-            templateColor = [[NSImage alloc] initWithContentsOfFile:[bundle pathForResource:@"ColorCartridgeTemplate" ofType:@"png"]];
+            template = [bundle imageForResource:@"CartridgeTemplate"];
+            templateUniversal = [bundle imageForResource:@"UniversalCartridgeTemplate"];
+            templateColor = [bundle imageForResource:@"ColorCartridgeTemplate"];
         });
     }
     uint32_t bitmap[160*144];
@@ -92,7 +92,7 @@ static OSStatus render(CGContextRef cgContext, CFURLRef url, bool showBorder)
 OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options)
 {
     @autoreleasepool {
-        CGContextRef cgContext = QLPreviewRequestCreateContext(preview, ((NSSize){640, 576}), true, nil);
+        CGContextRef cgContext = QLPreviewRequestCreateContext(preview, NSMakeSize(640, 576), true, nil);
         if (render(cgContext, url, false) == noErr) {
             QLPreviewRequestFlushContext(preview, cgContext);
             CGContextRelease(cgContext);
@@ -107,7 +107,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 {
     extern NSString *kQLThumbnailPropertyIconFlavorKey;
     @autoreleasepool {
-        CGContextRef cgContext = QLThumbnailRequestCreateContext(thumbnail, ((NSSize){1024, 1024}), true, (__bridge CFDictionaryRef)(@{kQLThumbnailPropertyIconFlavorKey : @(0)}));
+        CGContextRef cgContext = QLThumbnailRequestCreateContext(thumbnail, NSMakeSize(1024, 1024), true, (__bridge CFDictionaryRef)(@{kQLThumbnailPropertyIconFlavorKey : @(0)}));
         if (render(cgContext, url, true) == noErr) {
             QLThumbnailRequestFlushContext(thumbnail, cgContext);
             CGContextRelease(cgContext);

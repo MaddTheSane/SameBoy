@@ -23,18 +23,18 @@ static NSString const *JOYHatsEmulateButtonsKey = @"JOYHatsEmulateButtons";
 
 @end
 
-typedef enum {
+typedef NS_ENUM(short, JOYControllerCombinedType) {
     JOYControllerCombinedTypeSingle,
     JOYControllerCombinedTypeComponent,
     JOYControllerCombinedTypeCombined,
-} JOYControllerCombinedType;
+};
 
-typedef enum {
+typedef NS_ENUM(short, JOYJoyConType) {
     JOYJoyConTypeNone,
     JOYJoyConTypeLeft,
     JOYJoyConTypeRight,
     JOYJoyConTypeDual,
-} JOYJoyConType;
+};
 
 @interface JOYController : NSObject
 + (void)startOnRunLoop:(NSRunLoop *)runloop withOptions: (NSDictionary *)options;
