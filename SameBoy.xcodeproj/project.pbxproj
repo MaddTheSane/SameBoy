@@ -1659,6 +1659,11 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = HexFiend/HexFiend_2_Framework_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					OSATOMIC_USE_INLINED,
+					OSSPINLOCK_USE_INLINED,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -1672,6 +1677,11 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = HexFiend/HexFiend_2_Framework_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					OSATOMIC_USE_INLINED,
+					OSSPINLOCK_USE_INLINED,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -1806,7 +1816,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_VERSION='\"0.15.8\"'",
+					"GB_VERSION='\"$(MARKETING_VERSION)\"'",
 					"GB_COPYRIGHT_YEAR='\"2023\"'",
 					GB_INTERNAL,
 				);

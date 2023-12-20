@@ -33,17 +33,8 @@ static const NSTimeInterval HFCaretBlinkFrequency = 0.56;
     HFASSERT(string != NULL);
     NSGlyph nsglyphs[GLYPH_BUFFER_SIZE];
     [[[layoutManager textStorage] mutableString] setString:string];
-    NSUInteger glyphIndex, glyphCount = [layoutManager getGlyphs:nsglyphs range:NSMakeRange(0, MIN(GLYPH_BUFFER_SIZE, [layoutManager numberOfGlyphs]))];
-    if (glyphs != NULL) {
-        /* Convert from unsigned int NSGlyphs to unsigned short CGGlyphs */
-        for (glyphIndex = 0; glyphIndex < glyphCount; glyphIndex++) {
-            /* Get rid of NSControlGlyph */
-            NSGlyph modifiedGlyph = nsglyphs[glyphIndex] == NSControlGlyph ? NSNullGlyph : nsglyphs[glyphIndex];
-            HFASSERT(modifiedGlyph <= USHRT_MAX);
-            glyphs[glyphIndex] = (CGGlyph)modifiedGlyph;
-        }
-    }
-    return glyphCount;    
+    NSUInteger glyphCount = [layoutManager getGlyphsInRange:NSMakeRange(0, MIN(GLYPH_BUFFER_SIZE, [layoutManager numberOfGlyphs])) glyphs:glyphs properties:NULL characterIndexes:NULL bidiLevels:NULL];
+    return glyphCount;
 }
 
 /* Returns the number of glyphs for the given string, using the given text view, and generating the glyphs if the glyphs parameter is not NULL */
@@ -822,7 +813,7 @@ enum LineCoverage_t {
     }
     
     if (drawableLineIndex > 0) {
-        NSRectFillListWithColorsUsingOperation(lineRects, lineColors, drawableLineIndex, NSCompositeSourceOver);
+        NSRectFillListWithColorsUsingOperation(lineRects, lineColors, drawableLineIndex, NSCompositingOperationSourceOver);
     }
     
     FREE_ARRAY(lineRects);
@@ -909,7 +900,7 @@ static size_t unionAndCleanLists(NSRect *rectList, id *valueList, size_t count) 
     }
     if (rectIndex > 0) {
         [[NSColor gridColor] set];
-        NSRectFillListUsingOperation(lineRects, rectIndex, NSCompositeSourceOver);
+        NSRectFillListUsingOperation(lineRects, rectIndex, NSCompositingOperationSourceOver);
     }
     FREE_ARRAY(lineRects);
 }
@@ -1059,7 +1050,7 @@ static size_t unionAndCleanLists(NSRect *rectList, id *valueList, size_t count) 
     
     /* Draw backgrounds */
     p = propertyInfos + 0;
-    if (p->count > 0) NSRectFillListWithColorsUsingOperation(p->rectList, p->propertyValueList, p->count, NSCompositeSourceOver);
+    if (p->count > 0) NSRectFillListWithColorsUsingOperation(p->rectList, p->propertyValueList, p->count, NSCompositingOperationSourceOver);
 
     /* Clean up */
     for (propertyIndex = 0; propertyIndex < propertyInfoCount; propertyIndex++) {
@@ -1328,7 +1319,7 @@ static size_t unionAndCleanLists(NSRect *rectList, id *valueList, size_t count) 
 
 - (void)drawRect:(NSRect)clip {
     [[self backgroundColorForEmptySpace] set];
-    NSRectFillUsingOperation(clip, NSCompositeSourceOver);
+    NSRectFillUsingOperation(clip, NSCompositingOperationSourceOver);
     BOOL antialias = [self shouldAntialias];
     CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
     
@@ -1618,9 +1609,9 @@ static size_t unionAndCleanLists(NSRect *rectList, id *valueList, size_t count) 
     NSPoint autoscrollLocation = mouseDownLocation;
     while (! _hftvflags.receivedMouseUp) {
         @autoreleasepool {
-        NSEvent *ev = [NSApp nextEventMatchingMask: NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask untilDate:endDate inMode:NSEventTrackingRunLoopMode dequeue:YES];
+        NSEvent *ev = [NSApp nextEventMatchingMask: NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged | NSEventMaskPeriodic untilDate:endDate inMode:NSEventTrackingRunLoopMode dequeue:YES];
         
-        if ([ev type] == NSPeriodic) {
+        if ([ev type] == NSEventTypePeriodic) {
             // autoscroll if drag is out of view bounds
             CGFloat amountToScroll = 0;
             NSRect bounds = [self bounds];
@@ -1637,7 +1628,7 @@ static size_t unionAndCleanLists(NSRect *rectList, id *valueList, size_t count) 
                 [[self representer] continueSelectionWithEvent:ev forCharacterIndex:characterIndex];
             }
         }
-        else if ([ev type] == NSLeftMouseDragged) {
+        else if ([ev type] == NSEventTypeLeftMouseDragged) {
             autoscrollLocation = [self convertPoint:[ev locationInWindow] fromView:nil];
         }
         

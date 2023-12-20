@@ -380,7 +380,7 @@ static double distanceMod1(double a, double b) {
         CGGlyph glyphs[kHFRepresenterTextViewCalloutMaxGlyphCount];
         CGSize advances[kHFRepresenterTextViewCalloutMaxGlyphCount];
         CTFontGetGlyphsForCharacters(ctfont, calloutUniLabel, glyphs, labelLength);
-        CTFontGetAdvancesForGlyphs(ctfont, kCTFontHorizontalOrientation, glyphs, advances, labelLength);
+        CTFontGetAdvancesForGlyphs(ctfont, kCTFontOrientationHorizontal, glyphs, advances, labelLength);
 
         // Count our glyphs. Note: this won't work with any label containing spaces, etc.
         NSUInteger glyphCount;

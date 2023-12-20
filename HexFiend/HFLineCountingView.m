@@ -288,7 +288,7 @@ static inline int common_prefix_length(const char *a, const char *b) {
     NSUInteger linesRemaining = ll2l(HFFPToUL(ceill(_lineRangeToDraw.length + _lineRangeToDraw.location) - floorl(_lineRangeToDraw.location)));
     if (! textAttributes) {
         NSMutableParagraphStyle *mutableStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-        [mutableStyle setAlignment:NSRightTextAlignment];
+        [mutableStyle setAlignment:NSTextAlignmentRight];
         NSParagraphStyle *paragraphStyle = [mutableStyle copy];
         [mutableStyle release];
         textAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:_font, NSFontAttributeName, [NSColor controlTextColor], NSForegroundColorAttributeName, paragraphStyle, NSParagraphStyleAttributeName, nil];
@@ -444,7 +444,7 @@ static inline int common_prefix_length(const char *a, const char *b) {
     
     if (!textAttributes) {
         NSMutableParagraphStyle *mutableStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-        [mutableStyle setAlignment:NSRightTextAlignment];
+        [mutableStyle setAlignment:NSTextAlignmentRight];
         NSParagraphStyle *paragraphStyle = [mutableStyle copy];
         [mutableStyle release];
         textAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:_font, NSFontAttributeName, [NSColor controlTextColor], NSForegroundColorAttributeName, paragraphStyle, NSParagraphStyleAttributeName, nil];
@@ -482,7 +482,7 @@ static inline int common_prefix_length(const char *a, const char *b) {
     textRect.size.height += verticalOffset + _lineHeight;
     
     NSMutableParagraphStyle *mutableStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-    [mutableStyle setAlignment:NSRightTextAlignment];
+    [mutableStyle setAlignment:NSTextAlignmentRight];
     [mutableStyle setMinimumLineHeight:_lineHeight];
     [mutableStyle setMaximumLineHeight:_lineHeight];
     NSParagraphStyle *paragraphStyle = [mutableStyle copy];
@@ -515,7 +515,7 @@ static inline int common_prefix_length(const char *a, const char *b) {
     
     if (! textAttributes) {
         NSMutableParagraphStyle *mutableStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-        [mutableStyle setAlignment:NSRightTextAlignment];
+        [mutableStyle setAlignment:NSTextAlignmentRight];
         [mutableStyle setMinimumLineHeight:_lineHeight];
         [mutableStyle setMaximumLineHeight:_lineHeight];
         NSParagraphStyle *paragraphStyle = [mutableStyle copy];

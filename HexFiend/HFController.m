@@ -921,8 +921,8 @@ static inline Class preferredByteArrayClass(void) {
     _hfflags.shiftExtendSelection = NO;
     _hfflags.commandExtendSelection = NO;
     NSUInteger flags = [event modifierFlags];
-    if (flags & NSCommandKeyMask) _hfflags.commandExtendSelection = YES;
-    else if (flags & NSShiftKeyMask) _hfflags.shiftExtendSelection = YES;
+    if (flags & NSEventModifierFlagCommand) _hfflags.commandExtendSelection = YES;
+    else if (flags & NSEventModifierFlagShift) _hfflags.shiftExtendSelection = YES;
     
     selectionAnchor = NO_SELECTION;
     selectionAnchorRange = HFRangeMake(NO_SELECTION, 0);
