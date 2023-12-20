@@ -31,7 +31,6 @@ static const NSTimeInterval HFCaretBlinkFrequency = 0.56;
 - (NSUInteger)_glyphsForString:(NSString *)string withGeneratingLayoutManager:(NSLayoutManager *)layoutManager glyphs:(CGGlyph *)glyphs {
     HFASSERT(layoutManager != NULL);
     HFASSERT(string != NULL);
-    NSGlyph nsglyphs[GLYPH_BUFFER_SIZE];
     [[[layoutManager textStorage] mutableString] setString:string];
     NSUInteger glyphCount = [layoutManager getGlyphsInRange:NSMakeRange(0, MIN(GLYPH_BUFFER_SIZE, [layoutManager numberOfGlyphs])) glyphs:glyphs properties:NULL characterIndexes:NULL bidiLevels:NULL];
     return glyphCount;
