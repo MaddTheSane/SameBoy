@@ -1103,7 +1103,7 @@ static inline Class preferredByteArrayClass(void) {
 
 - (void)scrollWithScrollEvent:(NSEvent *)scrollEvent {
     HFASSERT(scrollEvent != NULL);
-    HFASSERT([scrollEvent type] == NSScrollWheel);
+    HFASSERT([scrollEvent type] == NSEventTypeScrollWheel);
     CGFloat preciseScroll = 0;
     BOOL hasPreciseScroll;
     

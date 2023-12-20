@@ -144,7 +144,7 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 */
 //@{ 
 /// Gets the current array of representers attached to this controller.
-@property (readonly, copy) NSArray *representers;
+@property (readonly, copy) NSArray<HFRepresenter*> *representers;
 
 /// Adds a new representer to this controller.
 - (void)addRepresenter:(HFRepresenter *)representer;
