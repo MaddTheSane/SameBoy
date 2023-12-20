@@ -416,6 +416,10 @@ $(BIN)/SameBoy-iOS.app: $(BIN)/SameBoy-iOS.app/SameBoy \
                         $(shell ls iOS/*.png) \
                         iOS/License.html \
                         iOS/Info.plist \
+                        $(shell ls iOS/Assets.xcassets/*.imageset/*.json) \
+                        $(shell ls iOS/Assets.xcassets/*.imageset/*.png) \
+                        $(shell ls iOS/Assets.xcassets/*.appiconset/*.json) \
+                        $(shell ls iOS/Assets.xcassets/*.appiconset/*.png) \
                         $(BIN)/SameBoy-iOS.app/dmg_boot.bin \
                         $(BIN)/SameBoy-iOS.app/mgb_boot.bin \
                         $(BIN)/SameBoy-iOS.app/cgb0_boot.bin \
@@ -430,6 +434,8 @@ $(BIN)/SameBoy-iOS.app: $(BIN)/SameBoy-iOS.app/SameBoy \
 	sed "s/@COPYRIGHT_YEAR/$(COPYRIGHT_YEAR)/" < iOS/License.html > $(BIN)/SameBoy-iOS.app/License.html
 	$(MKDIR) -p $(BIN)/SameBoy-iOS.app/Shaders
 	cp Shaders/*.fsh Shaders/*.metal $(BIN)/SameBoy-iOS.app/Shaders
+	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 11.0 --platform iphoneos --compile $(BIN)/SameBoy-iOS.app --output-partial-info-plist $(OBJ)/tmpInfo-iOS.plist --app-icon AppIcon iOS/Assets.xcassets
+	/usr/libexec/PlistBuddy -x -c "Merge $(OBJ)/tmpInfo-iOS.plist" $(BIN)/SameBoy-iOS.app/Info.plist
 	$(CODESIGN) $@
 
 $(BIN)/SameBoy-iOS.app/SameBoy: $(CORE_OBJECTS) $(IOS_OBJECTS)
