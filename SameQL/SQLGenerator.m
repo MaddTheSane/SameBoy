@@ -52,6 +52,8 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
                                     NULL,
                                     true,
                                     renderingIntent);
+    CGDataProviderRelease(provider);
+    CGColorSpaceRelease(colorSpaceRef);
     CGContextSetInterpolationQuality(cgContext, kCGInterpolationNone);
     NSGraphicsContext *context = [NSGraphicsContext graphicsContextWithCGContext:cgContext flipped:false];
     [NSGraphicsContext setCurrentContext:context];
@@ -89,9 +91,6 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
         /* Mask it with the template (The middle part of the template image is transparent) */
         [effectiveTemplate drawInRect:(NSRect){{0, 0}, template.size}];
     }
-    
-    CGColorSpaceRelease(colorSpaceRef);
-    CGDataProviderRelease(provider);
     
     return noErr;
 }

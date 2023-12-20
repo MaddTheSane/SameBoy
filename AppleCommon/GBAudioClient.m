@@ -3,7 +3,7 @@
 #import "GBAudioClient.h"
 
 static OSStatus render(
-                    GBAudioClient *self,
+                    void *inRefCon,
                     AudioUnitRenderActionFlags *ioActionFlags,
                     const AudioTimeStamp *inTimeStamp,
                     UInt32 inBusNumber,
@@ -11,6 +11,7 @@ static OSStatus render(
                     AudioBufferList *ioData)
 
 {
+    GBAudioClient *self = (__bridge GBAudioClient *)(inRefCon);
     GB_sample_t *buffer = (GB_sample_t *)ioData->mBuffers[0].mData;
 
     self.renderBlock(self.rate, inNumberFrames, buffer);
@@ -54,7 +55,7 @@ static OSStatus render(
 
     // Set our tone rendering function on the unit
     AURenderCallbackStruct input;
-    input.inputProc = (void*)render;
+    input.inputProc = render;
     input.inputProcRefCon = (__bridge void *)(self);
     err = AudioUnitSetProperty(audioUnit,
                                kAudioUnitProperty_SetRenderCallback,

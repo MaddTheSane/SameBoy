@@ -7,5 +7,6 @@
 #endif
 
 @interface GBViewMetal : GBView<MTKViewDelegate>
-+ (bool) isSupported;
++ (BOOL) isSupported;
+@property (class, readonly, getter=isSupported) BOOL supported;
 @end

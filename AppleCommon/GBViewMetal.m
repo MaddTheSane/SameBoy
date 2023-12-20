@@ -25,15 +25,15 @@ static const vector_float2 rect[] =
     vector_float2 output_resolution;
 }
 
-+ (bool)isSupported
++ (BOOL)isSupported
 {
 #if TARGET_OS_IPHONE
-    return true;
+    return YES;
 #else
     if (@available(macOS 10.11, *)) {
         return [MTLCopyAllDevices() count] != 0;
     }
-    return false;
+    return NO;
 #endif
 }
 

@@ -1109,15 +1109,15 @@
 			isa = PBXGroup;
 			children = (
 				55E7FBCC2998DFF500D554FB /* CartridgeTemplate.png */,
-				55E7FBF62998E74C00D554FB /* cgb_boot_fast.bin */,
 				55E7FBCF2998DFF500D554FB /* ColorCartridgeTemplate.png */,
+				55E7FBCD2998DFF500D554FB /* UniversalCartridgeTemplate.png */,
+				55E7FBF62998E74C00D554FB /* cgb_boot_fast.bin */,
 				55E7FBD02998DFF500D554FB /* exports.sym */,
 				55E7FBD12998DFF500D554FB /* generator.m */,
 				55E7FBD32998DFF500D554FB /* get_image_for_rom.c */,
 				55E7FBCE2998DFF500D554FB /* get_image_for_rom.h */,
 				55E7FBD42998DFF500D554FB /* Info.plist */,
 				55E7FBD22998DFF500D554FB /* main.c */,
-				55E7FBCD2998DFF500D554FB /* UniversalCartridgeTemplate.png */,
 			);
 			path = QuickLook;
 			sourceTree = "<group>";
