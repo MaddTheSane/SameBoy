@@ -152,7 +152,7 @@ contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
     return [UIContextMenuConfiguration configurationWithIdentifier:nil
                                                    previewProvider:nil
                                                     actionProvider:^UIMenu *(NSArray<UIMenuElement *> *suggestedActions) {
-        return [UIMenu menuWithTitle:nil children:@[
+        return [UIMenu menuWithTitle:@"" children:@[
             [UIAction actionWithTitle:@"Rename"
                                 image:[UIImage systemImageNamed:@"pencil"]
                            identifier:nil

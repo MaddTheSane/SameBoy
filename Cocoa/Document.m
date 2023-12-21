@@ -2449,7 +2449,7 @@ enum GBWindowResizeAction
 
 - (bool)isSlave
 {
-    return _master;
+    return _master != nil;
 }
 
 - (GB_gameboy_t *)gb
