@@ -320,11 +320,11 @@ static void debuggerReloadCallback(GB_gameboy_t *gb)
 {
     GB_init(&_gb, [self internalModel]);
     GB_set_user_data(&_gb, (__bridge void *)(self));
-    GB_set_boot_rom_load_callback(&_gb, (GB_boot_rom_load_callback_t)boot_rom_load);
-    GB_set_vblank_callback(&_gb, (GB_vblank_callback_t) vblank);
-    GB_set_log_callback(&_gb, (GB_log_callback_t) consoleLog);
-    GB_set_input_callback(&_gb, (GB_input_callback_t) consoleInput);
-    GB_set_async_input_callback(&_gb, (GB_input_callback_t) asyncConsoleInput);
+    GB_set_boot_rom_load_callback(&_gb, boot_rom_load);
+    GB_set_vblank_callback(&_gb, vblank);
+    GB_set_log_callback(&_gb, consoleLog);
+    GB_set_input_callback(&_gb, consoleInput);
+    GB_set_async_input_callback(&_gb, asyncConsoleInput);
     [self updatePalette];
     GB_set_rgb_encode_callback(&_gb, rgbEncode);
     GB_set_camera_get_pixel_callback(&_gb, cameraGetPixel);
@@ -584,8 +584,8 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     [_audioClient stop];
     _audioClient = nil;
     self.view.mouseHidingEnabled = false;
-    GB_save_battery(&_gb, self.savPath.UTF8String);
-    GB_save_cheats(&_gb, self.chtPath.UTF8String);
+    GB_save_battery(&_gb, self.savURL.fileSystemRepresentation);
+    GB_save_cheats(&_gb, self.chtURL.fileSystemRepresentation);
     unsigned time_to_alarm = GB_time_to_alarm(&_gb);
     
     if (time_to_alarm) {
@@ -613,7 +613,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         [self updateDebuggerButtons];
         [self->_slave updateDebuggerButtons];
     });
-    self.gbsPlayPauseButton.state = true;
+    self.gbsPlayPauseButton.state = NSControlStateValueOn;
     self.view.mouseHidingEnabled = (self.mainWindow.styleMask & NSWindowStyleMaskFullScreen) != 0;
     if (_master) {
         [_master start];
@@ -673,7 +673,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         [GB_BOOT_ROM_CGB] = @"cgb_boot",
         [GB_BOOT_ROM_AGB] = @"agb_boot",
     };
-    GB_load_boot_rom(&_gb, [[self bootROMPathForName:names[type]] fileSystemRepresentation]);
+    GB_load_boot_rom(&_gb, [[self bootROMURLForName:names[type]] fileSystemRepresentation]);
 }
 
 - (IBAction)reset:(id)sender
@@ -1040,59 +1040,60 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     return [self.fileURL.pathExtension.lowercaseString isEqualToString:@"gbcart"];
 }
 
-- (NSString *)savPath
+- (NSURL *)savURL
 {
     if (self.isCartContainer) {
-        return [self.fileURL URLByAppendingPathComponent:@"battery.sav"].path;
+        return [self.fileURL URLByAppendingPathComponent:@"battery.sav"];
     }
     
-    return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"].path;
+    return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sav"];
 }
 
-- (NSString *)chtPath
+- (NSURL *)chtURL
 {
     if (self.isCartContainer) {
-        return [self.fileURL URLByAppendingPathComponent:@"cheats.cht"].path;
+        return [self.fileURL URLByAppendingPathComponent:@"cheats.cht"];
     }
     
-    return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"].path;
+    return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"cht"];
 }
 
-- (NSString *)saveStatePath:(unsigned)index
+- (NSURL *)saveStateURL:(unsigned)index
 {
     if (self.isCartContainer) {
-        return [self.fileURL URLByAppendingPathComponent:[NSString stringWithFormat:@"state.s%u", index]].path;
+        return [self.fileURL URLByAppendingPathComponent:[NSString stringWithFormat:@"state.s%u", index]];
     }
-    return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"s%u", index]].path;
+    return [[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"s%u", index]];
 }
 
-- (NSString *)romPath
+- (NSURL *)romURL
 {
-    NSString *fileName = self.fileURL.path;
+    NSURL *fileName = self.fileURL;
     if (self.isCartContainer) {
-        NSArray *paths = [[NSString stringWithContentsOfFile:[fileName stringByAppendingPathComponent:@"rom.gbl"]
+        NSArray *paths = [[NSString stringWithContentsOfURL:[fileName URLByAppendingPathComponent:@"rom.gbl"]
                                                     encoding:NSUTF8StringEncoding
                                                        error:nil] componentsSeparatedByString:@"\n"];
         fileName = nil;
         bool needsRebuild = false;
         for (NSString *path in paths) {
-            NSURL *url = [NSURL URLWithString:path relativeToURL:self.fileURL];
+            NSURL *url = [NSURL URLWithString:path relativeToURL:fileName];
             if ([[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
-                if (fileName && ![fileName isEqualToString:url.path]) {
+                if (fileName && ![fileName isEqual:url]) {
                     needsRebuild = true;
                     break;
                 }
-                fileName = url.path;
+                fileName = url;
             }
             else {
                 needsRebuild = true;
             }
         }
         if (fileName && needsRebuild) {
+            //TODO: rebuild method! make it use NSURLs.
             [[NSString stringWithFormat:@"%@\n%@\n%@",
-              [fileName pathRelativeToDirectory:self.fileURL.path],
-              fileName,
-              [[NSURL fileURLWithPath:fileName].fileReferenceURL.absoluteString substringFromIndex:strlen("file://")]]
+              [fileName.path pathRelativeToDirectory:self.fileURL.path],
+              fileName.path,
+              [fileName.fileReferenceURL.absoluteString substringFromIndex:strlen("file://")]]
              writeToURL:[self.fileURL URLByAppendingPathComponent:@"rom.gbl"]
              atomically:false
              encoding:NSUTF8StringEncoding
@@ -1116,7 +1117,7 @@ static bool is_path_writeable(const char *path)
 - (int) loadROM
 {
     __block int ret = 0;
-    NSString *fileName = self.romPath;
+    NSURL *fileName = self.romURL;
     if (!fileName) {
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setMessageText:@"Could not locate the ROM referenced by this Game Boy Cartridge"];
@@ -1142,17 +1143,17 @@ static bool is_path_writeable(const char *path)
             ret = GB_load_rom(&self->_gb, [fileName fileSystemRepresentation]);
         }
         if (GB_save_battery_size(&self->_gb)) {
-            if (!is_path_writeable(self.savPath.fileSystemRepresentation)) {
+            if (!is_path_writeable(self.savURL.fileSystemRepresentation)) {
                 GB_log(&self->_gb, "The save path for this ROM is not writeable, progress will not be saved.\n");
             }
         }
-        GB_load_battery(&self->_gb, self.savPath.fileSystemRepresentation);
-        GB_load_cheats(&self->_gb, self.chtPath.fileSystemRepresentation);
+        GB_load_battery(&self->_gb, self.savURL.fileSystemRepresentation);
+        GB_load_cheats(&self->_gb, self.chtURL.fileSystemRepresentation);
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.cheatWindowController cheatsUpdated];
         });
-        GB_debugger_load_symbol_file(&self->_gb, [[[NSBundle mainBundle] pathForResource:@"registers" ofType:@"sym"] fileSystemRepresentation]);
-        GB_debugger_load_symbol_file(&self->_gb, [[fileName stringByDeletingPathExtension] stringByAppendingPathExtension:@"sym"].fileSystemRepresentation);
+        GB_debugger_load_symbol_file(&self->_gb, [[[NSBundle mainBundle] URLForResource:@"registers" withExtension:@"sym"] fileSystemRepresentation]);
+        GB_debugger_load_symbol_file(&self->_gb, [[fileName URLByDeletingPathExtension] URLByAppendingPathExtension:@"sym"].fileSystemRepresentation);
     }];
     if (ret) {
         NSAlert *alert = [[NSAlert alloc] init];
@@ -1164,13 +1165,15 @@ static bool is_path_writeable(const char *path)
         _romWarningIssued = true;
         [GBWarningPopover popoverWithContents:rom_warnings onWindow:self.mainWindow];
     }
-    _fileModificationTime = [[NSFileManager defaultManager] attributesOfItemAtPath:fileName error:nil][NSFileModificationDate];
+    //TODO: use NSURL's NSURLResourceKey NSURLContentModificationDateKey
+    _fileModificationTime = [[NSFileManager defaultManager] attributesOfItemAtPath:fileName.path error:nil][NSFileModificationDate];
     return ret;
 }
 
 - (void)showWindows
 {
     if (GB_is_inited(&_gb)) {
+        //TODO: use NSURL's NSURLResourceKey NSURLContentModificationDateKey
         if (![_fileModificationTime isEqualToDate:[[NSFileManager defaultManager] attributesOfItemAtPath:self.fileName error:nil][NSFileModificationDate]]) {
             [self reset:nil];
         }
@@ -1625,7 +1628,7 @@ enum GBWindowResizeAction
 {
     bool __block success = false;
     [self performAtomicBlock:^{
-        success = GB_save_state(&self->_gb, [self saveStatePath:[sender tag]].fileSystemRepresentation) == 0;
+        success = GB_save_state(&self->_gb, [self saveStateURL:[sender tag]].fileSystemRepresentation) == 0;
     }];
     
     if (!success) {
@@ -1663,7 +1666,7 @@ enum GBWindowResizeAction
 
 - (IBAction)loadState:(id)sender
 {
-    int ret = [self loadStateFile:[self saveStatePath:[sender tag]].fileSystemRepresentation noErrorOnNotFound:true];
+    int ret = [self loadStateFile:[self saveStateURL:[sender tag]].fileSystemRepresentation noErrorOnNotFound:true];
     if (ret == ENOENT && !self.isCartContainer) {
         [self loadStateFile:[[self.fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:[NSString stringWithFormat:@"sn%ld", (long)[sender tag]]].fileSystemRepresentation noErrorOnNotFound:false];
     }
@@ -2583,7 +2586,8 @@ enum GBWindowResizeAction
     [savePanel beginSheetModalForWindow:self.mainWindow completionHandler:^(NSInteger result) {
         if (result == NSModalResponseOK) {
             [savePanel orderOut:self];
-            NSString *romPath = self.romPath;
+            //TODO: rewrite this part
+            NSString *romPath = self.romURL.path;
             [[NSFileManager defaultManager] trashItemAtURL:savePanel.URL resultingItemURL:nil error:nil];
             [[NSFileManager defaultManager] createDirectoryAtURL:savePanel.URL withIntermediateDirectories:false attributes:nil error:nil];
             [[NSString stringWithFormat:@"%@\n%@\n%@",
@@ -2693,7 +2697,7 @@ enum GBWindowResizeAction
                 }
             }
             if (ok) {
-                GB_save_battery(&self->_gb, self.savPath.fileSystemRepresentation);
+                GB_save_battery(&self->_gb, self.savURL.fileSystemRepresentation);
                 self.fileURL = urls.firstObject;
                 [self loadROM];
             }
