@@ -1076,7 +1076,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
         fileName = nil;
         bool needsRebuild = false;
         for (NSString *path in paths) {
-            NSURL *url = [NSURL URLWithString:path relativeToURL:fileName];
+            NSURL *url = [NSURL URLWithString:path relativeToURL:self.fileURL];
             if ([[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
                 if (fileName && ![fileName isEqual:url]) {
                     needsRebuild = true;

@@ -2049,7 +2049,6 @@
 				EXPORTED_SYMBOLS_FILE = QuickLook/exports.sym;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_COPYRIGHT_YEAR='\"2023\"'",
 					GB_INTERNAL,
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
@@ -2078,7 +2077,6 @@
 				EXPORTED_SYMBOLS_FILE = QuickLook/exports.sym;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"GB_COPYRIGHT_YEAR='\"2023\"'",
 					GB_INTERNAL,
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
