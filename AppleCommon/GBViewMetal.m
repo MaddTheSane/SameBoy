@@ -87,6 +87,31 @@ static const vector_float2 rect[] =
 
 - (void) loadShader
 {
+    id<MTLLibrary> library = [device newDefaultLibrary];
+    if (library) {
+        id<MTLFunction> vertex_function = [library newFunctionWithName:@"vertex_shader"];
+        id<MTLFunction> fragment_function = [library newFunctionWithName:[NSString stringWithFormat:@"fragment_shader_%@", [[NSUserDefaults standardUserDefaults] stringForKey:@"GBFilter"]]];
+        // This is the one that will fail!
+        if (fragment_function) {
+            // Set up a descriptor for creating a pipeline state object
+            MTLRenderPipelineDescriptor *pipeline_state_descriptor = [[MTLRenderPipelineDescriptor alloc] init];
+            pipeline_state_descriptor.vertexFunction = vertex_function;
+            pipeline_state_descriptor.fragmentFunction = fragment_function;
+            pipeline_state_descriptor.colorAttachments[0].pixelFormat = ((MTKView *)self.internalView).colorPixelFormat;
+            
+            NSError *error = nil;
+            pipeline_state = [device newRenderPipelineStateWithDescriptor:pipeline_state_descriptor
+                                                                     error:&error];
+            if (!error)  {
+                command_queue = [device newCommandQueue];
+                
+                return;
+            }
+            
+            NSLog(@"Failed to created pipeline state, error %@", error);
+        }
+    }
+    
     NSError *error = nil;
     NSString *shader_source = [NSString stringWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"MasterShader"
                                                                                                  withExtension:@"metal"
@@ -106,9 +131,9 @@ static const vector_float2 rect[] =
 
     MTLCompileOptions *options = [[MTLCompileOptions alloc] init];
     options.fastMathEnabled = true;
-    id<MTLLibrary> library = [device newLibraryWithSource:shader_source
-                                                   options:options
-                                                     error:&error];
+    library = [device newLibraryWithSource:shader_source
+                                   options:options
+                                     error:&error];
     if (error) {
         NSLog(@"Error: %@", error);
         if (!library) {

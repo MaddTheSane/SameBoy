@@ -210,6 +210,36 @@
 		55970FCF2B32F71400E3B538 /* GBViewBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478B35299889E200056C6A /* GBViewBase.m */; };
 		55970FD02B32F71400E3B538 /* GBViewMetal.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD325A064DA00CADDCE /* GBViewMetal.m */; };
 		55970FD12B32F71400E3B538 /* GBAudioClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD425A064DA00CADDCE /* GBAudioClient.m */; };
+		55CAE25E2B364A33001935EB /* BaseMetal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* BaseMetal.metal */; };
+		55CAE2712B364CC6001935EB /* Scale4x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2632B364CC6001935EB /* Scale4x.metal */; };
+		55CAE2722B364CC6001935EB /* SmoothBilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2642B364CC6001935EB /* SmoothBilinear.metal */; };
+		55CAE2732B364CC6001935EB /* MonoLCD.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2652B364CC6001935EB /* MonoLCD.metal */; };
+		55CAE2742B364CC6001935EB /* LCD.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2662B364CC6001935EB /* LCD.metal */; };
+		55CAE2752B364CC6001935EB /* Scale2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2672B364CC6001935EB /* Scale2x.metal */; };
+		55CAE2762B364CC6001935EB /* AAScale4x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2682B364CC6001935EB /* AAScale4x.metal */; };
+		55CAE2772B364CC6001935EB /* Bilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2692B364CC6001935EB /* Bilinear.metal */; };
+		55CAE2782B364CC6001935EB /* OmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */; };
+		55CAE2792B364CC6001935EB /* HQ2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26B2B364CC6001935EB /* HQ2x.metal */; };
+		55CAE27A2B364CC6001935EB /* CRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26C2B364CC6001935EB /* CRT.metal */; };
+		55CAE27B2B364CC6001935EB /* AAScale2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26D2B364CC6001935EB /* AAScale2x.metal */; };
+		55CAE27C2B364CC6001935EB /* AAOmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */; };
+		55CAE27D2B364CC6001935EB /* OmniScale.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26F2B364CC6001935EB /* OmniScale.metal */; };
+		55CAE27E2B364CC6001935EB /* NearestNeighbor.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2702B364CC6001935EB /* NearestNeighbor.metal */; };
+		55CAE27F2B36590C001935EB /* MonoLCD.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2652B364CC6001935EB /* MonoLCD.metal */; };
+		55CAE2802B36590C001935EB /* Scale2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2672B364CC6001935EB /* Scale2x.metal */; };
+		55CAE2812B36590C001935EB /* Scale4x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2632B364CC6001935EB /* Scale4x.metal */; };
+		55CAE2822B36590C001935EB /* LCD.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2662B364CC6001935EB /* LCD.metal */; };
+		55CAE2832B36590C001935EB /* OmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */; };
+		55CAE2842B36590C001935EB /* AAOmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */; };
+		55CAE2852B36590C001935EB /* SmoothBilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2642B364CC6001935EB /* SmoothBilinear.metal */; };
+		55CAE2862B36590C001935EB /* BaseMetal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* BaseMetal.metal */; };
+		55CAE2872B36590C001935EB /* AAScale2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26D2B364CC6001935EB /* AAScale2x.metal */; };
+		55CAE2882B36590C001935EB /* CRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26C2B364CC6001935EB /* CRT.metal */; };
+		55CAE2892B36590C001935EB /* OmniScale.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26F2B364CC6001935EB /* OmniScale.metal */; };
+		55CAE28A2B36590C001935EB /* NearestNeighbor.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2702B364CC6001935EB /* NearestNeighbor.metal */; };
+		55CAE28B2B36590C001935EB /* HQ2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26B2B364CC6001935EB /* HQ2x.metal */; };
+		55CAE28C2B36590C001935EB /* AAScale4x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2682B364CC6001935EB /* AAScale4x.metal */; };
+		55CAE28D2B36590C001935EB /* Bilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2692B364CC6001935EB /* Bilinear.metal */; };
 		55DF028D27DAF3E700B339A6 /* GBObjectViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55DF028A27DAF3E700B339A6 /* GBObjectViewItem.xib */; };
 		55DF028E27DAF3E700B339A6 /* GBObjectView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55DF028C27DAF3E700B339A6 /* GBObjectView.m */; };
 		55DF029227DAF40900B339A6 /* GBPaletteViewRow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55DF029027DAF40900B339A6 /* GBPaletteViewRow.xib */; };
@@ -628,6 +658,23 @@
 		55970F952B32F20500E3B538 /* deb-control */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "deb-control"; sourceTree = "<group>"; };
 		55970F962B32F20500E3B538 /* GBLoadROMTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBLoadROMTableViewController.m; sourceTree = "<group>"; };
 		55970F972B32F20600E3B538 /* GBTemperatureSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBTemperatureSlider.m; sourceTree = "<group>"; };
+		55CAE25D2B364A33001935EB /* BaseMetal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = BaseMetal.metal; sourceTree = "<group>"; };
+		55CAE2602B364A87001935EB /* MetalShared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalShared.h; sourceTree = "<group>"; };
+		55CAE2612B364B8F001935EB /* BaseFragment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseFragment.h; sourceTree = "<group>"; };
+		55CAE2632B364CC6001935EB /* Scale4x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Scale4x.metal; sourceTree = "<group>"; };
+		55CAE2642B364CC6001935EB /* SmoothBilinear.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = SmoothBilinear.metal; sourceTree = "<group>"; };
+		55CAE2652B364CC6001935EB /* MonoLCD.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = MonoLCD.metal; sourceTree = "<group>"; };
+		55CAE2662B364CC6001935EB /* LCD.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = LCD.metal; sourceTree = "<group>"; };
+		55CAE2672B364CC6001935EB /* Scale2x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Scale2x.metal; sourceTree = "<group>"; };
+		55CAE2682B364CC6001935EB /* AAScale4x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = AAScale4x.metal; sourceTree = "<group>"; };
+		55CAE2692B364CC6001935EB /* Bilinear.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Bilinear.metal; sourceTree = "<group>"; };
+		55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = OmniScaleLegacy.metal; sourceTree = "<group>"; };
+		55CAE26B2B364CC6001935EB /* HQ2x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = HQ2x.metal; sourceTree = "<group>"; };
+		55CAE26C2B364CC6001935EB /* CRT.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = CRT.metal; sourceTree = "<group>"; };
+		55CAE26D2B364CC6001935EB /* AAScale2x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = AAScale2x.metal; sourceTree = "<group>"; };
+		55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = AAOmniScaleLegacy.metal; sourceTree = "<group>"; };
+		55CAE26F2B364CC6001935EB /* OmniScale.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = OmniScale.metal; sourceTree = "<group>"; };
+		55CAE2702B364CC6001935EB /* NearestNeighbor.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = NearestNeighbor.metal; sourceTree = "<group>"; };
 		55DF028A27DAF3E700B339A6 /* GBObjectViewItem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GBObjectViewItem.xib; sourceTree = "<group>"; };
 		55DF028B27DAF3E700B339A6 /* GBObjectView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBObjectView.h; sourceTree = "<group>"; };
 		55DF028C27DAF3E700B339A6 /* GBObjectView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBObjectView.m; sourceTree = "<group>"; };
@@ -931,6 +978,7 @@
 				55478B382998B40C00056C6A /* NSTextFieldCell+Inset.m */,
 				5579ACA325A0636F00CADDCE /* PopoverView.xib */,
 				5579ACA425A0636F00CADDCE /* Preferences.xib */,
+				55CAE2622B364BC2001935EB /* Independant Shaders */,
 			);
 			name = SameBoy;
 			path = Cocoa;
@@ -1103,6 +1151,30 @@
 				55970F932B32F20500E3B538 /* reregister.m */,
 			);
 			path = iOS;
+			sourceTree = "<group>";
+		};
+		55CAE2622B364BC2001935EB /* Independant Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				55CAE2602B364A87001935EB /* MetalShared.h */,
+				55CAE2612B364B8F001935EB /* BaseFragment.h */,
+				55CAE25D2B364A33001935EB /* BaseMetal.metal */,
+				55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */,
+				55CAE26D2B364CC6001935EB /* AAScale2x.metal */,
+				55CAE2682B364CC6001935EB /* AAScale4x.metal */,
+				55CAE2692B364CC6001935EB /* Bilinear.metal */,
+				55CAE26C2B364CC6001935EB /* CRT.metal */,
+				55CAE26B2B364CC6001935EB /* HQ2x.metal */,
+				55CAE2662B364CC6001935EB /* LCD.metal */,
+				55CAE2652B364CC6001935EB /* MonoLCD.metal */,
+				55CAE2702B364CC6001935EB /* NearestNeighbor.metal */,
+				55CAE26F2B364CC6001935EB /* OmniScale.metal */,
+				55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */,
+				55CAE2672B364CC6001935EB /* Scale2x.metal */,
+				55CAE2632B364CC6001935EB /* Scale4x.metal */,
+				55CAE2642B364CC6001935EB /* SmoothBilinear.metal */,
+			);
+			path = "Independant Shaders";
 			sourceTree = "<group>";
 		};
 		55E7FBCB2998DFF400D554FB /* QuickLook */ = {
@@ -1484,20 +1556,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55CAE27E2B364CC6001935EB /* NearestNeighbor.metal in Sources */,
 				556AFD9125A54AF1004D2482 /* rumble.c in Sources */,
 				55DF029327DAF40900B339A6 /* GBPaletteView.m in Sources */,
 				556AFD9625A54AF1004D2482 /* sm83_cpu.c in Sources */,
 				556AFD9025A54AF1004D2482 /* debugger.c in Sources */,
 				5579ACEA25A064DA00CADDCE /* GBCheatWindowController.m in Sources */,
+				55CAE27D2B364CC6001935EB /* OmniScale.metal in Sources */,
 				55DF028E27DAF3E700B339A6 /* GBObjectView.m in Sources */,
 				5579ACEC25A064DA00CADDCE /* GBGLShader.m in Sources */,
 				5579ACF025A064DA00CADDCE /* GBAudioClient.m in Sources */,
 				5579ACE125A064DA00CADDCE /* GBCheatTextFieldCell.m in Sources */,
 				556AFD9425A54AF1004D2482 /* sgb.c in Sources */,
 				5579ACED25A064DA00CADDCE /* GBMemoryByteArray.m in Sources */,
+				55CAE25E2B364A33001935EB /* BaseMetal.metal in Sources */,
 				556AFD9325A54AF1004D2482 /* symbol_hash.c in Sources */,
 				5579ACE625A064DA00CADDCE /* GBImageView.m in Sources */,
 				5579ACE925A064DA00CADDCE /* GBOptionalVisualEffectView.m in Sources */,
+				55CAE2712B364CC6001935EB /* Scale4x.metal in Sources */,
 				55478B36299889E200056C6A /* GBViewBase.m in Sources */,
 				5579ACE325A064DA00CADDCE /* GBBorderView.m in Sources */,
 				5579ACEE25A064DA00CADDCE /* GBSplitView.m in Sources */,
@@ -1507,10 +1583,14 @@
 				55478B3A2998B40C00056C6A /* NSTextFieldCell+Inset.m in Sources */,
 				556AFD9225A54AF1004D2482 /* random.c in Sources */,
 				5579ACF325A064DA00CADDCE /* GBCompleteByteSlice.m in Sources */,
+				55CAE27A2B364CC6001935EB /* CRT.metal in Sources */,
+				55CAE27C2B364CC6001935EB /* AAOmniScaleLegacy.metal in Sources */,
 				556AFD8F25A54AF1004D2482 /* joypad.c in Sources */,
 				556AFD8A25A54AF1004D2482 /* display.c in Sources */,
 				5584AE182B329EF400FBAB98 /* NSObject+DefaultsObserver.m in Sources */,
 				5579AC9825A05E6000CADDCE /* main.m in Sources */,
+				55CAE2742B364CC6001935EB /* LCD.metal in Sources */,
+				55CAE2762B364CC6001935EB /* AAScale4x.metal in Sources */,
 				5579ACE225A064DA00CADDCE /* GBView.m in Sources */,
 				556AFD8C25A54AF1004D2482 /* memory.c in Sources */,
 				5584AE222B32A25600FBAB98 /* GBPreferencePopUpButton.m in Sources */,
@@ -1519,14 +1599,18 @@
 				5579ACE525A064DA00CADDCE /* GBViewGL.m in Sources */,
 				5579ACEF25A064DA00CADDCE /* GBViewMetal.m in Sources */,
 				5584AE242B32A25600FBAB98 /* GBPreferenceButton.m in Sources */,
+				55CAE2722B364CC6001935EB /* SmoothBilinear.metal in Sources */,
 				5579ACEB25A064DA00CADDCE /* GBButtons.m in Sources */,
 				5579ACE425A064DA00CADDCE /* GBTerminalTextFieldCell.m in Sources */,
 				5579ACDE25A064DA00CADDCE /* GBWarningPopover.m in Sources */,
 				5579ACDD25A064DA00CADDCE /* NSObject+MavericksCompat.m in Sources */,
 				556AFD9C25A54AF1004D2482 /* camera.c in Sources */,
+				55CAE2772B364CC6001935EB /* Bilinear.metal in Sources */,
 				5579ACE025A064DA00CADDCE /* Document.m in Sources */,
+				55CAE2732B364CC6001935EB /* MonoLCD.metal in Sources */,
 				55FE438F27955B6C007F79E7 /* GBHueSliderCell.m in Sources */,
 				556038C126C091A100CD1984 /* GBVisualizerView.m in Sources */,
+				55CAE2782B364CC6001935EB /* OmniScaleLegacy.metal in Sources */,
 				556AFD8E25A54AF1004D2482 /* gb.c in Sources */,
 				5584AE272B32A27000FBAB98 /* GBHexStatusBarRepresenter.m in Sources */,
 				556AFD8D25A54AF1004D2482 /* apu.c in Sources */,
@@ -1534,12 +1618,15 @@
 				5579ACDF25A064DA00CADDCE /* GBPreferencesWindow.m in Sources */,
 				5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */,
 				556AFD9A25A54AF1004D2482 /* rewind.c in Sources */,
+				55CAE2792B364CC6001935EB /* HQ2x.metal in Sources */,
 				55FE438C27955B4B007F79E7 /* GBPaletteEditorController.m in Sources */,
 				5579AC9025A05E5F00CADDCE /* GBApp.m in Sources */,
 				556AFD9825A54AF1004D2482 /* save_state.c in Sources */,
 				55478B322998898600056C6A /* GBTintedImageCell.m in Sources */,
 				556AFD9525A54AF1004D2482 /* printer.c in Sources */,
+				55CAE2752B364CC6001935EB /* Scale2x.metal in Sources */,
 				556AFD9B25A54AF1004D2482 /* timing.c in Sources */,
+				55CAE27B2B364CC6001935EB /* AAScale2x.metal in Sources */,
 				55478B2E2998894B00056C6A /* GBDebuggerButton.m in Sources */,
 				5579ACE725A064DA00CADDCE /* GBOpenGLView.m in Sources */,
 				5579ACDC25A064DA00CADDCE /* NSString+StringForKey.m in Sources */,
@@ -1606,6 +1693,8 @@
 				55970F9E2B32F20600E3B538 /* main.m in Sources */,
 				55970FC22B32F46D00E3B538 /* save_state.c in Sources */,
 				55970FC72B32F46D00E3B538 /* camera.c in Sources */,
+				55CAE2852B36590C001935EB /* SmoothBilinear.metal in Sources */,
+				55CAE2872B36590C001935EB /* AAScale2x.metal in Sources */,
 				55970FB12B32F20600E3B538 /* GBLoadROMTableViewController.m in Sources */,
 				55970FCF2B32F71400E3B538 /* GBViewBase.m in Sources */,
 				55970F982B32F20600E3B538 /* GBVerticalLayout.m in Sources */,
@@ -1619,29 +1708,42 @@
 				55970FAB2B32F20600E3B538 /* GBOptionViewController.m in Sources */,
 				55970FD02B32F71400E3B538 /* GBViewMetal.m in Sources */,
 				55970F992B32F20600E3B538 /* GBBackgroundView.m in Sources */,
+				55CAE28B2B36590C001935EB /* HQ2x.metal in Sources */,
 				55970FD12B32F71400E3B538 /* GBAudioClient.m in Sources */,
+				55CAE2842B36590C001935EB /* AAOmniScaleLegacy.metal in Sources */,
 				55970FCA2B32F46D00E3B538 /* rewind.c in Sources */,
+				55CAE2812B36590C001935EB /* Scale4x.metal in Sources */,
+				55CAE27F2B36590C001935EB /* MonoLCD.metal in Sources */,
 				55970FCB2B32F46D00E3B538 /* display.c in Sources */,
+				55CAE2862B36590C001935EB /* BaseMetal.metal in Sources */,
 				55970FAA2B32F20600E3B538 /* GBHapticManager.m in Sources */,
 				55970FC32B32F46D00E3B538 /* sgb.c in Sources */,
 				55970FA12B32F20600E3B538 /* GBMenuButton.m in Sources */,
 				55970FCE2B32F46D00E3B538 /* memory.c in Sources */,
+				55CAE2892B36590C001935EB /* OmniScale.metal in Sources */,
 				55970FA32B32F20600E3B538 /* GBAboutController.m in Sources */,
 				55970FCD2B32F46D00E3B538 /* timing.c in Sources */,
 				55970FC92B32F46D00E3B538 /* joypad.c in Sources */,
 				55970FA82B32F20600E3B538 /* GBView.m in Sources */,
 				55970F9A2B32F20600E3B538 /* GBLayout.m in Sources */,
+				55CAE2832B36590C001935EB /* OmniScaleLegacy.metal in Sources */,
 				55970FB22B32F20600E3B538 /* GBTemperatureSlider.m in Sources */,
 				55970FB32B32F40700E3B538 /* gb.c in Sources */,
 				55970FBD2B32F46D00E3B538 /* printer.c in Sources */,
 				55970FA62B32F20600E3B538 /* GBSettingsViewController.m in Sources */,
+				55CAE2882B36590C001935EB /* CRT.metal in Sources */,
 				55970FA22B32F20600E3B538 /* GBViewController.m in Sources */,
 				55970FC42B32F46D00E3B538 /* apu.c in Sources */,
 				55970FC02B32F46D00E3B538 /* cheats.c in Sources */,
 				55970FA02B32F20600E3B538 /* GBMenuViewController.m in Sources */,
+				55CAE28C2B36590C001935EB /* AAScale4x.metal in Sources */,
 				55970F9D2B32F20600E3B538 /* GBROMManager.m in Sources */,
 				55970FC52B32F46D00E3B538 /* random.c in Sources */,
+				55CAE2802B36590C001935EB /* Scale2x.metal in Sources */,
+				55CAE2822B36590C001935EB /* LCD.metal in Sources */,
+				55CAE28D2B36590C001935EB /* Bilinear.metal in Sources */,
 				55970FA72B32F20600E3B538 /* GBStatesViewController.m in Sources */,
+				55CAE28A2B36590C001935EB /* NearestNeighbor.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1887,6 +1989,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/Shaders";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1913,6 +2016,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/Shaders";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
