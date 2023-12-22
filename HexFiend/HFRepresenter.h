@@ -59,7 +59,7 @@
 */
 //@{
 /*! Returns the HFController for the receiver.  This is set by the controller from the call to \c addRepresenter:. A representer can only be in one controller at a time. */
-- (HFController *)controller;
+@property (readonly, assign) HFController *controller;
 //@}
 
 /*! @name Property change notifications

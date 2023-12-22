@@ -56,13 +56,7 @@
     UNIMPLEMENTED();
 }
 
-- (HFController *)controller {
-    return controller;
-}
-
-- (void)_setController:(HFController *)val {
-    controller = val;
-}
+@synthesize controller;
 
 - (void)controllerDidChange:(HFControllerPropertyBits)bits {
     USE(bits);

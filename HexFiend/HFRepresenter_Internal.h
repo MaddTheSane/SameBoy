@@ -1,7 +1,7 @@
 #import <HexFiend/HFRepresenter.h>
 
-@interface HFRepresenter (HFInternalStuff)
+@interface HFRepresenter (/*HFInternalStuff*/)
 
-- (void)_setController:(HFController *)controller;
+@property (readwrite, assign, setter=_setController:) HFController *controller;
 
 @end

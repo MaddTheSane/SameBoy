@@ -24,7 +24,7 @@ extern NSString *const HFPrivateByteArrayPboardType;
 
 /* Creates an HFPasteboardOwner to own the given pasteboard with the given types.  Note that the NSPasteboard retains its owner. */
 + (id)ownPasteboard:(NSPasteboard *)pboard forByteArray:(HFByteArray *)array withTypes:(NSArray *)types;
-- (HFByteArray *)byteArray;
+@property (readonly, retain) HFByteArray *byteArray;
 
 /* Performs a copy to pasteboard with progress reporting. This must be overridden if you support types other than the private pboard type. */
 - (void)writeDataInBackgroundToPasteboard:(NSPasteboard *)pboard ofLength:(unsigned long long)length forType:(NSString *)type trackingProgress:(id)tracker;
