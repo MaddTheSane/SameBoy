@@ -8,6 +8,9 @@
 #ifndef BaseVertex_h
 #define BaseVertex_h
 
+#ifndef fragment_shader
+#error define fragment_shader to be something unique!
+#endif
 fragment float4 fragment_shader(rasterizer_data in [[stage_in]],
                                 texture2d<half> image [[ texture(0) ]],
                                 texture2d<half> previous_image [[ texture(1) ]],
