@@ -235,6 +235,7 @@ endif
 ifeq ($(MAKECMDGOALS),_ios)
 OBJ := build/obj-ios
 SYSROOT := $(shell xcodebuild -sdk iphoneos -version Path 2> $(NULL))
+METAL_FLAGS := -target air64-apple-iphoneos11
 ifeq ($(SYSROOT),)
 $(error Could not find an iOS SDK)
 endif
@@ -249,12 +250,15 @@ CODESIGN := codesign -fs -
 else
 ifeq ($(PLATFORM),Darwin)
 SYSROOT := $(shell xcodebuild -sdk macosx -version Path 2> $(NULL))
+METAL_FLAGS := -target air64-apple-macos10.11
 ifeq ($(SYSROOT),)
 SYSROOT := /Library/Developer/CommandLineTools/SDKs/$(shell ls /Library/Developer/CommandLineTools/SDKs/ | grep 10 | tail -n 1)
 endif
 ifeq ($(SYSROOT),/Library/Developer/CommandLineTools/SDKs/)
 $(error Could not find a macOS SDK)
 endif
+METAL_FLAGS += -IShaders -isysroot $(SYSROOT) -ffast-math
+
 
 CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.9 -isysroot $(SYSROOT) -IAppleCommon -DOSATOMIC_USE_INLINED -DOSSPINLOCK_USE_INLINED
 OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -isysroot $(SYSROOT)
@@ -341,6 +345,7 @@ TESTER_SOURCES := $(shell ls Tester/*.c)
 IOS_SOURCES := $(filter-out iOS/reregister.m, $(shell ls iOS/*.m)) $(shell ls AppleCommon/*.m)
 COCOA_SOURCES := $(shell ls Cocoa/*.m) $(shell ls HexFiend/*.m) $(shell ls JoyKit/*.m) $(shell ls AppleCommon/*.m)
 QUICKLOOK_SOURCES := $(shell ls QuickLook/*.m) $(shell ls QuickLook/*.c)
+METAL_SOURCES := $(shell ls Metal/*.metal)
 
 ifeq ($(PLATFORM),windows32)
 CORE_SOURCES += $(shell ls Windows/*.c)
@@ -353,6 +358,7 @@ IOS_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(IOS_SOURCES))
 QUICKLOOK_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(QUICKLOOK_SOURCES))
 SDL_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(SDL_SOURCES))
 TESTER_OBJECTS := $(patsubst %,$(OBJ)/%.o,$(TESTER_SOURCES))
+METAL_OBJECTS := $(patsubst %,$(OBJ)/%.air,$(METAL_SOURCES))
 
 lib: $(PUBLIC_HEADERS)
 
@@ -368,9 +374,11 @@ ifneq ($(filter $(MAKECMDGOALS),tester),)
 endif
 ifneq ($(filter $(MAKECMDGOALS),cocoa),)
 -include $(COCOA_OBJECTS:.o=.dep)
+-include $(METAL_OBJECTS:.air=.dep)
 endif
 ifneq ($(filter $(MAKECMDGOALS),_ios),)
 -include $(IOS_OBJECTS:.o=.dep)
+-include $(METAL_OBJECTS:.air=.dep)
 endif
 endif
 
@@ -381,6 +389,10 @@ $(OBJ)/SDL/%.dep: SDL/%
 $(OBJ)/OpenDialog/%.dep: OpenDialog/%
 	-@$(MKDIR) -p $(dir $@)
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(GL_CFLAGS) -MT $(OBJ)/$^.o -M $^ -c -o $@
+
+$(OBJ)/Metal/%.dep: Metal/%
+	-@$(MKDIR) -p $(dir $@)
+	xcrun metal $(METAL_FLAGS) -MT $(OBJ)/$^.air -M $^ -c -o $@
 
 $(OBJ)/%.dep: %
 	-@$(MKDIR) -p $(dir $@)
@@ -405,6 +417,10 @@ $(OBJ)/%.c.o: %.c
 	-@$(MKDIR) -p $(dir $@)
 	$(CC) $(CFLAGS) $(FRONTEND_CFLAGS) $(FAT_FLAGS) -c $< -o $@
 	
+$(OBJ)/Metal/%.metal.air: Metal/%.metal
+	-@$(MKDIR) -p $(dir $@)
+	xcrun metal $(METAL_FLAGS) -c $< -o $@
+
 # HexFiend requires more flags
 $(OBJ)/HexFiend/%.m.o: HexFiend/%.m
 	-@$(MKDIR) -p $(dir $@)
@@ -431,6 +447,7 @@ $(BIN)/SameBoy-iOS.app: $(BIN)/SameBoy-iOS.app/SameBoy \
                         $(BIN)/SameBoy-iOS.app/agb_boot.bin \
                         $(BIN)/SameBoy-iOS.app/sgb_boot.bin \
                         $(BIN)/SameBoy-iOS.app/sgb2_boot.bin \
+                        $(BIN)/SameBoy-iOS.app/default.metallib \
                         Shaders
 	$(MKDIR) -p $(BIN)/SameBoy-iOS.app
 	cp iOS/*.png $(BIN)/SameBoy-iOS.app
@@ -448,6 +465,10 @@ $(BIN)/SameBoy-iOS.app/SameBoy: $(CORE_OBJECTS) $(IOS_OBJECTS)
 ifeq ($(CONF), release)
 	$(STRIP) $@
 endif
+
+$(BIN)/SameBoy-iOS.app/default.metallib: $(METAL_OBJECTS)
+	xcrun metal $(METAL_FLAGS) -o $@ $^
+
 
 $(OBJ)/reregister: iOS/reregister.m
 	$(CC) $< -o $@ $(REREGISTER_LDFLAGS) $(CFLAGS)
@@ -473,6 +494,7 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
                     $(BIN)/SameBoy.app/Contents/Resources/sgb2_boot.bin \
                     $(patsubst %.xib,%.nib,$(addprefix $(BIN)/SameBoy.app/Contents/Resources/,$(shell cd Cocoa;ls *.xib))) \
                     $(BIN)/SameBoy.qlgenerator \
+                    $(BIN)/SameBoy.app/Contents/Resources/default.metallib \
                     Shaders
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Resources
 	cp Misc/registers.sym $(BIN)/SameBoy.app/Contents/Resources/
@@ -498,6 +520,10 @@ endif
 $(BIN)/SameBoy.app/Contents/Resources/%.nib: Cocoa/%.xib
 	ibtool --target-device mac --minimum-deployment-target 10.9 --compile $@ $^ 2>&1 | cat -
 	
+
+$(BIN)/SameBoy.app/Contents/Resources/default.metallib: $(METAL_OBJECTS)
+	xcrun metal $(METAL_FLAGS) -o $@ $^
+
 # Quick Look generator
 
 $(BIN)/SameBoy.qlgenerator: $(BIN)/SameBoy.qlgenerator/Contents/MacOS/SameBoyQL \

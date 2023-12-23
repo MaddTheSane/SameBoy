@@ -863,6 +863,7 @@
 				55E7FBCB2998DFF400D554FB /* QuickLook */,
 				5579AC8D25A05E5F00CADDCE /* SameBoy */,
 				55E7FBFE2998EB3000D554FB /* SameQL */,
+				55CAE2622B364BC2001935EB /* Metal */,
 				55E7FC312998EF7E00D554FB /* SBThumb */,
 				55970F512B32F18400E3B538 /* iOS */,
 				558DA24026228A9A0019146B /* Frameworks */,
@@ -978,7 +979,6 @@
 				55478B382998B40C00056C6A /* NSTextFieldCell+Inset.m */,
 				5579ACA325A0636F00CADDCE /* PopoverView.xib */,
 				5579ACA425A0636F00CADDCE /* Preferences.xib */,
-				55CAE2622B364BC2001935EB /* Independant Shaders */,
 			);
 			name = SameBoy;
 			path = Cocoa;
@@ -1153,7 +1153,7 @@
 			path = iOS;
 			sourceTree = "<group>";
 		};
-		55CAE2622B364BC2001935EB /* Independant Shaders */ = {
+		55CAE2622B364BC2001935EB /* Metal */ = {
 			isa = PBXGroup;
 			children = (
 				55CAE2602B364A87001935EB /* MetalShared.h */,
@@ -1174,7 +1174,7 @@
 				55CAE2632B364CC6001935EB /* Scale4x.metal */,
 				55CAE2642B364CC6001935EB /* SmoothBilinear.metal */,
 			);
-			path = "Independant Shaders";
+			path = Metal;
 			sourceTree = "<group>";
 		};
 		55E7FBCB2998DFF400D554FB /* QuickLook */ = {
