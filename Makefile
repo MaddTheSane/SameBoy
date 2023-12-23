@@ -467,7 +467,7 @@ ifeq ($(CONF), release)
 endif
 
 $(BIN)/SameBoy-iOS.app/default.metallib: $(METAL_OBJECTS)
-	xcrun metal $(METAL_FLAGS) -o $@ $^
+	xcrun -sdk iphoneos metal $(METAL_FLAGS) -o $@ $^
 
 
 $(OBJ)/reregister: iOS/reregister.m
