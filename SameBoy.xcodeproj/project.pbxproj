@@ -221,7 +221,6 @@
 		55CAE2782B364CC6001935EB /* OmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */; };
 		55CAE2792B364CC6001935EB /* HQ2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26B2B364CC6001935EB /* HQ2x.metal */; };
 		55CAE27A2B364CC6001935EB /* CRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26C2B364CC6001935EB /* CRT.metal */; };
-		55CAE27B2B364CC6001935EB /* AAScale2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26D2B364CC6001935EB /* AAScale2x.metal */; };
 		55CAE27C2B364CC6001935EB /* AAOmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */; };
 		55CAE27D2B364CC6001935EB /* OmniScale.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26F2B364CC6001935EB /* OmniScale.metal */; };
 		55CAE27E2B364CC6001935EB /* NearestNeighbor.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2702B364CC6001935EB /* NearestNeighbor.metal */; };
@@ -233,7 +232,6 @@
 		55CAE2842B36590C001935EB /* AAOmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */; };
 		55CAE2852B36590C001935EB /* SmoothBilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2642B364CC6001935EB /* SmoothBilinear.metal */; };
 		55CAE2862B36590C001935EB /* BaseMetal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* BaseMetal.metal */; };
-		55CAE2872B36590C001935EB /* AAScale2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26D2B364CC6001935EB /* AAScale2x.metal */; };
 		55CAE2882B36590C001935EB /* CRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26C2B364CC6001935EB /* CRT.metal */; };
 		55CAE2892B36590C001935EB /* OmniScale.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26F2B364CC6001935EB /* OmniScale.metal */; };
 		55CAE28A2B36590C001935EB /* NearestNeighbor.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2702B364CC6001935EB /* NearestNeighbor.metal */; };
@@ -671,7 +669,6 @@
 		55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = OmniScaleLegacy.metal; sourceTree = "<group>"; };
 		55CAE26B2B364CC6001935EB /* HQ2x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = HQ2x.metal; sourceTree = "<group>"; };
 		55CAE26C2B364CC6001935EB /* CRT.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = CRT.metal; sourceTree = "<group>"; };
-		55CAE26D2B364CC6001935EB /* AAScale2x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = AAScale2x.metal; sourceTree = "<group>"; };
 		55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = AAOmniScaleLegacy.metal; sourceTree = "<group>"; };
 		55CAE26F2B364CC6001935EB /* OmniScale.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = OmniScale.metal; sourceTree = "<group>"; };
 		55CAE2702B364CC6001935EB /* NearestNeighbor.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = NearestNeighbor.metal; sourceTree = "<group>"; };
@@ -858,12 +855,12 @@
 			children = (
 				55478B33299889A800056C6A /* AppleCommon */,
 				556038C226C0952200CD1984 /* Shaders */,
+				55CAE2622B364BC2001935EB /* Metal */,
 				558DA2EC26228C980019146B /* JoyKit */,
 				558DA24E26228BBD0019146B /* HexFiend */,
 				55E7FBCB2998DFF400D554FB /* QuickLook */,
 				5579AC8D25A05E5F00CADDCE /* SameBoy */,
 				55E7FBFE2998EB3000D554FB /* SameQL */,
-				55CAE2622B364BC2001935EB /* Metal */,
 				55E7FC312998EF7E00D554FB /* SBThumb */,
 				55970F512B32F18400E3B538 /* iOS */,
 				558DA24026228A9A0019146B /* Frameworks */,
@@ -1160,7 +1157,6 @@
 				55CAE2612B364B8F001935EB /* BaseFragment.h */,
 				55CAE25D2B364A33001935EB /* BaseMetal.metal */,
 				55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */,
-				55CAE26D2B364CC6001935EB /* AAScale2x.metal */,
 				55CAE2682B364CC6001935EB /* AAScale4x.metal */,
 				55CAE2692B364CC6001935EB /* Bilinear.metal */,
 				55CAE26C2B364CC6001935EB /* CRT.metal */,
@@ -1626,7 +1622,6 @@
 				556AFD9525A54AF1004D2482 /* printer.c in Sources */,
 				55CAE2752B364CC6001935EB /* Scale2x.metal in Sources */,
 				556AFD9B25A54AF1004D2482 /* timing.c in Sources */,
-				55CAE27B2B364CC6001935EB /* AAScale2x.metal in Sources */,
 				55478B2E2998894B00056C6A /* GBDebuggerButton.m in Sources */,
 				5579ACE725A064DA00CADDCE /* GBOpenGLView.m in Sources */,
 				5579ACDC25A064DA00CADDCE /* NSString+StringForKey.m in Sources */,
@@ -1694,7 +1689,6 @@
 				55970FC22B32F46D00E3B538 /* save_state.c in Sources */,
 				55970FC72B32F46D00E3B538 /* camera.c in Sources */,
 				55CAE2852B36590C001935EB /* SmoothBilinear.metal in Sources */,
-				55CAE2872B36590C001935EB /* AAScale2x.metal in Sources */,
 				55970FB12B32F20600E3B538 /* GBLoadROMTableViewController.m in Sources */,
 				55970FCF2B32F71400E3B538 /* GBViewBase.m in Sources */,
 				55970F982B32F20600E3B538 /* GBVerticalLayout.m in Sources */,

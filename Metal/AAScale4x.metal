@@ -12,3 +12,13 @@
 
 #define fragment_shader fragment_shader_AAScale4x
 #include "BaseFragment.h"
+
+#define scale scale2
+STATIC vec4 scale(sampler2D image, vec2 position, vec2 input_resolution, vec2 output_resolution)
+{
+    return mix(texture(image, position), scale2x(image, position, input_resolution, output_resolution), 0.5);
+}
+
+#undef fragment_shader
+#define fragment_shader fragment_shader_AAScale2x
+#include "BaseFragment.h"

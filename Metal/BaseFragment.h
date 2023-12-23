@@ -5,9 +5,6 @@
 //  Created by C.W. Betts on 12/22/23.
 //
 
-#ifndef BaseVertex_h
-#define BaseVertex_h
-
 #ifndef fragment_shader
 #error define fragment_shader to be something unique!
 #endif
@@ -49,5 +46,3 @@ fragment float4 fragment_shader(rasterizer_data in [[stage_in]],
     return pow(mix(scale(image, in.texcoords, input_resolution, *output_resolution),
                scale(previous_image, in.texcoords, input_resolution, *output_resolution), ratio), 1 / GAMMA);
 }
-
-#endif /* BaseVertex_h */
