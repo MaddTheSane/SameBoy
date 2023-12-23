@@ -235,7 +235,7 @@ endif
 ifeq ($(MAKECMDGOALS),_ios)
 OBJ := build/obj-ios
 SYSROOT := $(shell xcodebuild -sdk iphoneos -version Path 2> $(NULL))
-METAL_FLAGS := -target air64-apple-iphoneos11
+METAL_FLAGS := -target air64-apple-ios11
 ifeq ($(SYSROOT),)
 $(error Could not find an iOS SDK)
 endif
@@ -257,7 +257,6 @@ endif
 ifeq ($(SYSROOT),/Library/Developer/CommandLineTools/SDKs/)
 $(error Could not find a macOS SDK)
 endif
-METAL_FLAGS += -IShaders -isysroot $(SYSROOT) -ffast-math
 
 
 CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.9 -isysroot $(SYSROOT) -IAppleCommon -DOSATOMIC_USE_INLINED -DOSSPINLOCK_USE_INLINED
@@ -306,6 +305,7 @@ else
 $(error Invalid value for CONF: $(CONF). Use "debug", "release" or "native_release")
 endif
 
+METAL_FLAGS += -IShaders -isysroot $(SYSROOT) -ffast-math
 
 
 # Define our targets
