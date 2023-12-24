@@ -70,7 +70,7 @@ static inline NSString *keyEquivalentString(NSMenuItem *item)
     }
     
     NSNumber *key = [[NSUserDefaults standardUserDefaults] valueForKey:button_to_preference_name(row, self.playerListButton.selectedTag)];
-    if (key) {
+    if (key != nil) {
         if ([self usesForKey:[key unsignedIntValue]] > 1) {
             return [[NSAttributedString alloc] initWithString:[NSString displayStringForKeyCode: [key unsignedIntegerValue]]
                                                    attributes:@{NSForegroundColorAttributeName: [NSColor colorWithRed:0.9375 green:0.25 blue:0.25 alpha:1.0],

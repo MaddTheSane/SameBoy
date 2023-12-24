@@ -111,7 +111,7 @@
 - (void)updateGripForController:(JOYController *)controller
 {
     NSNumber *grip = _gripSettings[controller.uniqueID];
-    if (!grip) {
+    if (grip == nil) {
         controller.usesHorizontalJoyConGrip = [[NSUserDefaults standardUserDefaults] boolForKey:@"GBJoyConsDefaultsToHorizontal"];
         return;
     }

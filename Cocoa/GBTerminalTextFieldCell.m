@@ -195,7 +195,7 @@
 
 - (NSColor *)backgroundColor
 {
-    return nil;
+    return [NSColor clearColor];
 }
 
 - (void)drawRect:(NSRect)dirtyRect

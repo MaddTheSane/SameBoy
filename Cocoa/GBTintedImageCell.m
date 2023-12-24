@@ -11,7 +11,7 @@
     NSImage *tinted = [super.image copy];
     [tinted lockFocus];
     [self.tint set];
-    NSRectFillUsingOperation((NSRect){.size = tinted.size}, NSCompositeSourceIn);
+    NSRectFillUsingOperation((NSRect){.size = tinted.size}, NSCompositingOperationSourceIn);
     [tinted unlockFocus];
     tinted.template = false;
     return tinted;

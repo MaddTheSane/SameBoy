@@ -372,7 +372,7 @@ static const uint8_t workboy_vk_to_key[] = {
     for (unsigned player = 0; player < player_count; player++) {
         for (GBButton button = 0; button < GBButtonCount; button++) {
             NSNumber *key = [defaults valueForKey:button_to_preference_name(button, player)];
-            if (!key) continue;
+            if (key == nil) continue;
 
             if (key.unsignedShortValue == keyCode) {
                 handled = true;
@@ -446,7 +446,7 @@ static const uint8_t workboy_vk_to_key[] = {
     for (unsigned player = 0; player < player_count; player++) {
         for (GBButton button = 0; button < GBButtonCount; button++) {
             NSNumber *key = [defaults valueForKey:button_to_preference_name(button, player)];
-            if (!key) continue;
+            if (key == nil) continue;
             
             if (key.unsignedShortValue == keyCode) {
                 handled = true;
