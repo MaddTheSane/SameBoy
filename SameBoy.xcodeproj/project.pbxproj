@@ -67,6 +67,14 @@
 		5579ACEF25A064DA00CADDCE /* GBViewMetal.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD325A064DA00CADDCE /* GBViewMetal.m */; };
 		5579ACF025A064DA00CADDCE /* GBAudioClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD425A064DA00CADDCE /* GBAudioClient.m */; };
 		5579ACF325A064DA00CADDCE /* GBCompleteByteSlice.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACDB25A064DA00CADDCE /* GBCompleteByteSlice.m */; };
+		557A4BDC2B3813CB00E5AB78 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BDB2B3813CB00E5AB78 /* CoreMedia.framework */; };
+		557A4BDE2B38140800E5AB78 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BDD2B38140800E5AB78 /* AVFoundation.framework */; };
+		557A4BE02B38144700E5AB78 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BDF2B38144700E5AB78 /* MetalKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		557A4BE22B38145C00E5AB78 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BE12B38145C00E5AB78 /* Metal.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		557A4BE42B3814CF00E5AB78 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BE32B3814CF00E5AB78 /* Carbon.framework */; };
+		557A4BEA2B38151700E5AB78 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BE92B38151700E5AB78 /* UIKit.framework */; };
+		557A4BEB2B381A0D00E5AB78 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BE12B38145C00E5AB78 /* Metal.framework */; };
+		557A4BEC2B381A1300E5AB78 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BDF2B38144700E5AB78 /* MetalKit.framework */; };
 		5584AE182B329EF400FBAB98 /* NSObject+DefaultsObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */; };
 		5584AE222B32A25600FBAB98 /* GBPreferencePopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1E2B32A25600FBAB98 /* GBPreferencePopUpButton.m */; };
 		5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1F2B32A25600FBAB98 /* GBPreferencesSlider.m */; };
@@ -508,6 +516,12 @@
 		5579ACD825A064DA00CADDCE /* KeyboardShortcutPrivateAPIs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcutPrivateAPIs.h; sourceTree = "<group>"; };
 		5579ACD925A064DA00CADDCE /* GBMemoryByteArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBMemoryByteArray.h; sourceTree = "<group>"; };
 		5579ACDB25A064DA00CADDCE /* GBCompleteByteSlice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBCompleteByteSlice.m; sourceTree = "<group>"; };
+		557A4BDB2B3813CB00E5AB78 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		557A4BDD2B38140800E5AB78 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		557A4BDF2B38144700E5AB78 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		557A4BE12B38145C00E5AB78 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		557A4BE32B3814CF00E5AB78 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		557A4BE92B38151700E5AB78 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+DefaultsObserver.m"; sourceTree = "<group>"; };
 		5584AE172B329EF400FBAB98 /* NSObject+DefaultsObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DefaultsObserver.h"; sourceTree = "<group>"; };
 		5584AE1A2B32A25600FBAB98 /* GBPreferencePopUpButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBPreferencePopUpButton.h; sourceTree = "<group>"; };
@@ -720,6 +734,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				557A4BE42B3814CF00E5AB78 /* Carbon.framework in Frameworks */,
+				557A4BE22B38145C00E5AB78 /* Metal.framework in Frameworks */,
+				557A4BE02B38144700E5AB78 /* MetalKit.framework in Frameworks */,
+				557A4BDE2B38140800E5AB78 /* AVFoundation.framework in Frameworks */,
+				557A4BDC2B3813CB00E5AB78 /* CoreMedia.framework in Frameworks */,
 				558DA32626228D770019146B /* AudioUnit.framework in Frameworks */,
 				558DA31E26228CB20019146B /* libJoyKit.a in Frameworks */,
 				558DA2D426228BCE0019146B /* libHexFiend.a in Frameworks */,
@@ -745,6 +764,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				557A4BEA2B38151700E5AB78 /* UIKit.framework in Frameworks */,
+				557A4BEB2B381A0D00E5AB78 /* Metal.framework in Frameworks */,
+				557A4BEC2B381A1300E5AB78 /* MetalKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -984,6 +1006,12 @@
 		558DA24026228A9A0019146B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				557A4BE92B38151700E5AB78 /* UIKit.framework */,
+				557A4BE32B3814CF00E5AB78 /* Carbon.framework */,
+				557A4BE12B38145C00E5AB78 /* Metal.framework */,
+				557A4BDF2B38144700E5AB78 /* MetalKit.framework */,
+				557A4BDD2B38140800E5AB78 /* AVFoundation.framework */,
+				557A4BDB2B3813CB00E5AB78 /* CoreMedia.framework */,
 				558DA32526228D770019146B /* AudioUnit.framework */,
 				558DA24126228A9A0019146B /* PreferencePanes.framework */,
 				55E7FC2D2998EF7E00D554FB /* QuickLookThumbnailing.framework */,
