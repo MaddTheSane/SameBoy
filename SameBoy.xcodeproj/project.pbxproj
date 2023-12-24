@@ -75,6 +75,7 @@
 		557A4BEA2B38151700E5AB78 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BE92B38151700E5AB78 /* UIKit.framework */; };
 		557A4BEB2B381A0D00E5AB78 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BE12B38145C00E5AB78 /* Metal.framework */; };
 		557A4BEC2B381A1300E5AB78 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BDF2B38144700E5AB78 /* MetalKit.framework */; };
+		557A4BEE2B3830FF00E5AB78 /* NSToolbarItem+NoOverflow.m in Sources */ = {isa = PBXBuildFile; fileRef = 557A4BED2B3830FF00E5AB78 /* NSToolbarItem+NoOverflow.m */; };
 		5584AE182B329EF400FBAB98 /* NSObject+DefaultsObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */; };
 		5584AE222B32A25600FBAB98 /* GBPreferencePopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1E2B32A25600FBAB98 /* GBPreferencePopUpButton.m */; };
 		5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1F2B32A25600FBAB98 /* GBPreferencesSlider.m */; };
@@ -520,6 +521,7 @@
 		557A4BE12B38145C00E5AB78 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		557A4BE32B3814CF00E5AB78 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		557A4BE92B38151700E5AB78 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		557A4BED2B3830FF00E5AB78 /* NSToolbarItem+NoOverflow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSToolbarItem+NoOverflow.m"; sourceTree = "<group>"; };
 		5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+DefaultsObserver.m"; sourceTree = "<group>"; };
 		5584AE172B329EF400FBAB98 /* NSObject+DefaultsObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DefaultsObserver.h"; sourceTree = "<group>"; };
 		5584AE1A2B32A25600FBAB98 /* GBPreferencePopUpButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBPreferencePopUpButton.h; sourceTree = "<group>"; };
@@ -953,6 +955,7 @@
 				5579ACCA25A064DA00CADDCE /* GBOptionalVisualEffectView.m */,
 				556038BD26C091A100CD1984 /* GBOSDView.h */,
 				556038BE26C091A100CD1984 /* GBOSDView.m */,
+				557A4BED2B3830FF00E5AB78 /* NSToolbarItem+NoOverflow.m */,
 				55FE438A27955B4B007F79E7 /* GBPaletteEditorController.h */,
 				55FE438B27955B4B007F79E7 /* GBPaletteEditorController.m */,
 				55DF028F27DAF40900B339A6 /* GBPaletteView.h */,
@@ -1610,6 +1613,7 @@
 				5584AE182B329EF400FBAB98 /* NSObject+DefaultsObserver.m in Sources */,
 				5579AC9825A05E6000CADDCE /* main.m in Sources */,
 				55CAE2742B364CC6001935EB /* LCD.metal in Sources */,
+				557A4BEE2B3830FF00E5AB78 /* NSToolbarItem+NoOverflow.m in Sources */,
 				55CAE2762B364CC6001935EB /* AAScale4x.metal in Sources */,
 				5579ACE225A064DA00CADDCE /* GBView.m in Sources */,
 				556AFD8C25A54AF1004D2482 /* memory.c in Sources */,
@@ -1916,7 +1920,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.16;
+				MARKETING_VERSION = 0.16.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1976,7 +1980,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.16;
+				MARKETING_VERSION = 0.16.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
