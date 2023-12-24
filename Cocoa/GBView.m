@@ -791,10 +791,7 @@ static const uint8_t workboy_vk_to_key[] = {
     }
 }
 
-- (bool)isMouseHidingEnabled
-{
-    return _mouseHidingEnabled;
-}
+@synthesize mouseHidingEnabled=_mouseHidingEnabled;
 
 - (void) flagsChanged:(NSEvent *)event
 {

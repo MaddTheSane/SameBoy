@@ -14,10 +14,7 @@
     [self setNeedsDisplay:true];
 }
 
-- (bool)usesSGBScale
-{
-    return _usesSGBScale;
-}
+@synthesize usesSGBScale=_usesSGBScale;
 
 - (void)displayText:(NSString *)text
 {
