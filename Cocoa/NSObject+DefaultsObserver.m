@@ -45,10 +45,17 @@
     __weak id weakSelf = self;
     [self observeStandardDefaultsKey:key
                            withBlock:^(id newValue) {
+        __strong id strongSelf = weakSelf;
+        if (!strongSelf) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        [weakSelf performSelector:selector withObject:newValue];
+            [weakSelf performSelector:selector withObject:newValue];
 #pragma clang diagnostic pop
+            return;
+        }
+        IMP imp = [strongSelf methodForSelector:selector];
+        void (*func)(id, SEL, id) = (void *)imp;
+        func(strongSelf, selector, newValue);
     }];
 }
 
