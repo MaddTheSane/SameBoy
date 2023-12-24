@@ -12,3 +12,8 @@
 
 #define fragment_shader fragment_shader_Scale4x
 #include "BaseFragment.h"
+
+#undef fragment_shader
+#define scale scale2x
+#define fragment_shader fragment_shader_Scale2x
+#include "BaseFragment.h"

@@ -223,7 +223,6 @@
 		55CAE2722B364CC6001935EB /* SmoothBilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2642B364CC6001935EB /* SmoothBilinear.metal */; };
 		55CAE2732B364CC6001935EB /* MonoLCD.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2652B364CC6001935EB /* MonoLCD.metal */; };
 		55CAE2742B364CC6001935EB /* LCD.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2662B364CC6001935EB /* LCD.metal */; };
-		55CAE2752B364CC6001935EB /* Scale2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2672B364CC6001935EB /* Scale2x.metal */; };
 		55CAE2762B364CC6001935EB /* AAScale4x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2682B364CC6001935EB /* AAScale4x.metal */; };
 		55CAE2772B364CC6001935EB /* Bilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2692B364CC6001935EB /* Bilinear.metal */; };
 		55CAE2782B364CC6001935EB /* OmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */; };
@@ -233,7 +232,6 @@
 		55CAE27D2B364CC6001935EB /* OmniScale.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26F2B364CC6001935EB /* OmniScale.metal */; };
 		55CAE27E2B364CC6001935EB /* NearestNeighbor.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2702B364CC6001935EB /* NearestNeighbor.metal */; };
 		55CAE27F2B36590C001935EB /* MonoLCD.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2652B364CC6001935EB /* MonoLCD.metal */; };
-		55CAE2802B36590C001935EB /* Scale2x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2672B364CC6001935EB /* Scale2x.metal */; };
 		55CAE2812B36590C001935EB /* Scale4x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2632B364CC6001935EB /* Scale4x.metal */; };
 		55CAE2822B36590C001935EB /* LCD.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2662B364CC6001935EB /* LCD.metal */; };
 		55CAE2832B36590C001935EB /* OmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */; };
@@ -677,7 +675,6 @@
 		55CAE2642B364CC6001935EB /* SmoothBilinear.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = SmoothBilinear.metal; sourceTree = "<group>"; };
 		55CAE2652B364CC6001935EB /* MonoLCD.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = MonoLCD.metal; sourceTree = "<group>"; };
 		55CAE2662B364CC6001935EB /* LCD.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = LCD.metal; sourceTree = "<group>"; };
-		55CAE2672B364CC6001935EB /* Scale2x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Scale2x.metal; sourceTree = "<group>"; };
 		55CAE2682B364CC6001935EB /* AAScale4x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = AAScale4x.metal; sourceTree = "<group>"; };
 		55CAE2692B364CC6001935EB /* Bilinear.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Bilinear.metal; sourceTree = "<group>"; };
 		55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = OmniScaleLegacy.metal; sourceTree = "<group>"; };
@@ -1194,7 +1191,6 @@
 				55CAE2702B364CC6001935EB /* NearestNeighbor.metal */,
 				55CAE26F2B364CC6001935EB /* OmniScale.metal */,
 				55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */,
-				55CAE2672B364CC6001935EB /* Scale2x.metal */,
 				55CAE2632B364CC6001935EB /* Scale4x.metal */,
 				55CAE2642B364CC6001935EB /* SmoothBilinear.metal */,
 			);
@@ -1648,7 +1644,6 @@
 				556AFD9825A54AF1004D2482 /* save_state.c in Sources */,
 				55478B322998898600056C6A /* GBTintedImageCell.m in Sources */,
 				556AFD9525A54AF1004D2482 /* printer.c in Sources */,
-				55CAE2752B364CC6001935EB /* Scale2x.metal in Sources */,
 				556AFD9B25A54AF1004D2482 /* timing.c in Sources */,
 				55478B2E2998894B00056C6A /* GBDebuggerButton.m in Sources */,
 				5579ACE725A064DA00CADDCE /* GBOpenGLView.m in Sources */,
@@ -1761,7 +1756,6 @@
 				55CAE28C2B36590C001935EB /* AAScale4x.metal in Sources */,
 				55970F9D2B32F20600E3B538 /* GBROMManager.m in Sources */,
 				55970FC52B32F46D00E3B538 /* random.c in Sources */,
-				55CAE2802B36590C001935EB /* Scale2x.metal in Sources */,
 				55CAE2822B36590C001935EB /* LCD.metal in Sources */,
 				55CAE28D2B36590C001935EB /* Bilinear.metal in Sources */,
 				55970FA72B32F20600E3B538 /* GBStatesViewController.m in Sources */,
