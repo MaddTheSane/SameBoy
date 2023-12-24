@@ -12,7 +12,7 @@ using namespace metal;
 
 // Vertex Function
 vertex rasterizer_data vertex_shader(uint index [[ vertex_id ]],
-                                     constant vector_float2 *vertices [[ buffer(0) ]])
+                                     constant float2 *vertices [[ buffer(0) ]])
 {
     rasterizer_data out;
 
