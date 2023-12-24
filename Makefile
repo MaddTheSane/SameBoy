@@ -247,10 +247,12 @@ LDFLAGS += -miphoneos-version-min=11.0  -isysroot $(SYSROOT)
 REREGISTER_LDFLAGS := $(LDFLAGS) -lobjc -framework CoreServices -framework Foundation
 LDFLAGS += -lobjc -framework UIKit -framework Foundation -framework CoreGraphics -framework Metal -framework MetalKit -framework AudioToolbox -framework AVFoundation -framework QuartzCore -framework CoreMotion -framework CoreVideo -framework CoreMedia -framework CoreImage -framework UserNotifications -weak_framework CoreHaptics 
 CODESIGN := codesign -fs -
+METAL_SDK := iphoneos
 else
 ifeq ($(PLATFORM),Darwin)
 SYSROOT := $(shell xcodebuild -sdk macosx -version Path 2> $(NULL))
 METAL_FLAGS := -target air64-apple-macos10.11
+METAL_SDK := macosx
 ifeq ($(SYSROOT),)
 SYSROOT := /Library/Developer/CommandLineTools/SDKs/$(shell ls /Library/Developer/CommandLineTools/SDKs/ | grep 10 | tail -n 1)
 endif
@@ -392,7 +394,7 @@ $(OBJ)/OpenDialog/%.dep: OpenDialog/%
 
 $(OBJ)/Metal/%.dep: Metal/%
 	-@$(MKDIR) -p $(dir $@)
-	xcrun metal $(METAL_FLAGS) -MT $(OBJ)/$^.air -M $^ -c -o $@
+	xcrun -sdk $(METAL_SDK) metal $(METAL_FLAGS) -MT $(OBJ)/$^.air -M $^ -c -o $@
 
 $(OBJ)/%.dep: %
 	-@$(MKDIR) -p $(dir $@)
@@ -419,7 +421,7 @@ $(OBJ)/%.c.o: %.c
 	
 $(OBJ)/Metal/%.metal.air: Metal/%.metal
 	-@$(MKDIR) -p $(dir $@)
-	xcrun metal $(METAL_FLAGS) -c $< -o $@
+	xcrun -sdk $(METAL_SDK) metal $(METAL_FLAGS) -c $< -o $@
 
 # HexFiend requires more flags
 $(OBJ)/HexFiend/%.m.o: HexFiend/%.m
