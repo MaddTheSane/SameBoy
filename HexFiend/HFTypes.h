@@ -1,3 +1,4 @@
+#pragma once
 /*! @brief HFRange is the 64 bit analog of NSRange, containing a 64 bit location and length. */
 typedef struct {
     unsigned long long location;
