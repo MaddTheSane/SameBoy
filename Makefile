@@ -469,7 +469,7 @@ ifeq ($(CONF), release)
 endif
 
 $(BIN)/SameBoy-iOS.app/default.metallib: $(METAL_OBJECTS)
-	xcrun -sdk iphoneos metal $(METAL_FLAGS) -o $@ $^
+	xcrun -sdk $(METAL_SDK) metal $(METAL_FLAGS) -o $@ $^
 
 
 $(OBJ)/reregister: iOS/reregister.m
@@ -524,7 +524,7 @@ $(BIN)/SameBoy.app/Contents/Resources/%.nib: Cocoa/%.xib
 	
 
 $(BIN)/SameBoy.app/Contents/Resources/default.metallib: $(METAL_OBJECTS)
-	xcrun metal $(METAL_FLAGS) -o $@ $^
+	xcrun -sdk $(METAL_SDK) metal $(METAL_FLAGS) -o $@ $^
 
 # Quick Look generator
 
