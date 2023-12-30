@@ -19,6 +19,8 @@
 		556038C026C091A100CD1984 /* GBOSDView.m in Sources */ = {isa = PBXBuildFile; fileRef = 556038BE26C091A100CD1984 /* GBOSDView.m */; };
 		556038C126C091A100CD1984 /* GBVisualizerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 556038BF26C091A100CD1984 /* GBVisualizerView.m */; };
 		556038C326C0952200CD1984 /* Shaders in Resources */ = {isa = PBXBuildFile; fileRef = 556038C226C0952200CD1984 /* Shaders */; };
+		5562966D2B40C9EA00048A82 /* SBThumb.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 55E7FC2C2998EF7E00D554FB /* SBThumb.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		556296722B40CA6400048A82 /* SameQL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		556AFD8A25A54AF1004D2482 /* display.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5E25A54AF1004D2482 /* display.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		556AFD8B25A54AF1004D2482 /* cheats.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5F25A54AF1004D2482 /* cheats.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		556AFD8C25A54AF1004D2482 /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6125A54AF1004D2482 /* memory.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
@@ -324,6 +326,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		5562966E2B40C9EA00048A82 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 55E7FC2B2998EF7E00D554FB;
+			remoteInfo = SBThumb;
+		};
+		556296732B40CA6400048A82 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 55E7FBFC2998EB3000D554FB;
+			remoteInfo = SameQL;
+		};
 		558DA2D526228BD20019146B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
@@ -362,6 +378,28 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		556296702B40C9EA00048A82 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				5562966D2B40C9EA00048A82 /* SBThumb.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		556296752B40CA6400048A82 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				556296722B40CA6400048A82 /* SameQL.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		55E7FBDD2998E05500D554FB /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -875,15 +913,16 @@
 			isa = PBXGroup;
 			children = (
 				55478B33299889A800056C6A /* AppleCommon */,
-				556038C226C0952200CD1984 /* Shaders */,
+				556AFD5B25A54AF1004D2482 /* Core */,
+				5579AC8D25A05E5F00CADDCE /* Cocoa */,
+				55970F512B32F18400E3B538 /* iOS */,
 				55CAE2622B364BC2001935EB /* Metal */,
+				556038C226C0952200CD1984 /* Shaders */,
 				558DA2EC26228C980019146B /* JoyKit */,
 				558DA24E26228BBD0019146B /* HexFiend */,
 				55E7FBCB2998DFF400D554FB /* QuickLook */,
-				5579AC8D25A05E5F00CADDCE /* SameBoy */,
 				55E7FBFE2998EB3000D554FB /* SameQL */,
 				55E7FC312998EF7E00D554FB /* SBThumb */,
-				55970F512B32F18400E3B538 /* iOS */,
 				558DA24026228A9A0019146B /* Frameworks */,
 				5579AC8C25A05E5F00CADDCE /* Products */,
 			);
@@ -904,7 +943,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		5579AC8D25A05E5F00CADDCE /* SameBoy */ = {
+		5579AC8D25A05E5F00CADDCE /* Cocoa */ = {
 			isa = PBXGroup;
 			children = (
 				55E7FC442998F25500D554FB /* agb_boot.bin */,
@@ -916,7 +955,6 @@
 				55E7FC462998F25500D554FB /* sgb2_boot.bin */,
 				5579AC9125A05E6000CADDCE /* Assets.xcassets */,
 				5579ACD725A064DA00CADDCE /* BigSurToolbar.h */,
-				556AFD5B25A54AF1004D2482 /* Core */,
 				5579ACB925A064DA00CADDCE /* Document.h */,
 				5579ACB725A064DA00CADDCE /* Document.m */,
 				5579ACA525A0636F00CADDCE /* Document.xib */,
@@ -999,7 +1037,6 @@
 				5579ACA325A0636F00CADDCE /* PopoverView.xib */,
 				5579ACA425A0636F00CADDCE /* Preferences.xib */,
 			);
-			name = SameBoy;
 			path = Cocoa;
 			sourceTree = "<group>";
 		};
@@ -1379,10 +1416,14 @@
 				55970F4C2B32F18400E3B538 /* Sources */,
 				55970F4D2B32F18400E3B538 /* Frameworks */,
 				55970F4E2B32F18400E3B538 /* Resources */,
+				556296702B40C9EA00048A82 /* Embed Foundation Extensions */,
+				556296752B40CA6400048A82 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				5562966F2B40C9EA00048A82 /* PBXTargetDependency */,
+				556296742B40CA6400048A82 /* PBXTargetDependency */,
 			);
 			name = "SameBoy-iOS";
 			productName = "SameBoy-iOS";
@@ -1476,7 +1517,7 @@
 				};
 			};
 			buildConfigurationList = 5579AC8625A05E5F00CADDCE /* Build configuration list for PBXProject "SameBoy" */;
-			compatibilityVersion = "Xcode 9.3";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1837,6 +1878,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		5562966F2B40C9EA00048A82 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 55E7FC2B2998EF7E00D554FB /* SBThumb */;
+			targetProxy = 5562966E2B40C9EA00048A82 /* PBXContainerItemProxy */;
+		};
+		556296742B40CA6400048A82 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 55E7FBFC2998EB3000D554FB /* SameQL */;
+			targetProxy = 556296732B40CA6400048A82 /* PBXContainerItemProxy */;
+		};
 		558DA2D626228BD20019146B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 558DA24726228B960019146B /* HexFiend */;
@@ -2252,6 +2303,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.maddthesane.SameQL;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2291,6 +2343,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.maddthesane.SameQL;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2314,10 +2367,23 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.SBThumb;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.github.liji32.sameboy.ios.SBThumb;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphonesimulator*]" = com.github.liji32.sameboy.ios.SBThumb;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -2342,10 +2408,23 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.SBThumb;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.github.liji32.sameboy.ios.SBThumb;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphonesimulator*]" = com.github.liji32.sameboy.ios.SBThumb;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";

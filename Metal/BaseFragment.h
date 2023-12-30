@@ -44,5 +44,6 @@ fragment float4 fragment_shader(rasterizer_data in [[stage_in]],
     }
     
     return pow(mix(scale(image, in.texcoords, input_resolution, *output_resolution),
-               scale(previous_image, in.texcoords, input_resolution, *output_resolution), ratio), 1 / GAMMA);
+                   scale(previous_image, in.texcoords, input_resolution, *output_resolution),
+                   ratio), 1 / GAMMA);
 }
