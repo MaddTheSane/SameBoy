@@ -23,6 +23,7 @@ static const vector_float2 rect[] =
     id<MTLBuffer> frame_blending_mode_buffer;
     id<MTLBuffer> output_resolution_buffer;
     vector_float2 output_resolution;
+    id<MTLLibrary> storedLibrary;
 }
 
 + (BOOL)isSupported
@@ -87,7 +88,13 @@ static const vector_float2 rect[] =
 
 - (void) loadShader
 {
-    id<MTLLibrary> library = [device newDefaultLibrary];
+    id<MTLLibrary> library = nil;
+    if (storedLibrary) {
+        library = storedLibrary;
+    } else {
+        library = [device newDefaultLibrary];
+        storedLibrary = library;
+    }
     if (library) {
         id<MTLFunction> vertex_function = [library newFunctionWithName:@"vertex_shader"];
         id<MTLFunction> fragment_function = [library newFunctionWithName:[NSString stringWithFormat:@"fragment_shader_%@", [[NSUserDefaults standardUserDefaults] stringForKey:@"GBFilter"]]];
@@ -110,6 +117,9 @@ static const vector_float2 rect[] =
             
             NSLog(@"Failed to created pipeline state, error %@", error);
         }
+        
+        // Remove the stored library
+        storedLibrary = nil;
     }
     
     NSError *error = nil;
