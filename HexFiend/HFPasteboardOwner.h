@@ -9,7 +9,7 @@
 
 @class HFByteArray;
 
-extern NSString *const HFPrivateByteArrayPboardType;
+extern NSPasteboardType const HFPrivateByteArrayPboardType;
 
 @interface HFPasteboardOwner : NSObject {
     @private

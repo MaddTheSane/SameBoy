@@ -21,7 +21,7 @@
 - (void)_sharedInitStatusBarView
 {
     NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-    [style setAlignment:NSCenterTextAlignment];
+    [style setAlignment:NSTextAlignmentCenter];
     style.lineBreakMode = NSLineBreakByTruncatingTail;
     _cellAttributes = @{
         NSForegroundColorAttributeName: [NSColor windowFrameTextColor],
@@ -29,7 +29,7 @@
         NSParagraphStyleAttributeName: style,
     };
     _cell = [[NSCell alloc] initTextCell:@""];
-    [_cell setAlignment:NSCenterTextAlignment];
+    [_cell setAlignment:NSTextAlignmentCenter];
     [_cell setBackgroundStyle:NSBackgroundStyleRaised];
 }
 

@@ -7,7 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface HFTextVisualStyleRun : NSObject {}
+@interface HFTextVisualStyleRun : NSObject
 
 @property (nonatomic, copy) NSColor *foregroundColor;
 @property (nonatomic, copy) NSColor *backgroundColor;

@@ -16,8 +16,7 @@
 @end
 
 @implementation HFStringEncodingPasteboardOwner
-- (void)setEncoding:(NSStringEncoding)val { encoding = val; }
-- (NSStringEncoding)encoding { return encoding; }
+@synthesize encoding;
 
 - (void)writeDataInBackgroundToPasteboard:(NSPasteboard *)pboard ofLength:(unsigned long long)length forType:(NSString *)type trackingProgress:(id)tracker {
     HFASSERT([type isEqual:NSStringPboardType]);
