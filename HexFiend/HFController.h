@@ -96,7 +96,7 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 */
 @interface HFController : NSObject <NSCoding> {
 @private
-    NSMutableArray *representers;
+    NSMutableArray<HFRepresenter*> *representers;
     HFByteArray *byteArray;
     NSMutableArray *selectedContentsRanges;
     HFRange displayedContentsRange;

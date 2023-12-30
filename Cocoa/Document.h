@@ -11,7 +11,7 @@
 @class GBObjectView;
 
 @interface Document : NSDocument <NSWindowDelegate, GBImageViewDelegate, NSSplitViewDelegate>
-@property (readonly) GB_gameboy_t *gb;
+@property (readonly) GB_gameboy_t *gb NS_RETURNS_INNER_POINTER;
 @property IBOutlet GBView *view;
 @property IBOutlet NSTextView *consoleOutput;
 @property IBOutlet NSPanel *consoleWindow;
@@ -19,7 +19,7 @@
 @property IBOutlet NSWindow *mainWindow;
 @property IBOutlet NSView *memoryView;
 @property IBOutlet NSPanel *memoryWindow;
-@property (readonly) GB_gameboy_t *gameboy;
+@property (readonly) GB_gameboy_t *gameboy NS_RETURNS_INNER_POINTER;
 @property IBOutlet NSTextField *memoryBankInput;
 @property IBOutlet NSToolbarItem *memoryBankItem;
 @property IBOutlet NSPopUpButton *memorySpaceButton;
@@ -56,7 +56,7 @@
 @property IBOutlet NSSegmentedControl *gbsNextPrevButton;
 @property IBOutlet GBVisualizerView *gbsVisualizer;
 @property IBOutlet GBOSDView *osdView;
-@property (readonly) GB_oam_info_t *oamInfo;
+@property (readonly) GB_oam_info_t *oamInfo NS_RETURNS_INNER_POINTER;
 @property uint8_t oamCount;
 @property uint8_t oamHeight;
 @property IBOutlet NSView *audioRecordingAccessoryView;

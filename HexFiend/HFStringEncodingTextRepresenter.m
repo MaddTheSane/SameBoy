@@ -69,9 +69,7 @@
     return [HFRepresenterStringEncodingTextView class];
 }
 
-- (NSStringEncoding)encoding {
-    return stringEncoding;
-}
+@synthesize encoding=stringEncoding;
 
 - (void)setEncoding:(NSStringEncoding)encoding {
     stringEncoding = encoding;

@@ -79,9 +79,7 @@
     return 2 * byteCount;
 }
 
-- (BOOL)hidesNullBytes {
-    return hidesNullBytes;
-}
+@synthesize hidesNullBytes;
 
 - (void)setHidesNullBytes:(BOOL)flag
 {

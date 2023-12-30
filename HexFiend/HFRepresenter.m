@@ -6,6 +6,7 @@
 //
 
 #import "HFRepresenter.h"
+#import "HFRepresenter_Internal.h"
 
 @implementation HFRepresenter
 

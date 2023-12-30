@@ -1081,7 +1081,7 @@ static size_t unionAndCleanLists(NSRect *rectList, id *valueList, size_t count) 
             if (i == glyphCount || glyphs[i].fontIndex != runFontIndex || runFontIndex > 0) {
                 /* Draw this run */
                 NSFont *fontToUse = [self fontAtSubstitutionIndex:runFontIndex];
-                [[fontToUse screenFont] set];
+                [fontToUse set];
                 CGContextSetTextPosition(ctx, point.x + runAdvance, point.y);
                 
                 if (runFontIndex > 0) {
