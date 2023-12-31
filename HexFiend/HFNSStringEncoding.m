@@ -18,8 +18,8 @@
 - (instancetype)initWithEncoding:(NSStringEncoding)encoding name:(NSString *)name identifier:(NSString *)identifier {
     self = [super init];
     _encoding = encoding;
-    _name = name;
-    _identifier = identifier;
+    _name = [name copy];
+    _identifier = [identifier copy];
     return self;
 }
 

@@ -14,6 +14,7 @@ typedef unsigned long long HFBTreeIndex;
 
 @protocol HFBTreeEntry <NSObject>
 - (unsigned long long)length;
+@property (readonly) unsigned long long length;
 @end
 
 @interface HFBTree : NSObject <NSMutableCopying, HFBTreeEntry>

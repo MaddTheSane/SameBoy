@@ -4,7 +4,7 @@
 
 #define SAMPLE_COUNT 1024
 
-static NSColor *color_to_effect_color(typeof(GB_PALETTE_DMG.colors[0]) color)
+static NSColor *color_to_effect_color(struct GB_color_s color)
 {
     if (@available(macOS 10.10, *)) {
         double tint = MAX(color.r, MAX(color.g, color.b)) + 64;
