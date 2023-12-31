@@ -6,6 +6,7 @@
 //
 
 #import "HFTextVisualStyleRun.h"
+#import <HexFiend/HFFunctions.h>
 
 
 @implementation HFTextVisualStyleRun
@@ -17,19 +18,10 @@
     return self;
 }
 
-- (void)dealloc {
-    [_foregroundColor release];
-    [_backgroundColor release];
-    [_bookmarkStarts release];
-    [_bookmarkExtents release];
-    [_bookmarkEnds release];
-    [super dealloc];
-}
-
 - (void)set {
     [_foregroundColor set];
     if (_scale != (CGFloat)1.0) {
-        CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
+        CGContextRef ctx = HFGraphicsGetCurrentContext();
         CGAffineTransform tm = CGContextGetTextMatrix(ctx);
         /* Huge hack - adjust downward a little bit if we are scaling */
         tm = CGAffineTransformTranslate(tm, 0, -.25 * (_scale - 1));

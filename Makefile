@@ -261,9 +261,9 @@ $(error Could not find a macOS SDK)
 endif
 
 
-CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.9 -isysroot $(SYSROOT) -IAppleCommon -DOSATOMIC_USE_INLINED -DOSSPINLOCK_USE_INLINED
+CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.10 -isysroot $(SYSROOT) -IAppleCommon -DOSATOMIC_USE_INLINED -DOSSPINLOCK_USE_INLINED
 OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -isysroot $(SYSROOT)
-LDFLAGS += -framework AppKit -mmacosx-version-min=10.9 -isysroot $(SYSROOT)
+LDFLAGS += -framework AppKit -mmacosx-version-min=10.10 -isysroot $(SYSROOT)
 GL_LDFLAGS := -framework OpenGL
 endif
 CFLAGS += -Wno-deprecated-declarations
@@ -426,7 +426,7 @@ $(OBJ)/Metal/%.metal.air: Metal/%.metal
 # HexFiend requires more flags
 $(OBJ)/HexFiend/%.m.o: HexFiend/%.m
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $(CFLAGS) $(FRONTEND_CFLAGS) $(FAT_FLAGS) $(OCFLAGS) -c $< -o $@ -fno-objc-arc -include HexFiend/HexFiend_2_Framework_Prefix.pch
+	$(CC) $(CFLAGS) $(FRONTEND_CFLAGS) $(FAT_FLAGS) $(OCFLAGS) -c $< -o $@ -fobjc-arc -include HexFiend/HFFrameworkPrefix.h
 	
 $(OBJ)/%.m.o: %.m
 	-@$(MKDIR) -p $(dir $@)
@@ -506,7 +506,7 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
 	cp Shaders/*.fsh Shaders/*.metal $(BIN)/SameBoy.app/Contents/Resources/Shaders
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Library/QuickLook/
 	cp -rf $(BIN)/SameBoy.qlgenerator $(BIN)/SameBoy.app/Contents/Library/QuickLook/
-	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --accent-color AccentColor --target-device mac --minimum-deployment-target 10.9 --platform macosx --compile $(BIN)/SameBoy.app/Contents/Resources --output-partial-info-plist $(OBJ)/tmpInfo.plist --app-icon AppIcon Cocoa/Assets.xcassets
+	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --accent-color AccentColor --target-device mac --minimum-deployment-target 10.10 --platform macosx --compile $(BIN)/SameBoy.app/Contents/Resources --output-partial-info-plist $(OBJ)/tmpInfo.plist --app-icon AppIcon Cocoa/Assets.xcassets
 	/usr/libexec/PlistBuddy -x -c "Merge $(OBJ)/tmpInfo.plist" $(BIN)/SameBoy.app/Contents/Info.plist
 ifeq ($(CONF), release)
 	$(CODESIGN) $@
@@ -520,7 +520,7 @@ ifeq ($(CONF), release)
 endif
 
 $(BIN)/SameBoy.app/Contents/Resources/%.nib: Cocoa/%.xib
-	ibtool --target-device mac --minimum-deployment-target 10.9 --compile $@ $^ 2>&1 | cat -
+	ibtool --target-device mac --minimum-deployment-target 10.10 --compile $@ $^ 2>&1 | cat -
 	
 
 $(BIN)/SameBoy.app/Contents/Resources/default.metallib: $(METAL_OBJECTS)

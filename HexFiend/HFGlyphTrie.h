@@ -1,6 +1,9 @@
+#import <HexFiend/HFFrameworkPrefix.h>
+
 /* HFGlyphTrie is used to represent a trie of glyphs that allows multiple concurrent readers, along with one writer. */
 
-#import <ApplicationServices/ApplicationServices.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 /* BranchFactor is in bits */
 #define kHFGlyphTrieBranchFactor 4
@@ -22,7 +25,7 @@ static inline BOOL HFGlyphEqualsGlyph(struct HFGlyph_t a, struct HFGlyph_t b) {
 }
 
 struct HFGlyphTrieBranch_t {
-    __strong void *children[kHFGlyphTrieBranchCount];
+    void *_Nullable children[kHFGlyphTrieBranchCount];
 };
 
 struct HFGlyphTrieLeaf_t {
@@ -34,16 +37,16 @@ struct HFGlyphTrie_t {
     struct HFGlyphTrieBranch_t root;
 };
 
-/* Initializes a trie witha  given key size */
-PRIVATE_EXTERN void HFGlyphTrieInitialize(struct HFGlyphTrie_t *trie, uint8_t keySize);
+/* Initializes a trie with a given key size */
+__private_extern__ void HFGlyphTrieInitialize(struct HFGlyphTrie_t *trie, uint8_t keySize);
 
 /* Inserts a glyph into the trie */
-PRIVATE_EXTERN void HFGlyphTrieInsert(struct HFGlyphTrie_t *trie, NSUInteger key, struct HFGlyph_t value);
+__private_extern__ void HFGlyphTrieInsert(struct HFGlyphTrie_t *trie, NSUInteger key, struct HFGlyph_t value);
 
 /* Attempts to fetch a glyph.  If the glyph is not present, returns an HFGlyph_t set to all bits 0. */
-PRIVATE_EXTERN struct HFGlyph_t HFGlyphTrieGet(const struct HFGlyphTrie_t *trie, NSUInteger key);
+__private_extern__ struct HFGlyph_t HFGlyphTrieGet(const struct HFGlyphTrie_t *trie, NSUInteger key);
 
 /* Frees all storage associated with a glyph tree.  This is not necessary to call under GC. */
-PRIVATE_EXTERN void HFGlyphTreeFree(struct HFGlyphTrie_t * trie);
+__private_extern__ void HFGlyphTreeFree(struct HFGlyphTrie_t * trie);
 
-
+NS_ASSUME_NONNULL_END

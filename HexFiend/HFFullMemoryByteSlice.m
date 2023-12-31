@@ -6,7 +6,8 @@
 //
 
 #import "HFFullMemoryByteSlice.h"
-
+#import <HexFiend/HFFunctions.h>
+#import <HexFiend/HFAssert.h>
 
 @implementation HFFullMemoryByteSlice
 
@@ -15,11 +16,6 @@
     self = [super init];
     data = [val copy];
     return self;
-}
-
-- (void)dealloc {
-    [data release];
-    [super dealloc];
 }
 
 - (unsigned long long)length { return [data length]; }
@@ -40,7 +36,7 @@
     HFASSERT([self length] - range.location >= range.length);
     HFASSERT(range.location <= NSUIntegerMax);
     HFASSERT(range.length <= NSUIntegerMax);
-    return [[[[self class] alloc] initWithData:[data subdataWithRange:NSMakeRange(ll2l(range.location), ll2l(range.length))]] autorelease];
+    return [[[self class] alloc] initWithData:[data subdataWithRange:NSMakeRange(ll2l(range.location), ll2l(range.length))]];
 }
 
 @end

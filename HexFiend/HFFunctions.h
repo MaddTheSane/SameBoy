@@ -1,8 +1,11 @@
 /* Functions and convenience methods for working with HFTypes */
 
+#import <HexFiend/HFFrameworkPrefix.h>
 #import <HexFiend/HFTypes.h>
 #import <libkern/OSAtomic.h>
 #import <tgmath.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 #define HFDEFAULT_FONT (@"Monaco")
 #define HFDEFAULT_FONTSIZE ((CGFloat)11.)
@@ -21,6 +24,10 @@ static inline HFRange HFRangeMake(unsigned long long loc, unsigned long long len
 */
 static inline BOOL HFLocationInRange(unsigned long long location, HFRange range) {
     return location >= range.location && location - range.location < range.length;
+}
+
+static inline HFFPRange HFFPRangeMake(long double loc, long double len) {
+    return (HFFPRange){loc, len};
 }
 
 /*!
@@ -307,6 +314,8 @@ static inline BOOL HFFPRangeEqualsRange(HFFPRange a, HFFPRange b) {
 /*! copysign() for a CGFloat */
 #define HFCopysign(__a, __b) copysign((__a), (__b))
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 /*! Atomically increments an NSUInteger, returning the new value.  Optionally invokes a memory barrier. */
 static inline NSUInteger HFAtomicIncrement(volatile NSUInteger *ptr, BOOL barrier) {
     return _Generic(ptr,
@@ -330,6 +339,12 @@ static inline NSUInteger HFAtomicDecrement(volatile NSUInteger *ptr, BOOL barrie
 #endif
         volatile unsigned long long *: (barrier ? OSAtomicDecrement64Barrier : OSAtomicDecrement64)((volatile int64_t *)ptr));
 }
+
+/* Function for OSAtomicAdd64 that just does a non-atomic add on PowerPC.  This should not be used where atomicity is critical; an example where this is used is updating a progress bar. */
+static inline int64_t HFAtomicAdd64(int64_t a, volatile int64_t *b) {
+    return OSAtomicAdd64(a, b);
+}
+#pragma clang diagnostic pop
 
 /*! Converts a long double to unsigned long long.  Assumes that val is already an integer - use floorl or ceill */
 static inline unsigned long long HFFPToUL(long double val) {
@@ -379,9 +394,6 @@ static inline NSUInteger HFCountDigitsBase16(unsigned long long val) {
     return 1 + logBase2/4;
 }
 
-/*! Returns YES if the given string encoding is a superset of ASCII. */
-BOOL HFStringEncodingIsSupersetOfASCII(NSStringEncoding encoding);
-
 /*! Returns the "granularity" of an encoding, in bytes.  ASCII is 1, UTF-16 is 2, etc.  Variable width encodings return the smallest (e.g. Shift-JIS returns 1). */
 uint8_t HFStringEncodingCharacterLength(NSStringEncoding encoding);
 
@@ -390,6 +402,10 @@ static inline NSUInteger ll2l(unsigned long long val) { assert(val <= ULONG_MAX)
 
 /*! Converts an unsigned long long to uintptr_t.  The unsigned long long should be no more than UINTPTR_MAX. */
 static inline uintptr_t ll2p(unsigned long long val) { assert(val <= UINTPTR_MAX); return (uintptr_t)val; }
+
+static inline unsigned long long llmin(unsigned long long a, unsigned long long b) {
+    return a < b ? a : b;
+}
 
 /*! Returns an unsigned long long, which must be no more than ULLONG_MAX, as an unsigned long. */
 static inline CGFloat ld2f(long double val) {
@@ -417,17 +433,20 @@ static inline NSUInteger HFDivideULRoundingUp(NSUInteger a, NSUInteger b) {
     else return ((a - 1) / b) + 1;
 }
 
+#if !TARGET_OS_IPHONE
 /*! Draws a shadow. */
-void HFDrawShadow(CGContextRef context, NSRect rect, CGFloat size, NSRectEdge rectEdge, BOOL active, NSRect clip);
+PRIVATE_EXTERN void HFDrawShadow(CGContextRef context, NSRect rect, CGFloat size, NSRectEdge rectEdge, BOOL active, NSRect clip);
 
 /*! Registers a view to have the given notificationSEL invoked (taking the NSNotification object) when the window becomes or loses key.  If appToo is YES, this also registers with NSApplication for Activate and Deactivate methods. */
-void HFRegisterViewForWindowAppearanceChanges(NSView *view, SEL notificationSEL, BOOL appToo);
+PRIVATE_EXTERN void HFRegisterViewForWindowAppearanceChanges(NSView *view, SEL notificationSEL, BOOL appToo);
 
 /*! Unregisters a view to have the given notificationSEL invoked when the window becomes or loses key.  If appToo is YES, this also unregisters with NSApplication. */
-void HFUnregisterViewForWindowAppearanceChanges(NSView *view, BOOL appToo);
+PRIVATE_EXTERN void HFUnregisterViewForWindowAppearanceChanges(NSView *view, BOOL appToo);
+#endif
 
 /*! Returns a description of the given byte count (e.g. "24 kilobytes") */
-NSString *HFDescribeByteCount(unsigned long long count);
+PRIVATE_EXTERN NSString *HFDescribeByteCount(unsigned long long count);
+PRIVATE_EXTERN NSString *HFDescribeByteCountWithPrefixAndSuffix(const char *_Nullable stringPrefix, unsigned long long count, const char *_Nullable stringSuffix);
 
 /*! @brief An object wrapper for the HFRange type.
 
@@ -462,7 +481,7 @@ NSString *HFDescribeByteCount(unsigned long long count);
  
  TODO: HFRangeSet needs to be tested! I guarantee it has bugs! (Which doesn't matter right now because it's all dead code...)
  */
-@interface HFRangeSet : NSObject <NSCopying, NSSecureCoding, NSFastEnumeration> {
+@interface HFRangeSet : NSObject <NSCopying, NSSecureCoding> {
     @private
     CFMutableArrayRef array;
 }
@@ -507,7 +526,26 @@ NSString *HFDescribeByteCount(unsigned long long count);
 
 @end
 
-#ifndef NDEBUG
-void HFStartTiming(const char *name);
-void HFStopTiming(void);
-#endif
+PRIVATE_EXTERN BOOL HFDarkModeEnabled(void);
+
+PRIVATE_EXTERN CGContextRef HFGraphicsGetCurrentContext(void);
+
+PRIVATE_EXTERN HFColor* HFColorWithWhite(CGFloat white, CGFloat alpha);
+PRIVATE_EXTERN HFColor* HFColorWithRGB(CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha);
+
+/*! Returns an NSData from an NSString containing hexadecimal characters.  Characters that are not hexadecimal digits are silently skipped.  Returns by reference whether the last byte contains only one nybble, in which case it will be returned in the low 4 bits of the last byte. */
+PRIVATE_EXTERN NSData *HFDataFromHexString(NSString *string, BOOL *_Nullable isMissingLastNybble);
+
+PRIVATE_EXTERN NSString *HFHexStringFromData(NSData *data, BOOL includePrefix);
+
+/*! Helper for Swift to catch exceptions from Objective-C */
+NS_INLINE NSException * _Nullable HFTry(dispatch_block_t block) {
+    @try {
+        block();
+    } @catch (NSException *exception) {
+        return exception;
+    }
+    return nil;
+}
+
+NS_ASSUME_NONNULL_END

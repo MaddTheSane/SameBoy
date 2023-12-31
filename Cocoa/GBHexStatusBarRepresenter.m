@@ -184,7 +184,7 @@
         }
     }
     if (! string) string = @"";
-    [[self view] setString:string];
+    [(GBHexStatusBarView*)[self view] setString:string];
 }
 
 - (void)setUseDecimalLength:(bool)useDecimalLength

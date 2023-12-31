@@ -6,17 +6,30 @@
 //
 
 #import <HexFiend/HFPasteboardOwner.h>
+#import <HexFiend/HFProgressTracker.h>
 #import <HexFiend/HFController.h>
 #import <HexFiend/HFByteArray.h>
-#import <objc/message.h>
+#import <HexFiend/HFFunctions.h>
+#import <HexFiend/HFAssert.h>
+
+//What's the smallest clipboard data size we should offer to avoid copying when quitting?  This is 5 MB
+#define MINIMUM_PASTEBOARD_SIZE_TO_WARN_ABOUT (5UL << 20)
+
+//What's the largest clipboard data size we should support exporting (at all?)  This is 500 MB.  Note that we can still copy more data than this internally, we just can't put it in, say, TextEdit.
+#define MAXIMUM_PASTEBOARD_SIZE_TO_EXPORT (500UL << 20)
 
 NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
+
+static NSMapTable *byteArrayMap = nil;
 
 @implementation HFPasteboardOwner
 
 + (void)initialize {
     if (self == [HFPasteboardOwner class]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(prepareCommonPasteboardsForChangeInFileNotification:) name:HFPrepareForChangeInFileNotification object:nil];
+
+        HFASSERT_MAIN_THREAD(); // byteArrayMap is not thread safe
+        byteArrayMap = [NSMapTable strongToWeakObjectsMapTable];
     }
 }
 
@@ -25,17 +38,27 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
     REQUIRE_NOT_NULL(array);
     REQUIRE_NOT_NULL(types);
     self = [super init];
-    byteArray = [array retain];
+    byteArray = array;
     pasteboard = pboard;
     [pasteboard declareTypes:types owner:self];
     
     // get notified when we're about to write a file, so that if they're overwriting a file backing part of our byte array, we can properly clear or preserve our pasteboard
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeInFileNotification:) name:HFPrepareForChangeInFileNotification object:nil];
     
+    // No background copies in progress when we start.
+    progressTracker = nil;
+    progressTrackingWindow = nil;
+
+    HFASSERT_MAIN_THREAD(); // byteArrayMap is not thread safe
+    byteArrayMapKey = [[self class] createUUI];
+    HFASSERT([byteArrayMap objectForKey:byteArrayMapKey] == nil);
+    [byteArrayMap setObject:byteArray forKey:byteArrayMapKey];
+    
     return self;
 }
-+ (id)ownPasteboard:(NSPasteboard *)pboard forByteArray:(HFByteArray *)array withTypes:(NSArray *)types {
-    return [[[self alloc] initWithPasteboard:pboard forByteArray:array withTypes:types] autorelease];
+
++ (instancetype)ownPasteboard:(NSPasteboard *)pboard forByteArray:(HFByteArray *)array withTypes:(NSArray *)types {
+    return [[self alloc] initWithPasteboard:pboard forByteArray:array withTypes:types];
 }
 
 - (void)tearDownPasteboardReferenceIfExists {
@@ -44,18 +67,18 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
         [[NSNotificationCenter defaultCenter] removeObserver:self name:HFPrepareForChangeInFileNotification object:nil];
     }
     if (retainedSelfOnBehalfOfPboard) {
-        CFRelease(self);
+        CFRelease((CFTypeRef)self);
         retainedSelfOnBehalfOfPboard = NO;
     }
 }
-
 
 + (HFByteArray *)_unpackByteArrayFromDictionary:(NSDictionary *)byteArrayDictionary {
     HFByteArray *result = nil;
     if (byteArrayDictionary) {
         NSString *uuid = byteArrayDictionary[@"HFUUID"];
         if ([uuid isEqual:[self uuid]]) {
-            result = (HFByteArray *)[byteArrayDictionary[@"HFByteArray"] unsignedLongValue];
+            HFASSERT_MAIN_THREAD(); // byteArrayMap is not thread safe
+            result = [byteArrayMap objectForKey:byteArrayDictionary[@"HFByteArray"]];
         }
     }
     return result;
@@ -106,12 +129,13 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
 }
 
 - (void)dealloc {
+    HFASSERT_MAIN_THREAD(); // byteArrayMap is not thread safe
+    HFASSERT([byteArrayMap objectForKey:byteArrayMapKey] != nil);
+    [byteArrayMap removeObjectForKey:byteArrayMapKey];
     [self tearDownPasteboardReferenceIfExists];
-    [byteArray release];
-    [super dealloc];
 }
 
-- (void)writeDataInBackgroundToPasteboard:(NSPasteboard *)pboard ofLength:(unsigned long long)length forType:(NSString *)type trackingProgress:(id)tracker {
+- (void)writeDataInBackgroundToPasteboard:(NSPasteboard *)pboard ofLength:(unsigned long long)length forType:(NSString *)type trackingProgress:(HFProgressTracker *)tracker {
     USE(length);
     USE(pboard);
     USE(type);
@@ -121,7 +145,7 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
 
 - (void)backgroundMoveDataToPasteboard:(NSString *)type {
     @autoreleasepool {
-    [self writeDataInBackgroundToPasteboard:pasteboard ofLength:dataAmountToCopy forType:type trackingProgress:nil];
+    [self writeDataInBackgroundToPasteboard:pasteboard ofLength:dataAmountToCopy forType:type trackingProgress:progressTracker];
     [self performSelectorOnMainThread:@selector(backgroundMoveDataFinished:) withObject:nil waitUntilDone:NO];
     }
 }
@@ -149,6 +173,7 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
     HFASSERT(backgroundCopyOperationFinished == NO);
     HFASSERT(didStartModalSessionForBackgroundCopyOperation == NO);
     didStartModalSessionForBackgroundCopyOperation = YES;
+    [NSApp runModalForWindow:progressTrackingWindow];
 }
 
 - (BOOL)moveDataWithProgressReportingToPasteboard:(NSPasteboard *)pboard forType:(NSString *)type {
@@ -158,25 +183,59 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
     // I'm not even sure what the ideal behavior would be here, but am fairly certain that this
     // is the best that can be done without rewriting a portion of the background copying code.
     // TODO: Figure out what the ideal behavior should be here.
+    if(progressTracker) {
+        while(!backgroundCopyOperationFinished) {
+            [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+        // Reentrant calls will complete this loop (or, in the case of the first call, the similar
+        // loop below) in LIFO order. The first call is the only one that changes progressTracker,
+        // so progressTracker never changes in the other calls. (If that's not true then there
+        // is still a bug here).
+        HFASSERT(progressTracker);
+        return !progressTracker->cancelRequested;
+    }
     
     HFASSERT(pboard == pasteboard);
-    [self retain]; //resolving the pasteboard may release us, which deallocates us, which deallocates our tracker...make sure we survive through this function
+    BOOL result = NO;
+    CFRetain((CFTypeRef)self); //resolving the pasteboard may release us, which deallocates us, which deallocates our tracker...make sure we survive through this function
     /* Give the user a chance to request a smaller amount if it's really big */
     unsigned long long availableAmount = [byteArray length];
     unsigned long long amountToCopy = [self amountToCopyForDataLength:availableAmount stringLength:[self stringLengthForDataLength:availableAmount]];
     if (amountToCopy > 0) {
+        HFASSERT(!progressTracker);
+        HFASSERT(!progressTrackingWindow);
 
+        progressTracker = [[HFProgressTracker alloc] init];
+
+        NSMutableArray *topLevelObjects = [NSMutableArray array];
+        if (![[NSBundle bundleForClass:[self class]] loadNibNamed:@"HFModalProgress" owner:self topLevelObjects:&topLevelObjects] || !progressTrackingWindow) {
+            NSLog(@"Unable to load nib named HFModalProgress!");
+        }
         backgroundCopyOperationFinished = NO;
         didStartModalSessionForBackgroundCopyOperation = NO;
         dataAmountToCopy = amountToCopy;
+        unsigned long long stringAmountToCopy = [self stringLengthForDataLength:amountToCopy];
+        [progressTrackingDescriptionTextField setStringValue:HFDescribeByteCountWithPrefixAndSuffix("Copying ", stringAmountToCopy, " to the clipboard")];
+        [progressTracker setProgressIndicator:progressTrackingIndicator];
+        [progressTracker beginTrackingProgress];
         [NSThread detachNewThreadSelector:@selector(backgroundMoveDataToPasteboard:) toTarget:self withObject:type];
         [self performSelector:@selector(beginModalSessionForBackgroundCopyOperation:) withObject:nil afterDelay:1.0 inModes:@[NSModalPanelRunLoopMode]];
         while (! backgroundCopyOperationFinished) {
             [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate distantFuture]];
         }
+        [progressTracker endTrackingProgress];
+        [progressTrackingWindow close];
+        progressTrackingWindow = nil;
+        result = !progressTracker->cancelRequested;
+        progressTracker = nil; // Used to detect reentrancy; zero this last.
     }
-    [self release];
-    return YES;
+    CFRelease((CFTypeRef)self);
+    return result;
+}
+
+/* Action from the cancel button of the progress dialog */
+- (IBAction)requestCancel:(id)sender {
+    [progressTracker requestCancel:sender];
 }
 
 - (void)pasteboardChangedOwner:(NSPasteboard *)pboard {
@@ -184,7 +243,9 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
     [self tearDownPasteboardReferenceIfExists];
 }
 
-@synthesize byteArray;
+- (HFByteArray *)byteArray {
+    return byteArray;
+}
 
 - (void)pasteboard:(NSPasteboard *)pboard provideDataForType:(NSString *)type {
     if (! pasteboard) {
@@ -194,9 +255,9 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
     if ([type isEqualToString:HFPrivateByteArrayPboardType]) {
         if (! retainedSelfOnBehalfOfPboard) {
             retainedSelfOnBehalfOfPboard = YES;
-            CFRetain(self);
+            CFRetain((CFTypeRef)self);
         }
-        NSDictionary *dict = @{@"HFByteArray": @((unsigned long)byteArray),
+        NSDictionary *dict = @{@"HFByteArray": byteArrayMapKey,
                               @"HFUUID": [[self class] uuid]};
         [pboard setPropertyList:dict forType:type];
     }
@@ -207,14 +268,21 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
     }
 }
 
-@synthesize bytesPerLine;
+- (void)setBytesPerLine:(NSUInteger)val { bytesPerLine = val; }
+- (NSUInteger)bytesPerLine { return bytesPerLine; }
+
++ (NSString *)createUUI {
+    CFUUIDRef uuidRef = CFUUIDCreate(NULL);
+    HFASSERT(uuidRef != NULL);
+    NSString *ret = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, uuidRef);
+    CFRelease(uuidRef);
+    return ret;
+}
 
 + (NSString *)uuid {
     static NSString *uuid;
     if (! uuid) {
-        CFUUIDRef uuidRef = CFUUIDCreate(NULL);
-        uuid = (NSString *)CFUUIDCreateString(NULL, uuidRef);
-        CFRelease(uuidRef);
+        uuid = [self createUUI];
     }
     return uuid;
 }
@@ -223,7 +291,6 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
 
 - (unsigned long long)amountToCopyForDataLength:(unsigned long long)numBytes stringLength:(unsigned long long)stringLength {
     unsigned long long dataLengthResult, stringLengthResult;
-    NSInteger alertReturn = NSIntegerMax;
     const unsigned long long copyOption1 = MAXIMUM_PASTEBOARD_SIZE_TO_EXPORT;
     const unsigned long long copyOption2 = MINIMUM_PASTEBOARD_SIZE_TO_WARN_ABOUT;
     NSString *option1String = HFDescribeByteCount(copyOption1);
@@ -233,13 +300,12 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
         NSString *option1 = [@"Copy " stringByAppendingString:option1String];
         NSString *option2 = [@"Copy " stringByAppendingString:option2String];
         NSAlert *alert = [[NSAlert alloc] init];
-        alert.messageText = @"Large Clipboard";
+        alert.messageText = NSLocalizedString(@"Large Clipboard", nil);
         alert.informativeText = [NSString stringWithFormat:@"The copied data would occupy %@ if written to the clipboard.  This is larger than the system clipboard supports.  Do you want to copy only part of the data?", dataSizeDescription];
-        [alert addButtonWithTitle:@"Cancel"];
+        [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         [alert addButtonWithTitle:option1];
         [alert addButtonWithTitle:option2];
-        alertReturn = [alert runModal];
-        [alert release];
+        NSModalResponse alertReturn = [alert runModal];
         switch (alertReturn) {
             case NSAlertFirstButtonReturn:
             default:
@@ -258,13 +324,12 @@ NSString *const HFPrivateByteArrayPboardType = @"HFPrivateByteArrayPboardType";
         NSString *option1 = [@"Copy " stringByAppendingString:HFDescribeByteCount(stringLength)];
         NSString *option2 = [@"Copy " stringByAppendingString:HFDescribeByteCount(copyOption2)];
         NSAlert *alert = [[NSAlert alloc] init];
-        alert.messageText = @"Large Clipboard";
+        alert.messageText = NSLocalizedString(@"Large Clipboard", nil);
         alert.informativeText = [NSString stringWithFormat:@"The copied data would occupy %@ if written to the clipboard.  Performing this copy may take a long time.  Do you want to copy only part of the data?", dataSizeDescription];
-        [alert addButtonWithTitle:@"Cancel"];
+        [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         [alert addButtonWithTitle:option1];
         [alert addButtonWithTitle:option2];
-        alertReturn = [alert runModal];
-        [alert release];
+        NSModalResponse alertReturn = [alert runModal];
         switch (alertReturn) {
             case NSAlertFirstButtonReturn:
             default:

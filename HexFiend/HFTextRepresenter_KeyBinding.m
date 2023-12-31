@@ -8,6 +8,8 @@
 #import <HexFiend/HFTextRepresenter.h>
 #import <HexFiend/HFRepresenterTextView.h>
 #import <HexFiend/HFController.h>
+#import <HexFiend/HFFunctions.h>
+#import <HexFiend/HFAssert.h>
 
 #define FORWARD(x) - (void)x : sender { USE(sender); UNIMPLEMENTED_VOID(); }
 
@@ -77,7 +79,7 @@
     NSArray *selection = [controller selectedContentsRanges];
     unsigned long long min = ULLONG_MAX, max = 0;
     HFASSERT([selection count] >= 1);
-    FOREACH(HFRangeWrapper *, wrapper, selection) {
+    for(HFRangeWrapper *wrapper in selection) {
 	HFRange range = [wrapper HFRange];
 	min = MIN(min, range.location);
 	max = MAX(max, HFMaxRange(range));

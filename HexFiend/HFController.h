@@ -5,15 +5,16 @@
 //  Copyright 2007 ridiculous_fish. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <HexFiend/HFFrameworkPrefix.h>
 
-#import <HexFiend/HFTypes.h>
+NS_ASSUME_NONNULL_BEGIN
 
 /*! @header HFController
     @abstract The HFController.h header contains the HFController class, which is a central class in Hex Fiend. 
 */
 
-@class HFRepresenter, HFByteArray, HFFileReference, HFControllerCoalescedUndo, HFByteRangeAttributeArray;
+@class HFRepresenter, HFByteArray, HFFileReference, HFControllerCoalescedUndo, HFByteRangeAttributeArray, HFColorRange;
+@class HFByteTheme;
 
 /*! @enum HFControllerPropertyBits
     The HFControllerPropertyBits bitmask is used to inform the HFRepresenters of a change in the current state that they may need to react to.  A bitmask of the changed properties is passed to representerChangedProperties:.  It is common for multiple properties to be included in such a bitmask.        
@@ -28,7 +29,7 @@ typedef NS_OPTIONS(NSUInteger, HFControllerPropertyBits) {
     HFControllerBytesPerColumn = 1 << 6,	/*!< Indicates that the number of bytes per column (byte grouping) has changed. */
     HFControllerEditable = 1 << 7,		/*!< Indicates that the document has become (or is no longer) editable. */
     HFControllerFont = 1 << 8,			/*!< Indicates that the font property has changed. */
-    HFControllerAntialias = 1 << 9,		/*!< Indicates that the shouldAntialias property has changed. */
+    // 1 << 9 was HFControllerAntialias
     HFControllerLineHeight = 1 << 10,		/*!< Indicates that the lineHeight property has changed. */
     HFControllerViewSizeRatios = 1 << 11,	/*!< Indicates that the optimum size for each view may have changed; used by HFLayoutController after font changes. */
     HFControllerByteRangeAttributes = 1 << 12,  /*!< Indicates that some attributes of the ByteArray has changed within the document.  There is no indication as to what the change is. */
@@ -37,6 +38,10 @@ typedef NS_OPTIONS(NSUInteger, HFControllerPropertyBits) {
     HFControllerColorBytes = 1 << 15,   /*!< Indicates that the shouldColorBytes property has changed. */
     HFControllerShowCallouts = 1 << 16, /*!< Indicates that the shouldShowCallouts property has changed. */
     HFControllerHideNullBytes = 1 << 17, /*!< Indicates that the shouldHideNullBytes property has changed. */
+    HFControllerColorRanges = 1 << 18, /*!< Indicates that the colorRanges property has changed. */
+    HFControllerSavable = 1 << 19, /*!< Indicates that the document has become (or is no longer) savable. */
+    HFControllerByteTheme = 1 << 29, /*!< Indicates that the byteTheme property has changed. */
+    HFControllerInactiveSelectionColorMatchesActive = 1 << 30,
 };
 
 /*! @enum HFControllerMovementDirection
@@ -86,7 +91,7 @@ typedef NS_ENUM(NSInteger, HFEditMode) {
 HFController acts as the controller layer in the MVC architecture of HexFiend.  The HFController plays several significant central roles, including:
  - Mediating between the data itself (in the HFByteArray) and the views of the data (the @link HFRepresenter HFRepresenters@endlink).
  - Propagating changes to the views.
- - Storing properties common to all Representers, such as the currently diplayed range, the currently selected range(s), the font, etc.
+ - Storing properties common to all Representers, such as the currently displayed range, the currently selected range(s), the font, etc.
  - Handling text editing actions, such as selection changes or insertions/deletions.
 
 An HFController is the top point of ownership for a HexFiend object graph.  It retains both its ByteArray (model) and its array of Representers (views).
@@ -96,9 +101,10 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 */
 @interface HFController : NSObject <NSCoding> {
 @private
-    NSMutableArray<HFRepresenter*> *representers;
+    NSMutableArray *representers;
     HFByteArray *byteArray;
     NSMutableArray *selectedContentsRanges;
+    NSMutableArray<HFColorRange*> *_colorRanges;
     HFRange displayedContentsRange;
     HFFPRange displayedLineRange;
     NSUInteger bytesPerLine;
@@ -124,18 +130,21 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
     NSData *cachedData;
     NSUInteger cachedGenerationIndex;
     
+    HFByteTheme *byteTheme;
+    
     struct {
-        unsigned antialias:1;
-        unsigned colorbytes:1;
-        unsigned showcallouts:1;
-        unsigned hideNullBytes:1;
-        HFEditMode editMode:2;
-        unsigned editable:1;
-        unsigned selectable:1;
-        unsigned selectionInProgress:1;
-        unsigned shiftExtendSelection:1;
-        unsigned commandExtendSelection:1;
-        unsigned livereload:1;
+        BOOL colorbytes;
+        BOOL showcallouts;
+        BOOL hideNullBytes;
+        HFEditMode editMode;
+        BOOL editable;
+        BOOL selectable;
+        BOOL selectionInProgress;
+        BOOL shiftExtendSelection;
+        BOOL commandExtendSelection;
+        BOOL livereload;
+        BOOL savable;
+        BOOL inactiveSelectionColorMatchesActive;
     } _hfflags;
 }
 
@@ -144,7 +153,7 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 */
 //@{ 
 /// Gets the current array of representers attached to this controller.
-@property (readonly, copy) NSArray<HFRepresenter*> *representers;
+@property (readonly, copy) NSArray *representers;
 
 /// Adds a new representer to this controller.
 - (void)addRepresenter:(HFRepresenter *)representer;
@@ -229,11 +238,16 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 - (unsigned long long)maximumSelectionLocation;
 
 /*! Convenience method for creating a byte array containing all of the selected bytes.  If the selection has length 0, this returns an empty byte array. */
-- (HFByteArray *)byteArrayForSelectedContentsRanges;
+- (nullable HFByteArray *)byteArrayForSelectedContentsRanges;
 //@}
 
+@property (readonly) NSMutableArray<HFColorRange*> *colorRanges;
+- (void)colorRangesDidChange; // manually notify of changes to color range individual values
+
 /* Number of bytes used in each column for a text-style representer. */
-@property (nonatomic) NSUInteger bytesPerColumn;
+@property (readonly) NSUInteger maxBytesPerColumn;
+- (BOOL)setBytesPerColumn:(NSUInteger)val;
+- (NSUInteger)bytesPerColumn;
 
 /*! @name Edit Mode
    Determines what mode we're in, read-only, overwrite or insert. */
@@ -258,20 +272,24 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 /*! Modify the displayedLineRange as to center the given contents range.  If the range is near the bottom or top, this will center as close as possible.  If contents range is too large to fit, it centers the top of the range.  contentsRange may be empty. */
 - (void)centerContentsRange:(HFRange)range;
 
+- (void)adjustDisplayRangeAsNeeded:(HFFPRange *)range;
+
+- (unsigned long long)lineForRange:(const HFRange)range;
+
 //@}
 
 /*! The current font. */
-@property (nonatomic, copy) NSFont *font;
+@property (nonatomic, copy) HFFont *font;
 
 /*! The undo manager. If no undo manager is set, then undo is not supported. By default the undo manager is nil.
 */
-@property (nonatomic, strong) NSUndoManager *undoManager;
+@property (nullable, nonatomic, strong) NSUndoManager *undoManager;
 
 /*! Whether the user can edit the document. */
 @property (nonatomic) BOOL editable;
 
-/*! Whether the text should be antialiased. Note that Mac OS X settings may prevent antialiasing text below a certain point size. */
-@property (nonatomic) BOOL shouldAntialias;
+/*! Whether the user can save the document. */
+@property (nonatomic) BOOL savable;
 
 /*! When enabled, characters have a background color that correlates to their byte values. */
 @property (nonatomic) BOOL shouldColorBytes;
@@ -291,9 +309,10 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 //@{
 /*! Callback for a representer-initiated change to some property.  For example, if some property of a view changes that would cause the number of bytes per line to change, then the representer should call this method which will trigger the HFController to recompute the relevant properties. */
 
-- (void)representer:(HFRepresenter *)rep changedProperties:(HFControllerPropertyBits)properties;
+- (void)representer:(nullable HFRepresenter *)rep changedProperties:(HFControllerPropertyBits)properties;
 //@}
 
+#if !TARGET_OS_IPHONE
 /*! @name Mouse selection
     Methods to handle mouse selection.  Representers that allow text selection should call beginSelectionWithEvent:forByteIndex: upon receiving a mouseDown event, and then continueSelectionWithEvent:forByteIndex: for mouseDragged events, terminating with endSelectionWithEvent:forByteIndex: upon receiving the mouse up.  HFController will compute the correct selected ranges and propagate any changes via the HFControllerPropertyBits mechanism. */
 //@{
@@ -311,6 +330,7 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 //@{
 /*! Trigger scrolling appropriate for the given scroll event.  */
 - (void)scrollWithScrollEvent:(NSEvent *)scrollEvent;
+#endif
 
 /*! Trigger scrolling by the given number of lines.  If lines is positive, then the document is scrolled down; otherwise it is scrolled up.  */
 - (void)scrollByLines:(long double)lines;
@@ -363,8 +383,40 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 /*! Copies data within the given HFRange into an in-memory buffer.  This is equivalent to [[controller byteArray] copyBytes:bytes range:range]. */
 - (void)copyBytes:(unsigned char *)bytes range:(HFRange)range;
 
+/*! Convenience method that returns the attributes of the underlying byte array.  You can message it directly to add and remove attributes.  If you do so, be sure to call representer:changedProperties: with the HFControllerByteRangeAttributes bit */
+- (HFByteRangeAttributeArray *)byteRangeAttributeArray;
+
+/*! Returns the attributes for the given range.  This is a union of the receiver's byteRangeAttributeArray properties and the properties returned by the byte array itself.  range.length must be <= NSUIntegerMax. */
+- (HFByteRangeAttributeArray *)attributesForBytesInRange:(HFRange)range;
+
+/*! Returns the range for the given bookmark.  If there is no bookmark, returns {ULLONG_MAX, ULLONG_MAX}. */
+- (HFRange)rangeForBookmark:(NSInteger)bookmark;
+
+/*! Sets the range for the given bookmark.  Pass {ULLONG_MAX, ULLONG_MAX} to remove the bookmark. Undoable. */
+- (void)setRange:(HFRange)range forBookmark:(NSInteger)bookmark;
+
+- (NSString *)bookmarkUndoActionName;
+
+/*! Returns an NSIndexSet of the bookmarks in the given range. */
+- (NSIndexSet *)bookmarksInRange:(HFRange)range;
+
 /*! Returns total number of bytes.  This is equivalent to [[controller byteArray] length]. */
 - (unsigned long long)contentsLength;
+
+/*! @name File writing dependency handling
+*/
+//@{
+/*! Attempts to clear all dependencies on the given file (clipboard, undo, etc.) that could not be preserved if the file were written.  Returns YES if we successfully prepared, NO if someone objected.  This works by posting a HFPrepareForChangeInFileNotification.  HFController does not register for this notification: instead the owners of the HFController are expected to register for HFPrepareForChangeInFileNotification and react appropriately.  */
++ (BOOL)prepareForChangeInFile:(NSURL *)targetFile fromWritingByteArray:(HFByteArray *)array;
+
+/*! Attempts to break undo stack dependencies for writing the given file.  If it is unable to do so, it will clear the controller's contributions to the stack. Returns YES if it successfully broke the dependencies, and NO if the stack had to be cleared. */
+- (BOOL)clearUndoManagerDependenciesOnRanges:(NSArray *)ranges inFile:(HFFileReference *)reference hint:(NSMutableDictionary *)hint;
+//@}
+
+- (void)setByteTheme:(HFByteTheme * _Nullable)byteTheme;
+- (HFByteTheme * _Nullable)byteTheme;
+
+@property (nonatomic) BOOL inactiveSelectionColorMatchesActive;
 
 - (void) reloadData;
 - (void)_ensureVisibilityOfLocation:(unsigned long long)location;
@@ -393,3 +445,5 @@ extern NSString * const HFChangeInFileModifiedRangesKey; //!< A key in the HFPre
 extern NSString * const HFChangeInFileShouldCancelKey; //!< A key in the HFPrepareForChangeInFileNotification specifying an NSValue containing a pointer to a BOOL.  If set to YES, then someone was unable to prepare and the file should not be saved.  It's a good idea to check if this value points to YES; if so your notification handler does not have to do anything.
 extern NSString * const HFChangeInFileHintKey; //!< The hint parameter that you may pass to clearDependenciesOnRanges:inFile:hint:
 //@}
+
+NS_ASSUME_NONNULL_END

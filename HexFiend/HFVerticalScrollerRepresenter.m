@@ -8,7 +8,8 @@
 /* Note that on Tiger, NSScroller did not support double in any meaningful way; [scroller doubleValue] always returns 0, and setDoubleValue: doesn't look like it works either. */
 
 #import <HexFiend/HFVerticalScrollerRepresenter.h>
-
+#import <HexFiend/HFFunctions.h>
+#import <HexFiend/HFAssert.h>
 
 @implementation HFVerticalScrollerRepresenter
 
@@ -37,7 +38,7 @@
     unsigned long long contentsLength = [controller contentsLength];
     NSUInteger bytesPerLine = [controller bytesPerLine];
     HFASSERT(bytesPerLine > 0);
-    unsigned long long totalLineCountTimesBytesPerLine = HFRoundUpToNextMultipleSaturate(contentsLength - 1, bytesPerLine);
+    unsigned long long totalLineCountTimesBytesPerLine = HFRoundUpToNextMultipleSaturate(contentsLength, bytesPerLine);
     HFASSERT(totalLineCountTimesBytesPerLine == ULLONG_MAX || totalLineCountTimesBytesPerLine % bytesPerLine == 0);
     unsigned long long totalLineCount = HFDivideULLRoundingUp(totalLineCountTimesBytesPerLine, bytesPerLine);
     HFFPRange currentLineRange = [controller displayedLineRange];
@@ -55,7 +56,7 @@
     
     HFController *controller = [self controller];
     HFASSERT(controller != NULL);
-    HFFPRange displayedRange = [[self controller] displayedLineRange];
+    HFFPRange displayedRange = [controller displayedLineRange];
     if (linesInt < 0) {
         displayedRange.location -= MIN(lines, displayedRange.location);
     }
@@ -71,8 +72,6 @@
     switch ([scroller hitPart]) {
 	case NSScrollerDecrementPage: [self scrollByLines: -(long long)[self visibleLines]]; break;
 	case NSScrollerIncrementPage: [self scrollByLines: (long long)[self visibleLines]]; break;
-	case NSScrollerDecrementLine: [self scrollByLines: -1LL]; break;
-	case NSScrollerIncrementLine: [self scrollByLines: 1LL]; break;
 	case NSScrollerKnob: [self scrollByKnobToValue:[scroller doubleValue]]; break;
 	default: break;
     }
@@ -81,7 +80,7 @@
 - (void)updateScrollerValue {
     HFController *controller = [self controller];
     CGFloat value, proportion;
-    NSScroller *scroller = [self view];
+    NSScroller *scroller = (NSScroller *)[self view];
     BOOL enable = YES;
     if (controller == nil) {
         value = 0;
@@ -119,7 +118,7 @@
 
 - (CGFloat)minimumViewWidthForBytesPerLine:(NSUInteger)bytesPerLine {
     USE(bytesPerLine);
-    return [NSScroller scrollerWidthForControlSize:[[self view] controlSize] scrollerStyle:NSScrollerStyleLegacy];
+    return [NSScroller scrollerWidthForControlSize:[(NSControl *)[self view] controlSize] scrollerStyle:NSScrollerStyleLegacy];
 }
 
 - (void)controllerDidChange:(HFControllerPropertyBits)bits {
@@ -127,7 +126,7 @@
 }
 
 + (NSPoint)defaultLayoutPosition {
-    return NSMakePoint(2, 0);
+    return NSMakePoint(4, 0);
 }
 
 @end

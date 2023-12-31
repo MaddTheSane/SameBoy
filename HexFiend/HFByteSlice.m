@@ -6,6 +6,7 @@
 //
 
 #import <HexFiend/HFByteSlice.h>
+#import <HexFiend/HFFunctions.h>
 
 
 @implementation HFByteSlice
@@ -65,21 +66,6 @@
 - (HFRange)sourceRangeForFile:(HFFileReference *)reference {
     USE(reference);
     return HFRangeMake(ULLONG_MAX, ULLONG_MAX);
-}
-
-- (id)retain {
-    HFAtomicIncrement(&retainCount, NO);
-    return self;
-}
-
-- (oneway void)release {
-    if (HFAtomicDecrement(&retainCount, NO) == (NSUInteger)(-1)) {
-        [self dealloc];
-    }
-}
-
-- (NSUInteger)retainCount {
-    return 1 + retainCount;
 }
 
 @end

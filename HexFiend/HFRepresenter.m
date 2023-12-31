@@ -7,10 +7,11 @@
 
 #import "HFRepresenter.h"
 #import "HFRepresenter_Internal.h"
+#import <HexFiend/HFAssert.h>
 
 @implementation HFRepresenter
 
-- (id)view {
+- (HFView *)view {
     if (! view) {
         view = [self createView];
         [self initializeView];
@@ -28,32 +29,34 @@
 
 - (instancetype)init {
     self = [super init];
+#if !TARGET_OS_IPHONE
     [self setLayoutPosition:[[self class] defaultLayoutPosition]];
+#endif
     return self;
-}
-
-- (void)dealloc {
-    [view release];
-    [super dealloc];
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder {
     HFASSERT([coder allowsKeyedCoding]);
     [coder encodeObject:controller forKey:@"HFController"];
+#if !TARGET_OS_IPHONE
     [coder encodePoint:layoutPosition forKey:@"HFLayoutPosition"];
+#endif
     [coder encodeObject:view forKey:@"HFRepresenterView"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
     HFASSERT([coder allowsKeyedCoding]);
     self = [super init];
+#if !TARGET_OS_IPHONE
     layoutPosition = [coder decodePointForKey:@"HFLayoutPosition"];   
+#endif
     controller = [coder decodeObjectForKey:@"HFController"]; // not retained
-    view = [[coder decodeObjectForKey:@"HFRepresenterView"] retain];
+    view = [coder decodeObjectForKey:@"HFRepresenterView"];
     return self;
 }
 
-- (NSView *)createView {
+- (HFView *)createView
+{
     UNIMPLEMENTED();
 }
 
@@ -100,6 +103,7 @@
     [[self controller] representer:self changedProperties:properties];
 }
 
+#if !TARGET_OS_IPHONE
 - (void)setLayoutPosition:(NSPoint)position {
     layoutPosition = position;
 }
@@ -111,5 +115,6 @@
 + (NSPoint)defaultLayoutPosition {
     return NSMakePoint(0, 0);
 }
+#endif
 
 @end

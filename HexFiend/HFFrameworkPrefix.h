@@ -2,21 +2,17 @@
 // Prefix header for all source files of the 'HexFiend_2' target in the 'HexFiend_2' project
 //
 
+#import <TargetConditionals.h>
 #ifdef __OBJC__
+#if TARGET_OS_IPHONE
+    #import <UIKit/UIKit.h>
+#else
     #import <Cocoa/Cocoa.h>
+#endif
     #import <HexFiend/HFTypes.h>
 #endif
 
 #define PRIVATE_EXTERN extern __attribute__((visibility("hidden")))
-
-#include <assert.h>
-
-#if ! NDEBUG
-#define HFASSERT(a) assert(a)
-#else
-#define HFASSERT(a) if (0 && ! (a)) abort() 
-#endif
-
 
 #define UNIMPLEMENTED_VOID() [NSException raise:NSGenericException \
                                          format:@"Message %@ sent to instance of class %@, "\
@@ -52,39 +48,13 @@
 #define EXPECT_CLASS(e, c) USE(e)
 #endif
 
-#define FOREACH(type, var, exp) for (type var in (exp))
-
 #define NEW_ARRAY(type, name, number) \
     type name ## static_ [256];\
-    type * name = ((number) <= 256 ? name ## static_ : check_malloc((number) * sizeof(type)))
+    bzero(name ## static_, sizeof(name ## static_));\
+    type * name = ((number) <= 256 ? name ## static_ : check_calloc((number) * sizeof(type)))
     
 #define FREE_ARRAY(name) \
     if (name != name ## static_) free(name)
-
-#if !defined(MIN)
-    #define MIN(A,B)	({ __typeof__(A) __a = (A); __typeof__(B) __b = (B); __a < __b ? __a : __b; })
-#endif
-
-#if !defined(MAX)
-    #define MAX(A,B)	({ __typeof__(A) __a = (A); __typeof__(B) __b = (B); __a < __b ? __b : __a; })
-#endif
-
-//How many bytes should we read at a time when doing a find/replace?
-#define SEARCH_CHUNK_SIZE 32768
-
-//What's the smallest clipboard data size we should offer to avoid copying when quitting?  This is 5 MB
-#define MINIMUM_PASTEBOARD_SIZE_TO_WARN_ABOUT (5UL << 20)
-
-//What's the largest clipboard data size we should support exporting (at all?)  This is 500 MB.  Note that we can still copy more data than this internally, we just can't put it in, say, TextEdit.
-#define MAXIMUM_PASTEBOARD_SIZE_TO_EXPORT (500UL << 20)
-
-// When we save a file, and other byte arrays need to break their dependencies on the file by copying some of its data into memory, what's the max amount we should copy (per byte array)?  We currently don't show any progress for this, so this should be a smaller value
-#define MAX_MEMORY_TO_USE_FOR_BREAKING_FILE_DEPENDENCIES_ON_SAVE (16 * 1024 * 1024)
-
-#ifdef __OBJC__
-    #import <HexFiend/HFFunctions.h>
-    #import "HFFunctions_Private.h"
-#endif
 
 #ifndef __has_feature      // Optional.
 #define __has_feature(x) 0 // Compatibility with non-clang compilers.
@@ -97,3 +67,17 @@
 #define NS_RETURNS_RETAINED
 #endif
 #endif
+
+// See "Can I create a C array of retained pointers under ARC?"
+// https://developer.apple.com/library/content/releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html
+#define DEFINE_OBJ_ARRAY(type, name) \
+    __strong type * name
+#define INIT_OBJ_ARRAY(type, number) \
+    (__strong type *)check_calloc((number) * sizeof(type))
+#define NEW_OBJ_ARRAY(type, name, number) \
+    DEFINE_OBJ_ARRAY(type, name) = INIT_OBJ_ARRAY(type, number)
+#define FREE_OBJ_ARRAY(name, number) \
+    for (size_t __Free_Index = 0; __Free_Index < number; ++__Free_Index) { \
+        name[__Free_Index] = nil; \
+    } \
+    free(name);

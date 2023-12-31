@@ -5,10 +5,13 @@
 //  Copyright 2007 ridiculous_fish. All rights reserved.
 //
 
-#import <HexFiend/HFByteArray_Internal.h>
+#import "HFByteArray_Internal.h"
 #import <HexFiend/HFFullMemoryByteArray.h>
 #import <HexFiend/HFFullMemoryByteSlice.h>
 #import <HexFiend/HFByteSlice.h>
+#import <HexFiend/HFByteRangeAttributeArray.h>
+#import <HexFiend/HFFunctions.h>
+#import <HexFiend/HFAssert.h>
 
 @implementation HFFullMemoryByteArray
 
@@ -16,11 +19,6 @@
     self = [super init];
     data = [[NSMutableData alloc] init];
     return self;
-}
-
-- (void)dealloc {
-    [data release];
-    [super dealloc];
 }
 
 - (unsigned long long)length {
@@ -43,11 +41,11 @@
     range.length = ll2l(lrange.length);
     HFFullMemoryByteArray* result = [[[self class] alloc] init];
     [result->data setData:[data subdataWithRange:range]];
-    return [result autorelease];
+    return result;
 }
 
 - (NSArray *)byteSlices {
-    return @[[[[HFFullMemoryByteSlice alloc] initWithData:data] autorelease]];
+    return @[[[HFFullMemoryByteSlice alloc] initWithData:data]];
 }
 
 - (void)insertByteSlice:(HFByteSlice *)slice inRange:(HFRange)lrange {

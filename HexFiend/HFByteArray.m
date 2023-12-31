@@ -5,9 +5,10 @@
 //  Copyright 2007 ridiculous_fish. All rights reserved.
 //
 
-#import <HexFiend/HFByteArray_Internal.h>
+#import "HFByteArray_Internal.h"
 #import <HexFiend/HFFullMemoryByteSlice.h>
-
+#import <HexFiend/HFFunctions.h>
+#import <HexFiend/HFAssert.h>
 
 @implementation HFByteArray
 
@@ -91,19 +92,18 @@
 
 - (id)mutableCopyWithZone:(NSZone *)zone {
     USE(zone);
-    return [[self subarrayWithRange:HFRangeMake(0, [self length])] retain];
+    return [self subarrayWithRange:HFRangeMake(0, [self length])];
 }
 
 - (id)copyWithZone:(NSZone *)zone {
     USE(zone);
-    return [[self subarrayWithRange:HFRangeMake(0, [self length])] retain];
+    return [self subarrayWithRange:HFRangeMake(0, [self length])];
 }
 
 - (void)deleteBytesInRange:(HFRange)lrange {
     [self incrementGenerationOrRaiseIfLockedForSelector:_cmd];
     HFByteSlice* slice = [[HFFullMemoryByteSlice alloc] initWithData:[NSData data]];
     [self insertByteSlice:slice inRange:lrange];
-    [slice release];
 }
 
 - (BOOL)isEqual:v {
@@ -128,8 +128,26 @@
     return YES;
 }
 
-- (unsigned long long)indexOfBytesEqualToBytes:(HFByteArray *)findBytes inRange:(HFRange)range searchingForwards:(BOOL)forwards trackingProgress:(id)progressTracker {
-    UNIMPLEMENTED();
+- (unsigned long long)indexOfBytesEqualToBytes:(HFByteArray *)findBytes inRange:(HFRange)range searchingForwards:(BOOL)forwards trackingProgress:(HFProgressTracker *)progressTracker {
+    unsigned long long length = [findBytes length];
+    if (length > [self length] || length > range.length) return ULLONG_MAX;
+    if (length == 0) {
+        return range.location;
+    }
+    else if ([[NSUserDefaults standardUserDefaults] boolForKey:@"CaseInsensitiveSearch"]) {
+        return [self _byteSearchNaive:findBytes inRange:range forwards:forwards trackingProgress:progressTracker caseInsensitive:YES];
+    }
+    else if (length == 1) {
+        unsigned char byte;
+        [findBytes copyBytes:&byte range:HFRangeMake(0, 1)];
+        return [self _byteSearchSingle:byte inRange:range forwards:forwards trackingProgress:progressTracker];
+    }
+    else if (length <= 1<<20) {
+        return [self _byteSearchBoyerMoore:findBytes inRange:range forwards:forwards trackingProgress:progressTracker];
+    }
+    else {
+        return [self _byteSearchRollingHash:findBytes inRange:range forwards:forwards trackingProgress:progressTracker];
+    }
 }
 
 - (BOOL)_debugIsEqual:(HFByteArray *)v {
@@ -176,9 +194,7 @@
     HFByteArray *byteArray = [[NSClassFromString(@"HFFullMemoryByteArray") alloc] init];
     HFByteSlice *byteSlice = [[HFFullMemoryByteSlice alloc] initWithData:val];
     [byteArray insertByteSlice:byteSlice inRange:HFRangeMake(0, 0)];
-    [byteSlice release];
     BOOL result = [self _debugIsEqual:byteArray];
-    [byteArray release];
     return result;
 }
 

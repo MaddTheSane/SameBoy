@@ -6,6 +6,8 @@
 //
 
 #import <HexFiend/HFLayoutRepresenter.h>
+#import <HexFiend/HFFunctions.h>
+#import <HexFiend/HFAssert.h>
 
 @interface HFRepresenterLayoutViewInfo : NSObject {
 @public
@@ -43,10 +45,10 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
     if (! representers) return nil;
     
     NSMutableArray *result = [NSMutableArray array];
-    NSArray *reps = [representers sortedArrayUsingFunction:sortByLayoutPosition context:self];
+    NSArray *reps = [representers sortedArrayUsingFunction:sortByLayoutPosition context:NULL];
     NSMutableArray *currentReps = [NSMutableArray array];
     CGFloat currentRepY = - CGFLOAT_MAX;
-    FOREACH(HFRepresenter*, rep, reps) {
+    for(HFRepresenter* rep in reps) {
         HFRepresenterLayoutViewInfo *info = [[HFRepresenterLayoutViewInfo alloc] init];
         info->rep = rep;
         info->view = [rep view];
@@ -54,14 +56,13 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
         info->layoutPosition = [rep layoutPosition];
         info->autoresizingMask = [info->view autoresizingMask];
         if (info->layoutPosition.y != currentRepY && [currentReps count] > 0) {
-            [result addObject:[[currentReps copy] autorelease]];
+            [result addObject:[currentReps copy]];
             [currentReps removeAllObjects];
         }
         currentRepY = info->layoutPosition.y;
         [currentReps addObject:info];
-        [info release];
     }
-    if ([currentReps count]) [result addObject:[[currentReps copy] autorelease]];
+    if ([currentReps count]) [result addObject:[currentReps copy]];
     return result;
 }
 
@@ -76,14 +77,14 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
     CGFloat result = 0;
     HFASSERT(infos != NULL);
     HFASSERT([infos count] > 0);
-    FOREACH(HFRepresenterLayoutViewInfo *, info, infos) {
+    for(HFRepresenterLayoutViewInfo * info in infos) {
         if (! (info->autoresizingMask & NSViewHeightSizable)) result = MAX(result, NSHeight([info->view frame]));
     }
     return result;
 }
 
 - (void)_applyYLocation:(CGFloat)yLocation andMinHeight:(CGFloat)height toInfos:(NSArray *)layoutInfos {
-    FOREACH(HFRepresenterLayoutViewInfo *, info, layoutInfos) {    
+    for(HFRepresenterLayoutViewInfo * info in layoutInfos) {    
         info->frame.origin.y = yLocation;
         if (info->autoresizingMask & NSViewHeightSizable) info->frame.size.height = height;
     }
@@ -92,7 +93,7 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
 - (void)_layoutInfosHorizontally:(NSArray *)infos inRect:(NSRect)layoutRect withBytesPerLine:(NSUInteger)bytesPerLine {
     CGFloat nextX = NSMinX(layoutRect);
     NSUInteger numHorizontallyResizable = 0;
-    FOREACH(HFRepresenterLayoutViewInfo *, info, infos) {
+    for(HFRepresenterLayoutViewInfo * info in infos) {
         CGFloat minWidth = [info->rep minimumViewWidthForBytesPerLine:bytesPerLine];
         info->frame.origin.x = nextX;
         info->frame.size.width = minWidth;
@@ -109,7 +110,7 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
         if (pixelsPerView > 0) {
             CGFloat pointsPerView = [view convertSize:NSMakeSize(pixelsPerView, 0) fromView:nil].width;
             CGFloat pointsAdded = 0;
-            FOREACH(HFRepresenterLayoutViewInfo *, info, infos) {
+            for(HFRepresenterLayoutViewInfo * info in infos) {
                 info->frame.origin.x += pointsAdded;
                 if (info->autoresizingMask & NSViewWidthSizable) {
                     info->frame.size.width += pointsPerView;
@@ -124,9 +125,9 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
     CGFloat result = 0;
     NSArray *arraysOfLayoutInfos = [self arraysOfLayoutInfos];
     
-    FOREACH(NSArray *, layoutInfos, arraysOfLayoutInfos) {
+    for(NSArray * layoutInfos in arraysOfLayoutInfos) {
         CGFloat minWidthForRow = 0;
-        FOREACH(HFRepresenterLayoutViewInfo *, info, layoutInfos) {
+        for(HFRepresenterLayoutViewInfo * info in layoutInfos) {
             minWidthForRow += [info->rep minimumViewWidthForBytesPerLine:bytesPerLine];
         }
         result = MAX(result, minWidthForRow);
@@ -137,19 +138,19 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
 - (NSUInteger)_computeBytesPerLineForArraysOfLayoutInfos:(NSArray *)arraysOfLayoutInfos forLayoutInRect:(NSRect)layoutRect {
     /* The granularity is our own granularity (probably 1), LCMed with the granularities of all other representers */
     NSUInteger granularity = [self byteGranularity];
-    FOREACH(HFRepresenter *, representer, representers) {
+    for(HFRepresenter * representer in representers) {
         granularity = HFLeastCommonMultiple(granularity, [representer byteGranularity]);
     }
     HFASSERT(granularity >= 1);
     
     NSUInteger newNumGranules = (NSUIntegerMax - 1) / granularity;
-    FOREACH(NSArray *, layoutInfos, arraysOfLayoutInfos) {
+    for(NSArray * layoutInfos in arraysOfLayoutInfos) {
         NSUInteger maxKnownGood = 0, minKnownBad = newNumGranules + 1;
         while (maxKnownGood + 1 < minKnownBad) {
             CGFloat requiredSpace = 0;
             NSUInteger proposedNumGranules = maxKnownGood + (minKnownBad - maxKnownGood)/2;
             NSUInteger proposedBytesPerLine = proposedNumGranules * granularity;
-            FOREACH(HFRepresenterLayoutViewInfo *, info, layoutInfos) {
+            for(HFRepresenterLayoutViewInfo * info in layoutInfos) {
                 requiredSpace += [info->rep minimumViewWidthForBytesPerLine:proposedBytesPerLine];
                 if (requiredSpace > NSWidth(layoutRect)) break;
             }
@@ -163,7 +164,7 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
 
 - (BOOL)_anyLayoutInfoIsVerticallyResizable:(NSArray *)vals {
     HFASSERT(vals != NULL);
-    FOREACH(HFRepresenterLayoutViewInfo *, info, vals) {
+    for(HFRepresenterLayoutViewInfo * info in vals) {
         if (info->autoresizingMask & NSViewHeightSizable) return YES;
     }
     return NO;
@@ -172,7 +173,7 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
 - (BOOL)_addVerticalHeight:(CGFloat)heightPoints andOffset:(CGFloat)offsetPoints toLayoutInfos:(NSArray *)layoutInfos {
     BOOL isVerticallyResizable = [self _anyLayoutInfoIsVerticallyResizable:layoutInfos];
     CGFloat totalHeight = [self _computeMinHeightForLayoutInfos:layoutInfos] + heightPoints;
-    FOREACH(HFRepresenterLayoutViewInfo *, info, layoutInfos) {
+    for(HFRepresenterLayoutViewInfo * info in layoutInfos) {
         info->frame.origin.y += offsetPoints;
         if (isVerticallyResizable) {
             if (info->autoresizingMask & NSViewHeightSizable) {
@@ -193,7 +194,7 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
     HFASSERT(arraysOfLayoutInfos != NULL);
     
     NSUInteger consumers = 0;
-    FOREACH(NSArray *, layoutInfos, arraysOfLayoutInfos) {
+    for(NSArray * layoutInfos in arraysOfLayoutInfos) {
         if ([self _anyLayoutInfoIsVerticallyResizable:layoutInfos]) consumers++;
     }
     if (consumers > 0) {
@@ -204,7 +205,7 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
         CGFloat pointsPerView = [view convertSize:NSMakeSize(0, pixelsPerView) fromView:nil].height;
         CGFloat yOffset = 0;
         if (pointsPerView > 0) {
-            FOREACH(NSArray *, layoutInfos, arraysOfLayoutInfos) {
+            for(NSArray * layoutInfos in arraysOfLayoutInfos) {
                 if ([self _addVerticalHeight:pointsPerView andOffset:yOffset toLayoutInfos:layoutInfos]) {
                     yOffset += pointsPerView;
                 }
@@ -230,7 +231,7 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
     else bytesPerLine = [controller bytesPerLine];
     
     CGFloat yPosition = NSMinY(layoutRect);
-    FOREACH(NSArray *, layoutInfos, arraysOfLayoutInfos) {
+    for(NSArray * layoutInfos in arraysOfLayoutInfos) {
         HFASSERT([layoutInfos count] > 0);
         CGFloat minHeight = [self _computeMinHeightForLayoutInfos:layoutInfos];
         [self _applyYLocation:yPosition andMinHeight:minHeight toInfos:layoutInfos];
@@ -243,8 +244,8 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
         [self _distributeVerticalSpace:remainingVerticalSpace toArraysOfLayoutInfos:arraysOfLayoutInfos];
     }
     
-    FOREACH(NSArray *, layoutInfoArray, arraysOfLayoutInfos) {
-        FOREACH(HFRepresenterLayoutViewInfo *, info, layoutInfoArray) {
+    for(NSArray * layoutInfoArray in arraysOfLayoutInfos) {
+        for(HFRepresenterLayoutViewInfo * info in layoutInfoArray) {
             [info->view setFrame:info->frame];
         }
     }
@@ -253,7 +254,7 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
 }
 
 - (NSArray *)representers {
-    return representers ? [[representers copy] autorelease] : @[];
+    return representers ? [representers copy] : @[];
 }
 
 - (instancetype)init {
@@ -264,8 +265,6 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:[self view]];
-    [representers release];
-    [super dealloc];
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder {
@@ -278,7 +277,7 @@ static NSInteger sortByLayoutPosition(id a, id b, void *self) {
 - (instancetype)initWithCoder:(NSCoder *)coder {
     HFASSERT([coder allowsKeyedCoding]);
     self = [super initWithCoder:coder];
-    representers = [[coder decodeObjectForKey:@"HFRepresenters"] retain];
+    representers = [coder decodeObjectForKey:@"HFRepresenters"];
     maximizesBytesPerLine = [coder decodeBoolForKey:@"HFMaximizesBytesPerLine"];
     NSView *view = [self view];
     [view setPostsFrameChangedNotifications:YES];

@@ -20,20 +20,40 @@
 */
 
 
+#import <TargetConditionals.h>
 #import <HexFiend/HFTypes.h>
 #import <HexFiend/HFFunctions.h>
 #import <HexFiend/HFController.h>
 #import <HexFiend/HFRepresenter.h>
+#import <HexFiend/HFAssert.h>
 #import <HexFiend/HFFullMemoryByteArray.h>
 #import <HexFiend/HFFullMemoryByteSlice.h>
 #import <HexFiend/HFHexTextRepresenter.h>
+#if !TARGET_OS_IPHONE
 #import <HexFiend/HFLineCountingRepresenter.h>
 #import <HexFiend/HFLayoutRepresenter.h>
+#endif
 #import <HexFiend/HFStringEncodingTextRepresenter.h>
+#if !TARGET_OS_IPHONE
 #import <HexFiend/HFVerticalScrollerRepresenter.h>
+#endif
 #import <HexFiend/HFByteArray.h>
 #import <HexFiend/HFBTreeByteArray.h>
-
+#import <HexFiend/HFAttributedByteArray.h>
+#import <HexFiend/HFProgressTracker.h>
+#import <HexFiend/HFSharedMemoryByteSlice.h>
+#import <HexFiend/HFByteRangeAttribute.h>
+#import <HexFiend/HFByteRangeAttributeArray.h>
+#import <HexFiend/HFNSStringEncoding.h>
+#import <HexFiend/HFByteTheme.h>
+#import <HexFiend/HFCustomEncoding.h>
+#import <HexFiend/HFEncodingManager.h>
+#import <HexFiend/HFGlyphTrie.h>
+#import <HexFiend/HFHexPasteboardOwner.h>
+#import <HexFiend/HFLineCountingView.h>
+#import <HexFiend/HFRepresenterTextView.h>
+#import <HexFiend/HFUIUtils.h>
+#import <HexFiend/HFPrivilegedHelper.h>
 
 /* The following is all for Doxygen */
 
@@ -73,5 +93,14 @@
  */
 ///@{
 ///@class HFController
+
+///@}
+
+/*! @defgroup highlevel High Level
+ *  Hex Fiend's "do it all" classes
+ */
+///@{
+///@class HFTextView
+///@class HFTextField
 
 ///@}

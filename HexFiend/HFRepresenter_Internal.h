@@ -2,6 +2,6 @@
 
 @interface HFRepresenter (/*HFInternalStuff*/)
 
-@property (readwrite, assign, setter=_setController:) HFController *controller;
+@property (readwrite, weak, setter=_setController:) HFController *controller;
 
 @end
