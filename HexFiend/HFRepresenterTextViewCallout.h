@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nullable, nonatomic, retain) id representedObject;
 @property(readonly) CGRect rect;
 
-+ (void)layoutCallouts:(NSArray *)callouts inView:(HFRepresenterTextView *)textView;
++ (void)layoutCallouts:(NSArray<HFRepresenterTextViewCallout*> *)callouts inView:(HFRepresenterTextView *)textView;
 
 - (void)drawShadowWithClip:(CGRect)clip context:(CGContextRef)ctx;
 - (void)drawWithClip:(CGRect)clip context:(CGContextRef)ctx;

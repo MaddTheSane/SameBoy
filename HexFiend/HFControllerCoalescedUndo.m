@@ -135,9 +135,7 @@
     return HFRangeMake(anchorPoint, actionPoint - anchorPoint);
 }
 
-- (HFByteArray *)deletedData {
-    return deletedData;
-}
+@synthesize deletedData;
 
 - (HFControllerCoalescedUndo *)invertWithByteArray:(HFByteArray *)byteArray {
     HFASSERT(anchorPoint <= actionPoint);

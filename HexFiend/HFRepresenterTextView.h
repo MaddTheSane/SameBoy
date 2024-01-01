@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithRepresenter:(HFTextRepresenter *)rep;
 - (void)clearRepresenter;
 
-- (HFTextRepresenter *)representer;
+@property (readonly, weak) HFTextRepresenter *representer;
 
 @property (nonatomic, copy) HFFont *font;
 

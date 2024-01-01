@@ -153,7 +153,7 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 */
 //@{ 
 /// Gets the current array of representers attached to this controller.
-@property (readonly, copy) NSArray *representers;
+@property (readonly, copy) NSArray<HFRepresenter*> *representers;
 
 /// Adds a new representer to this controller.
 - (void)addRepresenter:(HFRepresenter *)representer;
@@ -192,13 +192,13 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 */
 //@{ 
 /*! Returns the number of lines on which the cursor may be placed.  This is always at least 1, and is equivalent to (unsigned long long)(HFRoundUpToNextMultiple(contentsLength, bytesPerLine) / bytesPerLine) */
-- (unsigned long long)totalLineCount;
+@property (readonly) unsigned long long totalLineCount;
 
 /*! Indicates the number of bytes per line, which is a global property among all the line-oriented representers. */
-- (NSUInteger)bytesPerLine;
+@property (readonly) NSUInteger bytesPerLine;
 
 /*! Returns the height of a line, in points.  This is generally determined by the font.  Representers that wish to align things to lines should use this. */
-- (CGFloat)lineHeight;
+@property (readonly) CGFloat lineHeight;
 
 //@}
 
@@ -211,7 +211,7 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 - (void)pulseSelection;
 
 /*! Return the amount that the "Find pulse indicator" should show.  0 means no pulse, 1 means maximum pulse.  This is useful for Representers that support find and replace. */
-- (double)selectionPulseAmount;
+@property (readonly) double selectionPulseAmount;
 //@}
 
 /*! @name Selection handling
@@ -232,10 +232,10 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 - (IBAction)selectAll:(id)sender;
 
 /*! Returns the smallest value in the selected contents ranges, or the insertion location if the selection is empty. */
-- (unsigned long long)minimumSelectionLocation;
+@property (readonly) unsigned long long minimumSelectionLocation;
 
 /*! Returns the largest HFMaxRange of the selected contents ranges, or the insertion location if the selection is empty. */
-- (unsigned long long)maximumSelectionLocation;
+@property (readonly) unsigned long long maximumSelectionLocation;
 
 /*! Convenience method for creating a byte array containing all of the selected bytes.  If the selection has length 0, this returns an empty byte array. */
 - (nullable HFByteArray *)byteArrayForSelectedContentsRanges;
@@ -247,7 +247,7 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 /* Number of bytes used in each column for a text-style representer. */
 @property (readonly) NSUInteger maxBytesPerColumn;
 - (BOOL)setBytesPerColumn:(NSUInteger)val;
-- (NSUInteger)bytesPerColumn;
+@property (readonly) NSUInteger bytesPerColumn;
 
 /*! @name Edit Mode
    Determines what mode we're in, read-only, overwrite or insert. */
@@ -401,7 +401,7 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 - (NSIndexSet *)bookmarksInRange:(HFRange)range;
 
 /*! Returns total number of bytes.  This is equivalent to [[controller byteArray] length]. */
-- (unsigned long long)contentsLength;
+@property (readonly) unsigned long long contentsLength;
 
 /*! @name File writing dependency handling
 */
@@ -413,8 +413,7 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 - (BOOL)clearUndoManagerDependenciesOnRanges:(NSArray *)ranges inFile:(HFFileReference *)reference hint:(NSMutableDictionary *)hint;
 //@}
 
-- (void)setByteTheme:(HFByteTheme * _Nullable)byteTheme;
-- (HFByteTheme * _Nullable)byteTheme;
+@property (nonatomic, nullable, strong) HFByteTheme *byteTheme;
 
 @property (nonatomic) BOOL inactiveSelectionColorMatchesActive;
 

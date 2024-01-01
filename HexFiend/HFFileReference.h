@@ -19,8 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 */
 @interface HFFileReference : NSObject
 
-@property (readonly) BOOL isPrivileged;
-@property (readonly) BOOL isFixedLength;
+@property (readonly, getter=isPrivileged) BOOL privileged;
+@property (readonly, getter=isFixedLength) BOOL fixedLength;
 
 /*! Open a file for reading and writing at the given path.  The permissions mode of any newly created file is 0644.  Returns nil if the file could not be opened, in which case the error parameter (if not nil) will be set. */
 - (nullable instancetype)initWritableWithPath:(NSString *)path error:(NSError **)error;
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)writeBytes:(const unsigned char *)buff length:(NSUInteger)length to:(unsigned long long)offset;
 
 /*! Returns the length of the file, as a 64 bit unsigned long long. */
-- (unsigned long long)length;
+@property (readonly) unsigned long long length;
 
 /*! Changes the length of the file via \c ftruncate.  Returns YES on success, NO on failure; on failure it optionally returns an NSError by reference. */
 - (BOOL)setLength:(unsigned long long)length error:(NSError **)error;

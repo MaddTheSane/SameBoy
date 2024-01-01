@@ -467,6 +467,12 @@
     UNIMPLEMENTED_VOID();
 }
 
+- (void)copySelectedBytesToPasteboard:(NSPasteboard *)pb encoding:(nonnull HFStringEncoding *)enc {
+    USE(pb);
+    USE(enc);
+    UNIMPLEMENTED_VOID();
+}
+
 - (void)cutSelectedBytesToPasteboard:(NSPasteboard *)pb {
     [self copySelectedBytesToPasteboard:pb];
     [[self controller] deleteSelection];

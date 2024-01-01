@@ -715,21 +715,8 @@ enum LineCoverage_t {
     return self;
 }
 
-- (CGFloat)horizontalContainerInset {
-    return horizontalContainerInset;
-}
-
-- (void)setHorizontalContainerInset:(CGFloat)inset {
-    horizontalContainerInset = inset;
-}
-
-- (void)setBytesBetweenVerticalGuides:(NSUInteger)val {
-    bytesBetweenVerticalGuides = val;
-}
-
-- (NSUInteger)bytesBetweenVerticalGuides {
-    return bytesBetweenVerticalGuides;
-}
+@synthesize horizontalContainerInset;
+@synthesize bytesBetweenVerticalGuides;
 
 - (void)setFont:(HFFont *)val
 {
@@ -872,25 +859,14 @@ enum LineCoverage_t {
     }
 }
 
-- (CGFloat)verticalOffset {
-    return verticalOffset;
-}
-
-- (NSUInteger)startingLineBackgroundColorIndex {
-    return startingLineBackgroundColorIndex;
-}
-
-- (void)setStartingLineBackgroundColorIndex:(NSUInteger)val {
-    startingLineBackgroundColorIndex = val;
-}
+@synthesize verticalOffset;
+@synthesize startingLineBackgroundColorIndex;
 
 - (BOOL)isFlipped {
     return YES;
 }
 
-- (HFTextRepresenter *)representer {
-    return representer;
-}
+@synthesize representer;
 
 - (void)dealloc {
 #if !TARGET_OS_IPHONE

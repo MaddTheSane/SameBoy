@@ -84,7 +84,7 @@ NSBezierPath
         
         sPath = path;
     }
-    return sPath;
+    return [sPath copy];
 }
 
 

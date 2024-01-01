@@ -95,7 +95,7 @@
     return DBL_MAX;
 }
 
-- (void)selectAll:sender {
+- (IBAction)selectAll:sender {
     [[self controller] selectAll:sender];
 }
 

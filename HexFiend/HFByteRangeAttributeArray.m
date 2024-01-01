@@ -24,7 +24,7 @@ static HFRange entireRangeExtendingFromIndex(unsigned long long start) {
 
 static const HFRange kEntireRange = {0, ULLONG_MAX};
 
-@interface HFByteRangeAttributeArray (HFForwardDeclarations)
+@interface HFByteRangeAttributeArray ()
 - (BOOL)shouldTransferAttribute:(NSString *)attribute;
 @end
 

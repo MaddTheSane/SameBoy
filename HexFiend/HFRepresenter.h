@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*! Returns YES if the view has been created, NO if it has not.  To create the view, call the view method.
  */
-- (BOOL)isViewLoaded;
+@property (nonatomic, readonly, getter=isViewLoaded) BOOL viewLoaded;
 
 /*! Override point for creating the view displaying this representation.  This is called on your behalf the first time the \c -view method is called, so you would not want to call this explicitly; however this method must be overridden.  This follows the "create" rule, and so it should return a retained view.
 */
@@ -78,10 +78,10 @@ NS_ASSUME_NONNULL_BEGIN
 */
 //@{
 /*! Equivalent to <tt>[[self controller] bytesPerLine]</tt> */
-- (NSUInteger)bytesPerLine;
+@property (readonly) NSUInteger bytesPerLine;
 
 /*! Equivalent to <tt>[[self controller] bytesPerColumn]</tt> */
-- (NSUInteger)bytesPerColumn;
+@property (readonly) NSUInteger bytesPerColumn;
 
 /*! Equivalent to <tt>[[self controller] representer:self changedProperties:properties]</tt> .  You may call this when some internal aspect of the receiver's view (such as its frame) has changed in a way that may globally change some property of the controller, and the controller should recalculate those properties.  For example, the text representers call this with HFControllerDisplayedLineRange when the view grows vertically, because more data may be displayed.
 */
@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
 //@}
 
 /*! Returns the required byte granularity.  HFLayoutRepresenter will constrain the bytes per line to a multiple of the granularity, e.g. so that UTF-16 characters are not split across lines.  If different representers have different granularities, then it will constrain it to a multiple of all granularities, which may be very large. The default implementation returns 1. */
-- (NSUInteger)byteGranularity;
+@property (readonly) NSUInteger byteGranularity;
 
 /*! @name Auto-layout methods
    Methods for simple auto-layout by HFLayoutRepresenter.  See the HFLayoutRepresenter class for discussion of how it lays out representer views.

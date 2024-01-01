@@ -14,8 +14,6 @@
     
     As HFVerticalScrollerRepresenter is an especially simple representer, it makes for good sample code.
 */
-@interface HFVerticalScrollerRepresenter : HFRepresenter {
-
-}
+@interface HFVerticalScrollerRepresenter : HFRepresenter
 
 @end

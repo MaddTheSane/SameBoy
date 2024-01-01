@@ -54,7 +54,7 @@ NSString * const HFControllerDidChangePropertiesNotification = @"HFControllerDid
 NSString * const HFControllerChangedPropertiesKey = @"HFControllerChangedPropertiesKey";
 
 
-@interface HFController (ForwardDeclarations)
+@interface HFController ()
 - (void)_commandInsertByteArrays:(NSArray *)byteArrays inRanges:(NSArray *)ranges withSelectionAction:(HFControllerSelectAction)selectionAction;
 - (void)_endTypingUndoCoalescingIfActive;
 - (void)_removeUndoManagerNotifications;
@@ -235,8 +235,8 @@ static inline Class preferredByteArrayClass(void) {
 - (void)addRepresenter:(HFRepresenter *)representer {
     REQUIRE_NOT_NULL(representer);
     HFASSERT([representers indexOfObjectIdenticalTo:representer] == NSNotFound);
-    HFASSERT([representer controller] == nil);
-    [representer _setController:self];
+    HFASSERT(representer.controller == nil);
+    representer.controller = self;
     [representers addObject:representer];
     [representer controllerDidChange: -1];
 }
@@ -245,7 +245,7 @@ static inline Class preferredByteArrayClass(void) {
     REQUIRE_NOT_NULL(representer);    
     HFASSERT([representers indexOfObjectIdenticalTo:representer] != NSNotFound);
     [representers removeObjectIdenticalTo:representer];
-    [representer _setController:nil];
+    representer.controller = nil;
 }
 
 - (HFRange)_maximumDisplayedRangeSet {
@@ -279,9 +279,7 @@ static inline Class preferredByteArrayClass(void) {
     }
 }
 
-- (CGFloat)lineHeight {
-    return lineHeight;
-}
+@synthesize lineHeight;
 
 - (void)setFont:(HFFont *)val
 {
@@ -361,9 +359,7 @@ static inline Class preferredByteArrayClass(void) {
     return YES;
 }
 
-- (NSUInteger)bytesPerColumn {
-    return bytesPerColumn;
-}
+@synthesize bytesPerColumn;
 
 - (void)setInactiveSelectionColorMatchesActive:(BOOL)flag {
     if (flag != _hfflags.inactiveSelectionColorMatchesActive) {
@@ -2164,9 +2160,6 @@ static BOOL rangesAreInAscendingOrder(NSEnumerator *rangeEnumerator) {
     }
 }
 
-- (HFByteTheme * _Nullable)byteTheme
-{
-    return byteTheme;
-}
+@synthesize byteTheme;
 
 @end

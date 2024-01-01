@@ -27,7 +27,6 @@ NS_ASSUME_NONNULL_BEGIN
   There is also a progressIndicator property, which if set to an NSProgressIndicator will cause it to be updated regularly.
     
 */
-
 @interface HFProgressTracker : NSObject {
     @public
     volatile unsigned long long currentProgress;

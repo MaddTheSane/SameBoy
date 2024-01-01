@@ -21,7 +21,7 @@ The two principal subclasses of HFByteSlice are HFSharedMemoryByteSlice and HFFi
 @interface HFByteSlice : NSObject
 
 /*! Return the length of the byte slice as a 64 bit value.  This is an abstract method that concrete subclasses must override. */
-- (unsigned long long)length;
+@property (readonly) unsigned long long length;
 
 /*! Copies a range of data from the byte slice into an in-memory buffer.  This is an abstract method that concrete subclasses must override. */
 - (void)copyBytes:(unsigned char *)dst range:(HFRange)range;
@@ -35,7 +35,7 @@ The two principal subclasses of HFByteSlice are HFSharedMemoryByteSlice and HFFi
 
 /*! Returns YES if the receiver is sourced from a file.  The default implementation returns NO.  This is used to estimate cost when writing to a file.
 */
-- (BOOL)isSourcedFromFile;
+@property (readonly, getter=isSourcedFromFile) BOOL sourcedFromFile;
 
 /*! For a given file reference, returns the range within the file that the receiver is sourced from.  If the receiver is not sourced from this file, returns {ULLONG_MAX, ULLONG_MAX}.  The default implementation returns {ULLONG_MAX, ULLONG_MAX}.  This is used during file saving to to determine how to properly overwrite a given file.
 */

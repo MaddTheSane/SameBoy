@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)deleteDataOfLength:(unsigned long long)length withByteArray:(HFByteArray *)array;
 - (void)overwriteDataInRange:(HFRange)overwriteRange withByteArray:(HFByteArray *)array;
 
-- (HFRange)rangeToReplace;
-- (nullable HFByteArray *)deletedData;
+@property (readonly) HFRange rangeToReplace;
+@property (readonly, nullable, strong) HFByteArray *deletedData;
 
 - (HFControllerCoalescedUndo *)invertWithByteArray:(HFByteArray *)byteArray;
 

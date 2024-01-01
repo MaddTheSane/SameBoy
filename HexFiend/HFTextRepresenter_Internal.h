@@ -3,9 +3,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HFTextRepresenter (HFInternal)
+@interface HFTextRepresenter (/*HFInternal*/)
 
-- (NSArray *)displayedSelectedContentsRanges; //returns an array of NSValues representing the selected ranges (as NSRanges) clipped to the displayed range.
+- (NSArray<NSValue*> *)displayedSelectedContentsRanges; //returns an array of NSValues representing the selected ranges (as NSRanges) clipped to the displayed range.
 - (NSArray<NSDictionary*> *)displayedColorRanges;
 
 - (nullable NSDictionary *)displayedBookmarkLocations; //returns an dictionary mapping bookmark names to bookmark locations. Bookmark locations may be negative.
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)scrollWheel:(NSEvent *)event;
 #endif
 
-- (void)selectAll:(id)sender;
+- (IBAction)selectAll:(id)sender;
 
 - (HFRange)entireDisplayedRange;
 

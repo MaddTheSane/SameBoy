@@ -2,10 +2,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HFByteArray (HFInternal)
+@interface HFByteArray (/*HFInternal*/)
 
 - (BOOL)_debugIsEqual:(HFByteArray *)val;
 - (BOOL)_debugIsEqualToData:(NSData *)val;
+
+@end
+
+@interface HFByteArray (HFFindReplace)
 
 - (unsigned long long)_byteSearchBoyerMoore:(HFByteArray *)findBytes inRange:(const HFRange)range forwards:(BOOL)forwards trackingProgress:(nullable HFProgressTracker *)progressTracker;
 - (unsigned long long)_byteSearchRollingHash:(HFByteArray *)findBytes inRange:(const HFRange)range forwards:(BOOL)forwards trackingProgress:(nullable HFProgressTracker *)progressTracker;

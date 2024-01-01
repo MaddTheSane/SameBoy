@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     Most of the functionality of HFTextRepresenter is private, and there is not yet enough exposed to allow creating new representers based on it.  However, there is a small amount of configurability.
 */
-@interface HFTextRepresenter : HFRepresenter {}
+@interface HFTextRepresenter : HFRepresenter
 /*! Given a rect edge, return an NSRect representing the maximum edge in that direction, in the coordinate system of the receiver's view.  The dimension in the direction of the edge is 0 (so if edge is NSMaxXEdge, the resulting width is 0).  The returned rect is in the coordinate space of the receiver's view.  If the byte range is not displayed, returns NSZeroRect.
  
     If range is entirely above the visible region, returns an NSRect whose width and height are 0, and whose origin is -CGFLOAT_MAX (the most negative CGFloat).  If range is entirely below the visible region, returns the same except with CGFLOAT_MAX (positive).

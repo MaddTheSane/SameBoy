@@ -16,6 +16,7 @@ typedef NS_ENUM(NSUInteger, HFByteArrayDataStringType) {
     HFASCIIDataStringType
 };
 
+@class HFByteRangeAttributeArray;
 
 /*! @class HFByteArray
 @brief The principal Model class for HexFiend's MVC architecture.
@@ -32,9 +33,6 @@ ByteArrays have the usual threading restrictions for non-concurrent data structu
 
 HFByteArray is an abstract class.  It will raise an exception if you attempt to instantiate it directly.  The principal concrete subclass is HFBTreeByteArray.
 */
-
-@class HFByteRangeAttributeArray;
-
 @interface HFByteArray : NSObject <NSCopying, NSMutableCopying> {
 @private
     NSUInteger changeLockCounter;
@@ -57,7 +55,7 @@ HFByteArray is an abstract class.  It will raise an exception if you attempt to 
 //@{
 
 /*! Returns the length of the HFByteArray as a 64 bit unsigned long long. This is an abstract method that concrete subclasses must override. */
-- (unsigned long long)length;
+@property (readonly) unsigned long long length;
 
 /*! Copies a range of bytes into a buffer.  This is an abstract method that concrete subclasses must override. */
 - (void)copyBytes:(unsigned char *)dst range:(HFRange)range;

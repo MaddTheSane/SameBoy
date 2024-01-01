@@ -32,7 +32,7 @@ typedef unsigned long long HFBTreeIndex;
 - (nonnull NSEnumerator *)entryEnumerator;
 - (NSArray *)allEntries;
 
-- (HFBTreeIndex)length;
+@property (readonly) HFBTreeIndex length;
 
 /* Applies the given function to the entry at the given offset, continuing with subsequent entries until the function returns NO.  Do not modify the tree from within this function. */
 - (void)applyFunction:(BOOL (*)(id entry, HFBTreeIndex offset, void *_Nullable userInfo))func toEntriesStartingAtOffset:(HFBTreeIndex)offset withUserInfo:(void *_Nullable)userInfo;
