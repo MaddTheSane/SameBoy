@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5536BFFC2B44A42500318DA5 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2F2998EF7E00D554FB /* Quartz.framework */; };
+		5536C0012B44A42500318DA5 /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5536C0002B44A42500318DA5 /* PreviewProvider.swift */; };
+		5536C0092B44A42600318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5536C00F2B44A47C00318DA5 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
+		5536C0102B44A94800318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		55478AFC299887DF00056C6A /* JOYInput.h in Headers */ = {isa = PBXBuildFile; fileRef = 55478AFA299887DF00056C6A /* JOYInput.h */; };
 		55478AFD299887DF00056C6A /* JOYInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478AFB299887DF00056C6A /* JOYInput.m */; };
 		55478B2E2998894B00056C6A /* GBDebuggerButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478B2C2998894B00056C6A /* GBDebuggerButton.m */; };
@@ -361,6 +366,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		5536C0072B44A42600318DA5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5536BFFA2B44A42500318DA5;
+			remoteInfo = SBQuickLook;
+		};
+		5536C00D2B44A47200318DA5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 55E7FBFC2998EB3000D554FB;
+			remoteInfo = SameQL;
+		};
+		5536C0112B44A94800318DA5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5536BFFA2B44A42500318DA5;
+			remoteInfo = SBQuickLook;
+		};
 		5562966E2B40C9EA00048A82 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
@@ -419,6 +445,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				5536C0102B44A94800318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */,
 				5562966D2B40C9EA00048A82 /* SBThumb.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -463,6 +490,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				5536C0092B44A42600318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -470,6 +498,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SBQuickLook.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5536C0002B44A42500318DA5 /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
+		5536C0052B44A42500318DA5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5536C0062B44A42500318DA5 /* SBQuickLook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SBQuickLook.entitlements; sourceTree = "<group>"; };
 		55478AFA299887DF00056C6A /* JOYInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JOYInput.h; sourceTree = "<group>"; };
 		55478AFB299887DF00056C6A /* JOYInput.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JOYInput.m; sourceTree = "<group>"; };
 		55478B2A2998894B00056C6A /* GBDebuggerButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBDebuggerButton.h; sourceTree = "<group>"; };
@@ -837,6 +869,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5536BFF82B44A42500318DA5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5536C00F2B44A47C00318DA5 /* SameQL.framework in Frameworks */,
+				5536BFFC2B44A42500318DA5 /* Quartz.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5579AC8825A05E5F00CADDCE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -904,6 +945,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5536BFFD2B44A42500318DA5 /* SBQuickLook */ = {
+			isa = PBXGroup;
+			children = (
+				5536C0002B44A42500318DA5 /* PreviewProvider.swift */,
+				5536C0052B44A42500318DA5 /* Info.plist */,
+				5536C0062B44A42500318DA5 /* SBQuickLook.entitlements */,
+			);
+			path = SBQuickLook;
+			sourceTree = "<group>";
+		};
 		55478B33299889A800056C6A /* AppleCommon */ = {
 			isa = PBXGroup;
 			children = (
@@ -993,6 +1044,7 @@
 				55E7FBCB2998DFF400D554FB /* QuickLook */,
 				55E7FBFE2998EB3000D554FB /* SameQL */,
 				55E7FC312998EF7E00D554FB /* SBThumb */,
+				5536BFFD2B44A42500318DA5 /* SBQuickLook */,
 				558DA24026228A9A0019146B /* Frameworks */,
 				5579AC8C25A05E5F00CADDCE /* Products */,
 			);
@@ -1009,6 +1061,7 @@
 				55E7FBFD2998EB3000D554FB /* SameQL.framework */,
 				55E7FC2C2998EF7E00D554FB /* SBThumb.appex */,
 				55970F502B32F18400E3B538 /* SameBoy-iOS.app */,
+				5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1473,6 +1526,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		5536BFFA2B44A42500318DA5 /* SBQuickLook */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5536C00C2B44A42600318DA5 /* Build configuration list for PBXNativeTarget "SBQuickLook" */;
+			buildPhases = (
+				5536BFF72B44A42500318DA5 /* Sources */,
+				5536BFF82B44A42500318DA5 /* Frameworks */,
+				5536BFF92B44A42500318DA5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5536C00E2B44A47200318DA5 /* PBXTargetDependency */,
+			);
+			name = SBQuickLook;
+			productName = SBQuickLook;
+			productReference = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		5579AC8A25A05E5F00CADDCE /* SameBoy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5579AC9C25A05E6000CADDCE /* Build configuration list for PBXNativeTarget "SameBoy" */;
@@ -1491,6 +1562,7 @@
 				558DA31D26228CAD0019146B /* PBXTargetDependency */,
 				558DA2D626228BD20019146B /* PBXTargetDependency */,
 				55E7FC022998EB3000D554FB /* PBXTargetDependency */,
+				5536C0082B44A42600318DA5 /* PBXTargetDependency */,
 			);
 			name = SameBoy;
 			productName = SameBoy;
@@ -1546,6 +1618,7 @@
 			dependencies = (
 				5562966F2B40C9EA00048A82 /* PBXTargetDependency */,
 				556296742B40CA6400048A82 /* PBXTargetDependency */,
+				5536C0122B44A94800318DA5 /* PBXTargetDependency */,
 			);
 			name = "SameBoy-iOS";
 			productName = "SameBoy-iOS";
@@ -1612,9 +1685,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1420;
+				LastSwiftUpdateCheck = 1510;
 				LastUpgradeCheck = 1510;
 				TargetAttributes = {
+					5536BFFA2B44A42500318DA5 = {
+						CreatedOnToolsVersion = 15.1;
+					};
 					5579AC8A25A05E5F00CADDCE = {
 						CreatedOnToolsVersion = 12.3;
 					};
@@ -1658,11 +1734,19 @@
 				55E7FBC62998DDBA00D554FB /* SameBoyQL */,
 				55E7FBFC2998EB3000D554FB /* SameQL */,
 				55E7FC2B2998EF7E00D554FB /* SBThumb */,
+				5536BFFA2B44A42500318DA5 /* SBQuickLook */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		5536BFF92B44A42500318DA5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5579AC8925A05E5F00CADDCE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1738,6 +1822,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		5536BFF72B44A42500318DA5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5536C0012B44A42500318DA5 /* PreviewProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5579AC8725A05E5F00CADDCE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2018,6 +2110,21 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		5536C0082B44A42600318DA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5536BFFA2B44A42500318DA5 /* SBQuickLook */;
+			targetProxy = 5536C0072B44A42600318DA5 /* PBXContainerItemProxy */;
+		};
+		5536C00E2B44A47200318DA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 55E7FBFC2998EB3000D554FB /* SameQL */;
+			targetProxy = 5536C00D2B44A47200318DA5 /* PBXContainerItemProxy */;
+		};
+		5536C0122B44A94800318DA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5536BFFA2B44A42500318DA5 /* SBQuickLook */;
+			targetProxy = 5536C0112B44A94800318DA5 /* PBXContainerItemProxy */;
+		};
 		5562966F2B40C9EA00048A82 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 55E7FC2B2998EF7E00D554FB /* SBThumb */;
@@ -2056,10 +2163,85 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		5536C00A2B44A42600318DA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = SBQuickLook/SBQuickLook.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SBQuickLook/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SBQuickLook;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.SBQuickLook;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.github.liji32.sameboy.ios.SBQuickLook;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphonesimulator*]" = com.github.liji32.sameboy.ios.SBQuickLook;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+			};
+			name = Debug;
+		};
+		5536C00B2B44A42600318DA5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = SBQuickLook/SBQuickLook.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SBQuickLook/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SBQuickLook;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.SBQuickLook;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.github.liji32.sameboy.ios.SBQuickLook;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphonesimulator*]" = com.github.liji32.sameboy.ios.SBQuickLook;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+			};
+			name = Release;
+		};
 		5579AC9A25A05E6000CADDCE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -2089,6 +2271,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2116,6 +2299,9 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -2123,6 +2309,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -2152,6 +2339,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2176,6 +2364,8 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -2297,7 +2487,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = iOS/jailbreak.entitlements;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"GB_DISABLE_DEBUGGER=1",
@@ -2327,7 +2516,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = iOS/jailbreak.entitlements;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"GB_DISABLE_DEBUGGER=1",
@@ -2415,7 +2603,6 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -2455,7 +2642,6 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -2494,12 +2680,12 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = SBThumb/SBThumb.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SBThumb/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SBThumb;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -2522,10 +2708,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -2535,12 +2717,12 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = SBThumb/SBThumb.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SBThumb/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SBThumb;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -2563,16 +2745,21 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5536C00C2B44A42600318DA5 /* Build configuration list for PBXNativeTarget "SBQuickLook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5536C00A2B44A42600318DA5 /* Debug */,
+				5536C00B2B44A42600318DA5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5579AC8625A05E5F00CADDCE /* Build configuration list for PBXProject "SameBoy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
