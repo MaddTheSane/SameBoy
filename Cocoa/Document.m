@@ -1171,16 +1171,14 @@ static bool is_path_writeable(const char *path)
         _romWarningIssued = true;
         [GBWarningPopover popoverWithContents:rom_warnings onWindow:self.mainWindow];
     }
-    //TODO: use NSURL's NSURLResourceKey NSURLContentModificationDateKey
-    _fileModificationTime = [[NSFileManager defaultManager] attributesOfItemAtPath:fileName.path error:nil][NSFileModificationDate];
+    _fileModificationTime = [fileName resourceValuesForKeys:@[NSURLContentModificationDateKey] error:NULL][NSURLContentModificationDateKey];
     return ret;
 }
 
 - (void)showWindows
 {
     if (GB_is_inited(&_gb)) {
-        //TODO: use NSURL's NSURLResourceKey NSURLContentModificationDateKey
-        if (![_fileModificationTime isEqualToDate:[[NSFileManager defaultManager] attributesOfItemAtPath:self.fileName error:nil][NSFileModificationDate]]) {
+        if (![_fileModificationTime isEqualToDate:self.fileModificationDate]) {
             [self reset:nil];
         }
     }

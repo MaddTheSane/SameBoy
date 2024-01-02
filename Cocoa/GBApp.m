@@ -257,7 +257,9 @@ static uint32_t color_to_int(NSColor *color)
 
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:(NSUserNotification *)notification
 {
-    [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfFile:notification.identifier display:true];
+    [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:[NSURL fileURLWithPath:notification.identifier] display:true completionHandler:^(NSDocument * _Nullable document, BOOL documentWasAlreadyOpen, NSError * _Nullable error) {
+        // Do nothing.
+    }];
 }
 
 - (void)updateFound

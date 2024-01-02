@@ -180,7 +180,7 @@ static double blend(double from, double to, double position)
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
-    NSString *name = [self tableView:nil objectValueForTableColumn:nil row:_themesList.selectedRow];
+    NSString *name = [self tableView:_themesList objectValueForTableColumn:nil row:_themesList.selectedRow];
     [[NSUserDefaults standardUserDefaults] setObject:name forKey:@"GBCurrentTheme"];
     [self loadPalette];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"GBColorPaletteChanged" object:nil];
