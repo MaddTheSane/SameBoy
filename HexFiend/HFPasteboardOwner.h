@@ -44,7 +44,7 @@ extern NSPasteboardType const HFPrivateByteArrayPboardType NS_SWIFT_NAME(hfPriva
 @property (nonatomic) NSUInteger bytesPerLine;
 
 /*! For efficiency, Hex Fiend writes pointers to HFByteArrays into pasteboards.  In the case that the user quits and relaunches Hex Fiend, we don't want to read a pointer from the old process, so each process we generate a UUID.  This is constant for the lifetime of the process. */
-@property (class, readonly, copy) NSString *uuid;
++ (NSString *)uuid;
 
 /*! Unpacks a byte array from a pasteboard, preferring HFPrivateByteArrayPboardType */
 + (nullable HFByteArray *)unpackByteArrayFromPasteboard:(NSPasteboard *)pasteboard;

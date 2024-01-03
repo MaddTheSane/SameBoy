@@ -610,8 +610,8 @@ static const uint8_t workboy_vk_to_key[] = {
     
     unsigned playerCount = self.playerCount;
 
-    IOPMAssertionID assertionID;
-    IOPMAssertionDeclareUserActivity(CFSTR(""), kIOPMUserActiveLocal, &assertionID);
+    IOPMAssertionID assertionID = kIOPMNullAssertionID;
+    IOPMAssertionDeclareUserActivity(CFSTR("Playing SameBoy game"), kIOPMUserActiveLocal, &assertionID);
     
     
     NSDictionary<NSNumber *, JOYController *> *controllerMapping = [self controllerMapping];
