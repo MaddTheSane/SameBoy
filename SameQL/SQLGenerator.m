@@ -25,6 +25,10 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
             templateColor = [bundle imageForResource:@"ColorCartridgeTemplate"];
         });
     }
+    //Sanity check: Are the inputs valud?
+    if (cgContext == NULL || url == NULL) {
+        return -50;// paramErr;
+    }
     uint32_t bitmap[160*144];
     uint8_t cgbFlag = 0;
     
@@ -32,7 +36,7 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
     if (get_image_for_rom([(__bridge NSURL *)url fileSystemRepresentation],
                           [[bundle URLForResource:@"cgb_boot_fast" withExtension:@"bin"] fileSystemRepresentation],
                           bitmap, &cgbFlag)) {
-        return ioErr;
+        return -36;// ioErr;
     }
     
     /* Convert the screenshot to a CGImageRef */

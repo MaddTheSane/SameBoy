@@ -11,6 +11,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
 
+CF_ASSUME_NONNULL_BEGIN
+
 extern OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder);
+
+CF_ASSUME_NONNULL_END
 
 #endif /* SQLGenerator_h */
