@@ -27,10 +27,10 @@ typedef enum {
 @property (nonatomic) GB_frame_blending_mode_t frameBlendingMode;
 @property (nonatomic, strong) NSView *internalView;
 - (void) flip;
-- (uint32_t *) pixels;
+@property (readonly) uint32_t *pixels NS_RETURNS_INNER_POINTER;
 - (void)screenSizeChanged;
 - (void) createInternalView;
-- (uint32_t *)currentBuffer;
-- (uint32_t *)previousBuffer;
+@property (readonly) uint32_t *currentBuffer NS_RETURNS_INNER_POINTER;
+@property (readonly) uint32_t *previousBuffer NS_RETURNS_INNER_POINTER;
 
 @end

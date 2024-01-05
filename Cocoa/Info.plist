@@ -131,7 +131,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.games</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.9</string>
+	<string>10.10</string>
 	<key>NSCameraUsageDescription</key>
 	<string>SameBoy needs to access your device's camera to emulate the Game Boy Camera</string>
 	<key>NSHumanReadableCopyright</key>
