@@ -661,7 +661,7 @@ typedef union {
 
 - (void)obtainInfo
 {
-    _deviceName = IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDProductKey));
+    _deviceName = [(__bridge NSString *)IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDProductKey)) copy];
     NSString *serial = (__bridge NSString *)IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDSerialNumberKey));
     if (!serial || [(__bridge NSString *)IOHIDDeviceGetProperty(_device, CFSTR(kIOHIDTransportKey)) isEqualToString:@"USB"]) {
         serial = [NSString stringWithFormat:@"%04x%04x%08x",

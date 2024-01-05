@@ -41,7 +41,7 @@ typedef NS_ENUM(short, JOYJoyConType) {
 + (NSArray<JOYController *> *) allControllers;
 + (void) registerListener:(id<JOYListener>)listener;
 + (void) unregisterListener:(id<JOYListener>)listener;
-- (JOYControllerCombinedType)combinedControllerType;
+@property (readonly) JOYControllerCombinedType combinedControllerType;
 @property (nonatomic, readonly, copy) NSArray<JOYButton *> *buttons;
 @property (nonatomic, readonly, copy) NSArray<JOYAxis *> *axes;
 @property (nonatomic, readonly, copy) NSArray<JOYAxes2D *> *axes2D;
@@ -53,8 +53,8 @@ typedef NS_ENUM(short, JOYJoyConType) {
 - (uint8_t)LEDMaskForPlayer:(unsigned)player;
 @property (readonly, getter=isConnected) bool connected;
 @property (readonly) JOYJoyConType joyconType;
-@property (readonly) NSString *deviceName;
-@property (readonly) NSString *uniqueID;
+@property (readonly, copy) NSString *deviceName;
+@property (readonly, copy) NSString *uniqueID;
 @property (nonatomic) bool usesHorizontalJoyConGrip;
 @end
 

@@ -28,7 +28,7 @@
 
 - (instancetype)initWithFrame:(NSRect)frameRect pixelFormat:(NSOpenGLPixelFormat *)format
 {
-    __unsafe_unretained GBOpenGLView *weakSelf = self;
+    __weak GBOpenGLView *weakSelf = self;
     [self observeStandardDefaultsKey:@"GBFilter" withBlock:^(id newValue) {
         weakSelf.shader = nil;
         [weakSelf setNeedsDisplay:true];

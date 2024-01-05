@@ -14,7 +14,7 @@
 #include "BaseFragment.h"
 
 #define scale scale2
-STATIC vec4 scale2(sampler2D image, float2 position, float2 input_resolution, float2 output_resolution)
+static float4 scale2(texture2d<half> image, float2 position, float2 input_resolution, float2 output_resolution)
 {
     return mix(texture(image, position), scale2x(image, position, input_resolution, output_resolution), 0.5);
 }
