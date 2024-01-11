@@ -238,12 +238,12 @@ enum style {
 
 static void draw_styled_text(uint32_t *buffer, unsigned width, unsigned height, unsigned y, const char *string, uint32_t color, uint32_t border, enum style style)
 {
-    unsigned x = GLYPH_WIDTH * 2;
+    unsigned x = GLYPH_WIDTH * 2 + (width - 160) / 2;
     if (style == STYLE_CENTER || style == STYLE_ARROWS) {
         x = width / 2 - (unsigned) strlen(string) * GLYPH_WIDTH / 2;
     }
     else if (style == STYLE_LEFT) {
-        x = 6;
+        x = 6 + (width - 160) / 2;
     }
     
     draw_text(buffer, width, height, x, y, string, color, border, false);
@@ -2648,6 +2648,9 @@ void run_gui(bool is_running)
                 memcpy(pixels, converted_background->pixels, sizeof(pixels));
             }
             else {
+                for (unsigned i = 0; i < width * height; i++) {
+                    pixels[i] = gui_palette_native[0];
+                }
                 for (unsigned y = 0; y < 144; y++) {
                     memcpy(pixels + x_offset + width * (y + y_offset), ((uint32_t *)converted_background->pixels) + 160 * y, 160 * 4);
                 }
