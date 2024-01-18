@@ -10,9 +10,12 @@ static OSStatus render(CGContextRef cgContext, CFURLRef url, bool showBorder)
     static NSImage *templateColor = nil;
     static NSBundle *bundle = nil;
     static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        bundle = [NSBundle bundleWithIdentifier:@"com.github.liji32.sameboy.previewer"];
+    });
     if (showBorder) {
+        static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            bundle = [NSBundle bundleWithIdentifier:@"com.github.liji32.sameboy.previewer"];
             template = [bundle imageForResource:@"CartridgeTemplate"];
             templateUniversal = [bundle imageForResource:@"UniversalCartridgeTemplate"];
             templateColor = [bundle imageForResource:@"ColorCartridgeTemplate"];
@@ -31,7 +34,7 @@ static OSStatus render(CGContextRef cgContext, CFURLRef url, bool showBorder)
     /* Convert the screenshot to a CGImageRef */
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, bitmap, sizeof(bitmap), NULL);
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
-    CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     
     CGImageRef iref = CGImageCreate(160,

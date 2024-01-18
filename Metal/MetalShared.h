@@ -23,7 +23,7 @@ typedef texture2d<half> sampler2D;
 #define inequal(x, y) any((x) != (y))
 #define STATIC static
 #define GAMMA (2.2)
-#define BLEND_BIAS (2.0/5.0)
+#define BLEND_BIAS (1.0/3.0)
 
 typedef struct {
     float4 position [[position]];
