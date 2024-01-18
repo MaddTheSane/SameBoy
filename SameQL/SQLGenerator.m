@@ -17,9 +17,12 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
     static NSImage *templateColor = nil;
     static NSBundle *bundle = nil;
     static dispatch_once_t onceToken;
+    static dispatch_once_t onceToken2;
+    dispatch_once(&onceToken2, ^{
+        bundle = [NSBundle bundleWithIdentifier:@"com.github.maddthesane.SameQL"];
+    });
     if (showBorder) {
         dispatch_once(&onceToken, ^{
-            bundle = [NSBundle bundleWithIdentifier:@"com.github.maddthesane.SameQL"];
             template = [bundle imageForResource:@"CartridgeTemplate"];
             templateUniversal = [bundle imageForResource:@"UniversalCartridgeTemplate"];
             templateColor = [bundle imageForResource:@"ColorCartridgeTemplate"];
