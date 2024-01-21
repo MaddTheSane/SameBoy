@@ -6,7 +6,12 @@
 //
 
 #include "SQLGenerator.h"
+#if TARGET_OS_OSX
 #include <Cocoa/Cocoa.h>
+#else
+#include <UIKit/UIKit.h>
+#define NSImage UIImage
+#endif
 #include "get_image_for_rom.h"
 
 OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
@@ -23,9 +28,15 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
     });
     if (showBorder) {
         dispatch_once(&onceToken, ^{
+#if TARGET_OS_OSX
             template = [bundle imageForResource:@"CartridgeTemplate"];
             templateUniversal = [bundle imageForResource:@"UniversalCartridgeTemplate"];
             templateColor = [bundle imageForResource:@"ColorCartridgeTemplate"];
+#else
+            template = [UIImage imageNamed:@"CartridgeTemplate" inBundle:bundle withConfiguration:nil];
+            templateUniversal = [UIImage imageNamed:@"UniversalCartridgeTemplate" inBundle:bundle withConfiguration:nil];
+            templateColor = [UIImage imageNamed:@"ColorCartridgeTemplate" inBundle:bundle withConfiguration:nil];
+#endif
         });
     }
     //Sanity check: Are the inputs valud?
@@ -45,7 +56,7 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
     /* Convert the screenshot to a CGImageRef */
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, bitmap, sizeof(bitmap), NULL);
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
-    CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     
     CGImageRef iref = CGImageCreate(160,
@@ -62,19 +73,24 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
     CGDataProviderRelease(provider);
     CGColorSpaceRelease(colorSpaceRef);
     CGContextSetInterpolationQuality(cgContext, kCGInterpolationNone);
+#if TARGET_OS_OSX
+    [NSGraphicsContext saveGraphicsState];
     NSGraphicsContext *context = [NSGraphicsContext graphicsContextWithCGContext:cgContext flipped:false];
     [NSGraphicsContext setCurrentContext:context];
     
     
     /* Convert the screenshot to a magnified NSImage */
     NSImage *screenshot = [[NSImage alloc] initWithCGImage:iref size:NSMakeSize(160, 144)];
+#else
+    UIGraphicsPushContext(cgContext);
+    UIImage *screenshot = [UIImage imageWithCGImage:iref];
+#endif
     CGImageRelease(iref);
     /* Draw the screenshot */
     if (showBorder) {
-        [screenshot drawInRect:NSMakeRect(192, 150, 640, 576)];
-    }
-    else {
-        [screenshot drawInRect:NSMakeRect(0, 0, 640, 576)];
+        [screenshot drawInRect:CGRectMake(192, 150, 640, 576)];
+    } else {
+        [screenshot drawInRect:CGRectMake(0, 0, 640, 576)];
     }
     
     if (showBorder) {
@@ -96,8 +112,13 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
         }
         
         /* Mask it with the template (The middle part of the template image is transparent) */
-        [effectiveTemplate drawInRect:(NSRect){NSZeroPoint, template.size}];
+        [effectiveTemplate drawInRect:(CGRect){CGPointZero, template.size}];
     }
+#if TARGET_OS_OSX
+    [NSGraphicsContext restoreGraphicsState];
+#else
+    UIGraphicsPopContext();
+#endif
     
     return noErr;
 }

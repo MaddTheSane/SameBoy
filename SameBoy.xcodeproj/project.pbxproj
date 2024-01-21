@@ -3,11 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 55;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5536BFFC2B44A42500318DA5 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2F2998EF7E00D554FB /* Quartz.framework */; };
+		5536BFFC2B44A42500318DA5 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2F2998EF7E00D554FB /* Quartz.framework */; platformFilters = (macos, ); };
 		5536C0012B44A42500318DA5 /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5536C0002B44A42500318DA5 /* PreviewProvider.swift */; };
 		5536C0092B44A42600318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5536C00F2B44A47C00318DA5 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
@@ -356,7 +356,7 @@
 		55E7FC262998EC0200D554FB /* UniversalCartridgeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FBCD2998DFF500D554FB /* UniversalCartridgeTemplate.png */; };
 		55E7FC272998EC0200D554FB /* cgb_boot_fast.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FBF62998E74C00D554FB /* cgb_boot_fast.bin */; };
 		55E7FC2E2998EF7E00D554FB /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2D2998EF7E00D554FB /* QuickLookThumbnailing.framework */; };
-		55E7FC302998EF7E00D554FB /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2F2998EF7E00D554FB /* Quartz.framework */; };
+		55E7FC302998EF7E00D554FB /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2F2998EF7E00D554FB /* Quartz.framework */; platformFilters = (macos, ); };
 		55E7FC332998EF7E00D554FB /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7FC322998EF7E00D554FB /* ThumbnailProvider.swift */; };
 		55E7FC3F2998EF9300D554FB /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
 		55E7FC472998F25500D554FB /* sgb_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC402998F25500D554FB /* sgb_boot.bin */; };
