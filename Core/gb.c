@@ -549,7 +549,10 @@ int GB_load_isx(GB_gameboy_t *gb, const char *path)
                 bank = byte;
                 if (byte >= 0x80) {
                     READ(byte);
-                    bank |= byte << 8;
+                    /* TODO: This is just a guess, the docs don't elaborator on how banks > 0xFF are saved,
+                       other than the fact that banks >= 80 requires two bytes to store them, and I haven't
+                       encountered an ISX file for a ROM larger than 4MBs yet. */
+                    bank += byte << 7;
                 }
                 
                 READ(address);
@@ -601,9 +604,8 @@ int GB_load_isx(GB_gameboy_t *gb, const char *path)
                 uint8_t length;
                 char name[257];
                 uint8_t flag;
-                uint16_t bank;
+                uint8_t bank;
                 uint16_t address;
-                uint8_t byte;
                 READ(count);
                 count = LE16(count);
                 while (count--) {
@@ -612,12 +614,7 @@ int GB_load_isx(GB_gameboy_t *gb, const char *path)
                     name[length] = 0;
                     READ(flag); // unused
                     
-                    READ(byte);
-                    bank = byte;
-                    if (byte >= 0x80) {
-                        READ(byte);
-                        bank |= byte << 8;
-                    }
+                    READ(bank);
                     
                     READ(address);
                     address = LE16(address);
@@ -1708,7 +1705,7 @@ static void GB_reset_internal(GB_gameboy_t *gb, bool quick)
     GB_update_clock_rate(gb);
     uint8_t rtc_section[GB_SECTION_SIZE(rtc)];
     memcpy(rtc_section, GB_GET_SECTION(gb, rtc), sizeof(rtc_section));
-    memset(gb, 0, (size_t)GB_GET_SECTION((GB_gameboy_t *) 0, unsaved));
+    memset(gb, 0, GB_SECTION_OFFSET(unsaved));
     memcpy(GB_GET_SECTION(gb, rtc), rtc_section, sizeof(rtc_section));
     gb->model = model;
     gb->version = GB_STRUCT_VERSION;

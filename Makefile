@@ -100,7 +100,7 @@ CONF ?= debug
 BIN := build/bin
 OBJ := build/obj
 INC := build/include/sameboy
-LIB := build/lib
+LIBDIR := build/lib
 
 BOOTROMS_DIR ?= $(BIN)/BootROMs
 
@@ -164,7 +164,7 @@ endif
 
 # These must come before the -Wno- flags
 WARNINGS += -Werror -Wall -Wno-unknown-warning -Wno-unknown-warning-option -Wno-missing-braces
-WARNINGS += -Wno-nonnull -Wno-unused-result -Wno-strict-aliasing -Wno-multichar -Wno-int-in-bool-context -Wno-format-truncation
+WARNINGS += -Wno-nonnull -Wno-unused-result -Wno-multichar -Wno-int-in-bool-context -Wno-format-truncation
 
 ifeq ($(PLATFORM),Darwin)
 WARNINGS += -Wno-error=pass-failed
@@ -249,7 +249,7 @@ CORE_FILTER += Core/debugger.c Core/sm83_disassembler.c Core/symbol_hash.c
 LDFLAGS += -arch arm64
 OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -isysroot $(SYSROOT)
 LDFLAGS += -miphoneos-version-min=11.0  -isysroot $(SYSROOT)
-REREGISTER_LDFLAGS := $(LDFLAGS) -lobjc -framework CoreServices -framework Foundation
+IOS_INSTALLER_LDFLAGS := $(LDFLAGS) -lobjc -framework CoreServices -framework Foundation
 LDFLAGS += -lobjc -framework UIKit -framework Foundation -framework CoreGraphics -framework Metal -framework MetalKit -framework AudioToolbox -framework AVFoundation -framework QuartzCore -framework CoreMotion -framework CoreVideo -framework CoreMedia -framework CoreImage -framework UserNotifications -weak_framework CoreHaptics 
 CODESIGN := codesign -fs -
 METAL_SDK := iphoneos
@@ -335,13 +335,13 @@ quicklook: $(BIN)/SameBoy.qlgenerator
 sdl: $(SDL_TARGET) $(BIN)/SDL/dmg_boot.bin $(BIN)/SDL/mgb_boot.bin $(BIN)/SDL/cgb0_boot.bin $(BIN)/SDL/cgb_boot.bin $(BIN)/SDL/agb_boot.bin $(BIN)/SDL/sgb_boot.bin $(BIN)/SDL/sgb2_boot.bin $(BIN)/SDL/LICENSE $(BIN)/SDL/registers.sym $(BIN)/SDL/background.bmp $(BIN)/SDL/Shaders $(BIN)/SDL/Palettes
 bootroms: $(BIN)/BootROMs/agb_boot.bin $(BIN)/BootROMs/cgb_boot.bin $(BIN)/BootROMs/cgb0_boot.bin $(BIN)/BootROMs/dmg_boot.bin $(BIN)/BootROMs/mgb_boot.bin $(BIN)/BootROMs/sgb_boot.bin $(BIN)/BootROMs/sgb2_boot.bin
 tester: $(TESTER_TARGET) $(BIN)/tester/dmg_boot.bin $(BIN)/tester/cgb_boot.bin $(BIN)/tester/agb_boot.bin $(BIN)/tester/sgb_boot.bin $(BIN)/tester/sgb2_boot.bin
-_ios: $(BIN)/SameBoy-iOS.app $(OBJ)/reregister
+_ios: $(BIN)/SameBoy-iOS.app $(OBJ)/installer
 ios-ipa: $(BIN)/SameBoy-iOS.ipa
 ios-deb: $(BIN)/SameBoy-iOS.deb
 ifeq ($(PLATFORM),windows32)
 lib: lib-unsupported
 else
-lib: $(LIB)/libsameboy.o $(LIB)/libsameboy.a
+lib: $(LIBDIR)/libsameboy.o $(LIBDIR)/libsameboy.a
 endif
 all: sdl tester libretro lib
 ifeq ($(PLATFORM),Darwin)
@@ -354,7 +354,7 @@ CORE_SOURCES := $(filter-out $(CORE_FILTER),$(shell ls Core/*.c))
 CORE_HEADERS := $(shell ls Core/*.h)
 SDL_SOURCES := $(shell ls SDL/*.c) $(OPEN_DIALOG) $(patsubst %,SDL/audio/%.c,$(SDL_AUDIO_DRIVERS))
 TESTER_SOURCES := $(shell ls Tester/*.c)
-IOS_SOURCES := $(filter-out iOS/reregister.m, $(shell ls iOS/*.m)) $(shell ls AppleCommon/*.m)
+IOS_SOURCES := $(filter-out iOS/installer.m, $(shell ls iOS/*.m)) $(shell ls AppleCommon/*.m)
 COCOA_SOURCES := $(shell ls Cocoa/*.m) $(shell ls HexFiend/*.m) $(shell ls JoyKit/*.m) $(shell ls AppleCommon/*.m)
 QUICKLOOK_SOURCES := $(shell ls QuickLook/*.m) $(shell ls QuickLook/*.c)
 METAL_SOURCES := $(shell ls Metal/*.metal)
@@ -481,9 +481,8 @@ endif
 $(BIN)/SameBoy-iOS.app/default.metallib: $(METAL_OBJECTS)
 	xcrun -sdk $(METAL_SDK) metal $(METAL_FLAGS) -o $@ $^
 
-
-$(OBJ)/reregister: iOS/reregister.m
-	$(CC) $< -o $@ $(REREGISTER_LDFLAGS) $(CFLAGS)
+$(OBJ)/installer: iOS/installer.m
+	$(CC) $< -o $@ $(IOS_INSTALLER_LDFLAGS) $(CFLAGS)
 
 # Cocoa Port
 
@@ -635,7 +634,7 @@ $(BIN)/SameBoy-iOS.app/%.bin: $(BOOTROMS_DIR)/%.bin
 
 $(BIN)/SDL/LICENSE: LICENSE
 	-@$(MKDIR) -p $(dir $@)
-	cp -f $^ $@
+	grep -v "^  " $^ > $@
 
 $(BIN)/SDL/registers.sym: Misc/registers.sym
 	-@$(MKDIR) -p $(dir $@)
@@ -676,12 +675,12 @@ $(BIN)/BootROMs/%.bin: BootROMs/%.asm $(OBJ)/BootROMs/SameBoyLogo.pb12
 	-@$(MKDIR) -p $(dir $@)
 	$(RGBASM) -i $(OBJ)/BootROMs/ -i BootROMs/ -o $@.tmp $<
 	$(RGBLINK) -o $@.tmp2 $@.tmp
-	dd if=$@.tmp2 of=$@ count=1 bs=$(if $(findstring dmg,$@)$(findstring sgb,$@)$(findstring mgb,$@),256,2304) 2> $(NULL)
+	dd if=$@.tmp2 of=$@ count=1 bs=$(if $(findstring cgb,$@)$(findstring agb,$@),2304,256) 2> $(NULL)
 	@rm $@.tmp $@.tmp2
 
 # Libretro Core (uses its own build system)
 libretro:
-	CFLAGS="$(WARNINGS)" $(MAKE) -C libretro BOOTROMS_DIR=$(abspath $(BOOTROMS_DIR))
+	CFLAGS="$(WARNINGS)" $(MAKE) -C libretro BOOTROMS_DIR=$(abspath $(BOOTROMS_DIR)) BIN=$(abspath $(BIN))
 
 # install for Linux/FreeDesktop/etc.
 # Does not install mimetype icons because FreeDesktop is cursed abomination with no right to exist.
@@ -729,9 +728,10 @@ endif
 ios:
 	@$(MAKE) _ios
     
-$(BIN)/SameBoy-iOS.ipa: ios
+$(BIN)/SameBoy-iOS.ipa: ios iOS/sideload.entitlements
 	$(MKDIR) -p $(OBJ)/Payload
 	cp -rf $(BIN)/SameBoy-iOS.app $(OBJ)/Payload/SameBoy-iOS.app
+	codesign -fs - --entitlements iOS/sideload.entitlements $(OBJ)/Payload/SameBoy-iOS.app
 	(cd $(OBJ) && zip -q $(abspath $@) -r Payload)
 	rm -rf $(OBJ)/Payload
 
@@ -740,26 +740,28 @@ $(BIN)/SameBoy-iOS.deb: $(OBJ)/debian-binary $(OBJ)/control.tar.gz $(OBJ)/data.t
 	-@$(MKDIR) -p $(dir $@)
 	(cd $(OBJ) && ar cr $(abspath $@) $(notdir $^))
 	
-$(OBJ)/data.tar.gz: ios iOS/jailbreak.entitlements
-	$(MKDIR) -p $(OBJ)/Applications
-	cp -rf $(BIN)/SameBoy-iOS.app $(OBJ)/Applications/SameBoy-iOS.app
-	cp build/obj-ios/reregister iOS/reregister.entitlements $(OBJ)/Applications/SameBoy-iOS.app
-	codesign -fs - --entitlements iOS/jailbreak.entitlements $(OBJ)/Applications/SameBoy-iOS.app
-	(cd $(OBJ) && tar -czf $(abspath $@) --format ustar --uid 501 --gid 501 --numeric-owner ./Applications)
-	rm -rf $(OBJ)/Applications
+$(OBJ)/data.tar.gz: ios iOS/jailbreak.entitlements iOS/installer.entitlements
+	$(MKDIR) -p $(OBJ)/private/var/containers/
+	cp -rf $(BIN)/SameBoy-iOS.app $(OBJ)/private/var/containers/SameBoy-iOS.app
+	cp build/obj-ios/installer $(OBJ)/private/var/containers/SameBoy-iOS.app
+	codesign -fs - --entitlements iOS/installer.entitlements $(OBJ)/private/var/containers/SameBoy-iOS.app/installer
+	codesign -fs - --entitlements iOS/jailbreak.entitlements $(OBJ)/private/var/containers/SameBoy-iOS.app
+	(cd $(OBJ) && tar -czf $(abspath $@) --format ustar --uid 501 --gid 501 --numeric-owner ./private)
+	rm -rf $(OBJ)/private/
 	
-$(OBJ)/control.tar.gz: iOS/deb-postinst iOS/deb-control
+$(OBJ)/control.tar.gz: iOS/deb-postinst iOS/deb-prerm iOS/deb-control
 	-@$(MKDIR) -p $(dir $@)
 	sed "s/@VERSION/$(VERSION)/" < iOS/deb-control > $(OBJ)/control
 	ln iOS/deb-postinst $(OBJ)/postinst
-	(cd $(OBJ) && tar -czf $(abspath $@) --format ustar --uid 501 --gid 501 --numeric-owner ./control ./postinst)
-	rm $(OBJ)/control $(OBJ)/postinst
+	ln iOS/deb-prerm $(OBJ)/prerm
+	(cd $(OBJ) && tar -czf $(abspath $@) --format ustar --uid 501 --gid 501 --numeric-owner ./control ./postinst ./prerm)
+	rm $(OBJ)/control $(OBJ)/postinst $(OBJ)/prerm
 	
 $(OBJ)/debian-binary:
 	-@$(MKDIR) -p $(dir $@)
 	echo 2.0 > $@
     
-$(LIB)/libsameboy.o: $(CORE_OBJECTS)
+$(LIBDIR)/libsameboy.o: $(CORE_OBJECTS)
 	-@$(MKDIR) -p $(dir $@)
 	@# This is a somewhat simple hack to force Clang and GCC to build a native object file out of one or many LTO objects
 	echo "static const char __attribute__((used)) x=0;"| $(CC) $(filter-out -flto,$(CFLAGS)) -c -x c - -o $(OBJ)/lto_hack.o
@@ -767,7 +769,7 @@ $(LIB)/libsameboy.o: $(CORE_OBJECTS)
 	$(CC) $(FAT_FLAGS) $(CFLAGS) $(LIBFLAGS) $^ $(OBJ)/lto_hack.o -o $@
 	-@rm $(OBJ)/lto_hack.o
     
-$(LIB)/libsameboy.a: $(LIB)/libsameboy.o
+$(LIBDIR)/libsameboy.a: $(LIBDIR)/libsameboy.o
 	-@$(MKDIR) -p $(dir $@)
 	-@rm -f $@
 	ar -crs $@ $^

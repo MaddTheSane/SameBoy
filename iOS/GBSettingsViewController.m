@@ -284,6 +284,15 @@ static NSString const *typeLightTemp = @"typeLightTemp";
     
     NSArray<NSDictionary *> *audioMenu = @[
         @{
+            @"header": @"Enable Audio",
+            @"items": @[
+                @{@"type": typeRadio, @"pref": @"GBAudioMode", @"title": @"Never",                     @"value": @"off",},
+                @{@"type": typeRadio, @"pref": @"GBAudioMode", @"title": @"Controlled by Silent Mode", @"value": @"switch",},
+                @{@"type": typeRadio, @"pref": @"GBAudioMode", @"title": @"Always",                    @"value": @"on",},
+            ],
+
+        },
+        @{
             @"header": @"High-pass Filter",
             @"items": @[
                 @{@"type": typeRadio, @"pref": @"GBHighpassFilter", @"title": @"Disabled (Keep DC Offset)",   @"value": @(GB_HIGHPASS_OFF),},
@@ -320,6 +329,12 @@ static NSString const *typeLightTemp = @"typeLightTemp";
                 }
                 return @"Directional input is determined by the touch position.";
             },
+        },
+        @{
+            @"items": @[
+                @{@"type": typeCheck, @"pref": @"GBEnableABCombo", @"title": @"Single-Touch A+B"},
+            ],
+            @"footer": @"Enable this option to allow pressing A+B by touching the space between the two buttons",
         },
         @{
             @"header": @"Horizontal Swipe Behavior",
