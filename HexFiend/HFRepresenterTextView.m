@@ -2161,4 +2161,10 @@ static size_t unionAndCleanLists(CGRect *rectList, __unsafe_unretained id *value
 }
 #endif
 
+/* Compatibility with Sonoma */
++ (BOOL)clipsToBounds
+{
+    return YES;
+}
+
 @end

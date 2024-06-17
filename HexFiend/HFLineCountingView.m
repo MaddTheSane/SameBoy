@@ -287,4 +287,10 @@ static const CGFloat kShadowWidth = 6;
     }
 }
 
+/* Compatibility with Sonoma */
++ (bool)clipsToBounds
+{
+    return true;
+}
+
 @end
