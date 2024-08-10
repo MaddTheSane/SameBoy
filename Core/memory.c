@@ -1399,6 +1399,9 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                     gb->wy_triggered = true;
                 }
             case GB_IO_WX:
+                gb->io_registers[addr & 0xFF] = value;
+                GB_update_wx_glitch(gb);
+                break;
             case GB_IO_IF:
             case GB_IO_SCX:
             case GB_IO_SCY:
@@ -1522,7 +1525,6 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 gb->io_registers[GB_IO_LCDC] = value;
                 if (!(value & GB_LCDC_WIN_ENABLE)) {
                     gb->wx_triggered = false;
-                    gb->wx166_glitch = false;
                 }
                 return;
 
