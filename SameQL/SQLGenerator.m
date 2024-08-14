@@ -6,10 +6,11 @@
 //
 
 #include "SQLGenerator.h"
+#import <Foundation/Foundation.h>
 #if TARGET_OS_OSX
-#include <Cocoa/Cocoa.h>
+#import <Cocoa/Cocoa.h>
 #else
-#include <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>
 #define NSImage UIImage
 #endif
 #include "get_image_for_rom.h"
@@ -55,9 +56,9 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
     
     /* Convert the screenshot to a CGImageRef */
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, bitmap, sizeof(bitmap), NULL);
-    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
-    CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
-    CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
+    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+    const CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
+    const CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     
     CGImageRef iref = CGImageCreate(160,
                                     144,
