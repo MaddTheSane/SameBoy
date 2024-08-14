@@ -12,6 +12,7 @@
 		5536C0092B44A42600318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5536C00F2B44A47C00318DA5 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
 		5536C0102B44A94800318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5541C9852C6D575500A61EB9 /* SBThumb.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 55E7FC2C2998EF7E00D554FB /* SBThumb.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		55478AFC299887DF00056C6A /* JOYInput.h in Headers */ = {isa = PBXBuildFile; fileRef = 55478AFA299887DF00056C6A /* JOYInput.h */; };
 		55478AFD299887DF00056C6A /* JOYInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478AFB299887DF00056C6A /* JOYInput.m */; };
 		55478B2E2998894B00056C6A /* GBDebuggerButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478B2C2998894B00056C6A /* GBDebuggerButton.m */; };
@@ -394,6 +395,13 @@
 			remoteGlobalIDString = 5536BFFA2B44A42500318DA5;
 			remoteInfo = SBQuickLook;
 		};
+		5541C9832C6D570A00A61EB9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 55E7FC2B2998EF7E00D554FB;
+			remoteInfo = SBThumb;
+		};
 		5562966E2B40C9EA00048A82 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
@@ -497,6 +505,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				5541C9852C6D575500A61EB9 /* SBThumb.appex in Embed Foundation Extensions */,
 				5536C0092B44A42600318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -1582,6 +1591,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				5541C9842C6D570A00A61EB9 /* PBXTargetDependency */,
 				55E7FBDF2998E07100D554FB /* PBXTargetDependency */,
 				558DA31D26228CAD0019146B /* PBXTargetDependency */,
 				558DA2D626228BD20019146B /* PBXTargetDependency */,
@@ -2148,6 +2158,11 @@
 			isa = PBXTargetDependency;
 			target = 5536BFFA2B44A42500318DA5 /* SBQuickLook */;
 			targetProxy = 5536C0112B44A94800318DA5 /* PBXContainerItemProxy */;
+		};
+		5541C9842C6D570A00A61EB9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 55E7FC2B2998EF7E00D554FB /* SBThumb */;
+			targetProxy = 5541C9832C6D570A00A61EB9 /* PBXContainerItemProxy */;
 		};
 		5562966F2B40C9EA00048A82 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
