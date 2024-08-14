@@ -8,6 +8,7 @@
 
 #import <HexFiend/HFProgressTracker.h>
 #import <HexFiend/HFAssert.h>
+#include <stdatomic.h>
 
 @implementation HFProgressTracker
 
