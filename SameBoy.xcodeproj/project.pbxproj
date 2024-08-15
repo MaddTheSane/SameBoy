@@ -818,10 +818,8 @@
 		55970F8D2B32F20500E3B538 /* GBOptionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBOptionViewController.m; sourceTree = "<group>"; };
 		55970F8E2B32F20500E3B538 /* GBTemperatureSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBTemperatureSlider.h; sourceTree = "<group>"; };
 		55970F8F2B32F20500E3B538 /* License.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = License.html; sourceTree = "<group>"; };
-		55970F902B32F20500E3B538 /* reregister.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = reregister.entitlements; sourceTree = "<group>"; };
 		55970F912B32F20500E3B538 /* Cartridge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Cartridge.png; sourceTree = "<group>"; };
 		55970F922B32F20500E3B538 /* GBSlotButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBSlotButton.m; sourceTree = "<group>"; };
-		55970F932B32F20500E3B538 /* reregister.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = reregister.m; sourceTree = "<group>"; };
 		55970F942B32F20500E3B538 /* GBHapticManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBHapticManager.h; sourceTree = "<group>"; };
 		55970F952B32F20500E3B538 /* deb-control */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "deb-control"; sourceTree = "<group>"; };
 		55970F962B32F20500E3B538 /* GBLoadROMTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBLoadROMTableViewController.m; sourceTree = "<group>"; };
@@ -1400,8 +1398,6 @@
 				55970F812B32F20500E3B538 /* jailbreak.entitlements */,
 				55970F8F2B32F20500E3B538 /* License.html */,
 				55970F732B32F20400E3B538 /* main.m */,
-				55970F902B32F20500E3B538 /* reregister.entitlements */,
-				55970F932B32F20500E3B538 /* reregister.m */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
