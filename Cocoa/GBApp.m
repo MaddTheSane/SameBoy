@@ -555,7 +555,7 @@ static uint32_t color_to_int(NSColor *color)
         [[NSFileManager defaultManager] removeItemAtPath:contentsTempPath error:nil];
         self->_downloadDirectory = nil;
         atexit_b(^{
-            execl(executablePath.UTF8String, executablePath.UTF8String, "--update-launch", NULL);
+            execl(executablePath.fileSystemRepresentation, executablePath.fileSystemRepresentation, "--update-launch", NULL);
         });
         
         dispatch_async(dispatch_get_main_queue(), ^{

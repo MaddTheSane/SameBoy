@@ -1094,7 +1094,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
         [self loadBootROM:GB_BOOT_ROM_AGB];
         return;
     }
-    GB_load_boot_rom(&_gb, [path UTF8String]);
+    GB_load_boot_rom(&_gb, [path fileSystemRepresentation]);
 }
 
 - (void)vblankWithType:(GB_vblank_type_t)type
