@@ -127,6 +127,7 @@
 		5581114E2C85A40300B7FD10 /* cheat_search.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581114D2C85A40300B7FD10 /* cheat_search.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		5581114F2C85A40300B7FD10 /* cheat_search.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581114D2C85A40300B7FD10 /* cheat_search.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		558111522C85A82D00B7FD10 /* GBCheatSearchController.m in Sources */ = {isa = PBXBuildFile; fileRef = 558111512C85A82D00B7FD10 /* GBCheatSearchController.m */; };
+		558111552C85A92700B7FD10 /* GBPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 558111542C85A92700B7FD10 /* GBPanel.m */; };
 		5584AE182B329EF400FBAB98 /* NSObject+DefaultsObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */; };
 		5584AE222B32A25600FBAB98 /* GBPreferencePopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1E2B32A25600FBAB98 /* GBPreferencePopUpButton.m */; };
 		5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1F2B32A25600FBAB98 /* GBPreferencesSlider.m */; };
@@ -690,6 +691,8 @@
 		5581114D2C85A40300B7FD10 /* cheat_search.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cheat_search.c; sourceTree = "<group>"; };
 		558111502C85A82D00B7FD10 /* GBCheatSearchController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBCheatSearchController.h; sourceTree = "<group>"; };
 		558111512C85A82D00B7FD10 /* GBCheatSearchController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBCheatSearchController.m; sourceTree = "<group>"; };
+		558111532C85A92700B7FD10 /* GBPanel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBPanel.h; sourceTree = "<group>"; };
+		558111542C85A92700B7FD10 /* GBPanel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBPanel.m; sourceTree = "<group>"; };
 		5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+DefaultsObserver.m"; sourceTree = "<group>"; };
 		5584AE172B329EF400FBAB98 /* NSObject+DefaultsObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DefaultsObserver.h"; sourceTree = "<group>"; };
 		5584AE1A2B32A25600FBAB98 /* GBPreferencePopUpButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBPreferencePopUpButton.h; sourceTree = "<group>"; };
@@ -1153,6 +1156,8 @@
 				5579ACCA25A064DA00CADDCE /* GBOptionalVisualEffectView.m */,
 				556038BD26C091A100CD1984 /* GBOSDView.h */,
 				556038BE26C091A100CD1984 /* GBOSDView.m */,
+				558111532C85A92700B7FD10 /* GBPanel.h */,
+				558111542C85A92700B7FD10 /* GBPanel.m */,
 				557A4BED2B3830FF00E5AB78 /* NSToolbarItem+NoOverflow.m */,
 				55FE438A27955B4B007F79E7 /* GBPaletteEditorController.h */,
 				55FE438B27955B4B007F79E7 /* GBPaletteEditorController.m */,
@@ -1936,6 +1941,7 @@
 				556AFD8E25A54AF1004D2482 /* gb.c in Sources */,
 				5584AE272B32A27000FBAB98 /* GBHexStatusBarRepresenter.m in Sources */,
 				556AFD8D25A54AF1004D2482 /* apu.c in Sources */,
+				558111552C85A92700B7FD10 /* GBPanel.m in Sources */,
 				556AFD9725A54AF1004D2482 /* mbc.c in Sources */,
 				5579ACDF25A064DA00CADDCE /* GBPreferencesWindow.m in Sources */,
 				5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */,
