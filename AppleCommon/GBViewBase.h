@@ -32,5 +32,5 @@ typedef enum {
 - (void) createInternalView;
 @property (readonly) uint32_t *currentBuffer NS_RETURNS_INNER_POINTER;
 @property (readonly) uint32_t *previousBuffer NS_RETURNS_INNER_POINTER;
-
+- (instancetype)mirroredView;
 @end

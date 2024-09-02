@@ -124,6 +124,9 @@
 		557BD8162B42B13C00E9BA80 /* HFByteArray_FindReplace.m in Sources */ = {isa = PBXBuildFile; fileRef = 557BD8152B42B13C00E9BA80 /* HFByteArray_FindReplace.m */; };
 		557BD8192B42B16000E9BA80 /* HFFastMemchr.m in Sources */ = {isa = PBXBuildFile; fileRef = 557BD8172B42B16000E9BA80 /* HFFastMemchr.m */; };
 		557BD81A2B42B16000E9BA80 /* HFFastMemchr.h in Headers */ = {isa = PBXBuildFile; fileRef = 557BD8182B42B16000E9BA80 /* HFFastMemchr.h */; };
+		5581114E2C85A40300B7FD10 /* cheat_search.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581114D2C85A40300B7FD10 /* cheat_search.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		5581114F2C85A40300B7FD10 /* cheat_search.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581114D2C85A40300B7FD10 /* cheat_search.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		558111522C85A82D00B7FD10 /* GBCheatSearchController.m in Sources */ = {isa = PBXBuildFile; fileRef = 558111512C85A82D00B7FD10 /* GBCheatSearchController.m */; };
 		5584AE182B329EF400FBAB98 /* NSObject+DefaultsObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */; };
 		5584AE222B32A25600FBAB98 /* GBPreferencePopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1E2B32A25600FBAB98 /* GBPreferencePopUpButton.m */; };
 		5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1F2B32A25600FBAB98 /* GBPreferencesSlider.m */; };
@@ -683,6 +686,10 @@
 		557BD8152B42B13C00E9BA80 /* HFByteArray_FindReplace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFByteArray_FindReplace.m; sourceTree = "<group>"; };
 		557BD8172B42B16000E9BA80 /* HFFastMemchr.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFFastMemchr.m; sourceTree = "<group>"; };
 		557BD8182B42B16000E9BA80 /* HFFastMemchr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HFFastMemchr.h; sourceTree = "<group>"; };
+		5581114C2C85A40300B7FD10 /* cheat_search.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cheat_search.h; sourceTree = "<group>"; };
+		5581114D2C85A40300B7FD10 /* cheat_search.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cheat_search.c; sourceTree = "<group>"; };
+		558111502C85A82D00B7FD10 /* GBCheatSearchController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBCheatSearchController.h; sourceTree = "<group>"; };
+		558111512C85A82D00B7FD10 /* GBCheatSearchController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBCheatSearchController.m; sourceTree = "<group>"; };
 		5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+DefaultsObserver.m"; sourceTree = "<group>"; };
 		5584AE172B329EF400FBAB98 /* NSObject+DefaultsObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DefaultsObserver.h"; sourceTree = "<group>"; };
 		5584AE1A2B32A25600FBAB98 /* GBPreferencePopUpButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBPreferencePopUpButton.h; sourceTree = "<group>"; };
@@ -997,48 +1004,50 @@
 		556AFD5B25A54AF1004D2482 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				556AFD6325A54AF1004D2482 /* apu.c */,
 				556AFD7725A54AF1004D2482 /* apu.h */,
-				556AFD7D25A54AF1004D2482 /* camera.c */,
+				556AFD6325A54AF1004D2482 /* apu.c */,
 				556AFD6725A54AF1004D2482 /* camera.h */,
-				556AFD5F25A54AF1004D2482 /* cheats.c */,
+				556AFD7D25A54AF1004D2482 /* camera.c */,
+				5581114C2C85A40300B7FD10 /* cheat_search.h */,
+				5581114D2C85A40300B7FD10 /* cheat_search.c */,
 				556AFD6F25A54AF1004D2482 /* cheats.h */,
-				556AFD6925A54AF1004D2482 /* debugger.c */,
+				556AFD5F25A54AF1004D2482 /* cheats.c */,
 				556AFD7A25A54AF1004D2482 /* debugger.h */,
+				556AFD6925A54AF1004D2482 /* debugger.c */,
 				556AFD8825A54AF1004D2482 /* defs.h */,
-				556AFD5E25A54AF1004D2482 /* display.c */,
 				556AFD7125A54AF1004D2482 /* display.h */,
-				556AFD6525A54AF1004D2482 /* gb.c */,
+				556AFD5E25A54AF1004D2482 /* display.c */,
 				556AFD7525A54AF1004D2482 /* gb.h */,
+				556AFD6525A54AF1004D2482 /* gb.c */,
 				556AFD7F25A54AF1004D2482 /* graphics */,
-				556AFD6825A54AF1004D2482 /* joypad.c */,
 				556AFD7E25A54AF1004D2482 /* joypad.h */,
-				556AFD7425A54AF1004D2482 /* mbc.c */,
+				556AFD6825A54AF1004D2482 /* joypad.c */,
 				556AFD6425A54AF1004D2482 /* mbc.h */,
-				556AFD6125A54AF1004D2482 /* memory.c */,
+				556AFD7425A54AF1004D2482 /* mbc.c */,
 				556AFD7825A54AF1004D2482 /* memory.h */,
+				556AFD6125A54AF1004D2482 /* memory.c */,
 				55478B3729988AF500056C6A /* model.h */,
-				556AFD7225A54AF1004D2482 /* printer.c */,
 				556AFD5D25A54AF1004D2482 /* printer.h */,
-				556AFD6D25A54AF1004D2482 /* random.c */,
+				556AFD7225A54AF1004D2482 /* printer.c */,
 				556AFD8725A54AF1004D2482 /* random.h */,
-				556AFD7B25A54AF1004D2482 /* rewind.c */,
+				556AFD6D25A54AF1004D2482 /* random.c */,
 				556AFD6B25A54AF1004D2482 /* rewind.h */,
-				556AFD6C25A54AF1004D2482 /* rumble.c */,
+				556AFD7B25A54AF1004D2482 /* rewind.c */,
 				556AFD8925A54AF1004D2482 /* rumble.h */,
-				556AFD7625A54AF1004D2482 /* save_state.c */,
+				556AFD6C25A54AF1004D2482 /* rumble.c */,
 				556AFD6225A54AF1004D2482 /* save_state.h */,
-				556AFD7025A54AF1004D2482 /* sgb.c */,
+				556AFD7625A54AF1004D2482 /* save_state.c */,
 				556AFD6025A54AF1004D2482 /* sgb.h */,
-				556AFD7325A54AF1004D2482 /* sm83_cpu.c */,
+				556AFD7025A54AF1004D2482 /* sgb.c */,
 				556AFD5C25A54AF1004D2482 /* sm83_cpu.h */,
+				556AFD7325A54AF1004D2482 /* sm83_cpu.c */,
 				556AFD7925A54AF1004D2482 /* sm83_disassembler.c */,
-				556AFD6E25A54AF1004D2482 /* symbol_hash.c */,
 				556AFD8625A54AF1004D2482 /* symbol_hash.h */,
-				556AFD7C25A54AF1004D2482 /* timing.c */,
+				556AFD6E25A54AF1004D2482 /* symbol_hash.c */,
 				556AFD6A25A54AF1004D2482 /* timing.h */,
-				556AFD8525A54AF1004D2482 /* workboy.c */,
+				556AFD7C25A54AF1004D2482 /* timing.c */,
 				556AFD6625A54AF1004D2482 /* workboy.h */,
+				556AFD8525A54AF1004D2482 /* workboy.c */,
 			);
 			path = Core;
 			sourceTree = SOURCE_ROOT;
@@ -1113,6 +1122,8 @@
 				5579ACBD25A064DA00CADDCE /* GBBorderView.m */,
 				5579ACB325A064D900CADDCE /* GBButtons.h */,
 				5579ACCD25A064DA00CADDCE /* GBButtons.m */,
+				558111502C85A82D00B7FD10 /* GBCheatSearchController.h */,
+				558111512C85A82D00B7FD10 /* GBCheatSearchController.m */,
 				5579ACBC25A064DA00CADDCE /* GBCheatTextFieldCell.h */,
 				5579ACB825A064DA00CADDCE /* GBCheatTextFieldCell.m */,
 				5579ACC725A064DA00CADDCE /* GBCheatWindowController.h */,
@@ -1871,6 +1882,7 @@
 				556AFD9025A54AF1004D2482 /* debugger.c in Sources */,
 				5579ACEA25A064DA00CADDCE /* GBCheatWindowController.m in Sources */,
 				55CAE27D2B364CC6001935EB /* OmniScale.metal in Sources */,
+				558111522C85A82D00B7FD10 /* GBCheatSearchController.m in Sources */,
 				55DF028E27DAF3E700B339A6 /* GBObjectView.m in Sources */,
 				5579ACEC25A064DA00CADDCE /* GBGLShader.m in Sources */,
 				5579ACF025A064DA00CADDCE /* GBAudioClient.m in Sources */,
@@ -1887,6 +1899,7 @@
 				5579ACEE25A064DA00CADDCE /* GBSplitView.m in Sources */,
 				556AFDA225A54AF1004D2482 /* workboy.c in Sources */,
 				556AFD9925A54AF1004D2482 /* sm83_disassembler.c in Sources */,
+				5581114F2C85A40300B7FD10 /* cheat_search.c in Sources */,
 				556AFD8B25A54AF1004D2482 /* cheats.c in Sources */,
 				55478B3A2998B40C00056C6A /* NSTextFieldCell+Inset.m in Sources */,
 				556AFD9225A54AF1004D2482 /* random.c in Sources */,
@@ -2036,6 +2049,7 @@
 				55970FD12B32F71400E3B538 /* GBAudioClient.m in Sources */,
 				55CAE2842B36590C001935EB /* AAOmniScaleLegacy.metal in Sources */,
 				55970FCA2B32F46D00E3B538 /* rewind.c in Sources */,
+				5581114E2C85A40300B7FD10 /* cheat_search.c in Sources */,
 				55CAE2812B36590C001935EB /* Scale4x.metal in Sources */,
 				55CAE27F2B36590C001935EB /* MonoLCD.metal in Sources */,
 				55970FCB2B32F46D00E3B538 /* display.c in Sources */,
@@ -2588,6 +2602,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					GB_INTERNAL,
+					GB_DISABLE_CHEAT_SEARCH,
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_FILE = QuickLook/Info.plist;
@@ -2616,6 +2631,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					GB_INTERNAL,
+					GB_DISABLE_CHEAT_SEARCH,
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_FILE = QuickLook/Info.plist;
@@ -2647,6 +2663,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					GB_INTERNAL,
+					GB_DISABLE_CHEAT_SEARCH,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
@@ -2686,6 +2703,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					GB_INTERNAL,
+					GB_DISABLE_CHEAT_SEARCH,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";

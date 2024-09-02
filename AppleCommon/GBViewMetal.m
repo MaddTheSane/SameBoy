@@ -26,6 +26,7 @@ static const vector_float2 rect[] =
     id<MTLLibrary> storedLibrary;
     id<MTLCommandBuffer> _commandBuffer;
     bool _waitedForFrame;
+    _Atomic unsigned _pendingFrames;
 }
 
 + (BOOL)isSupported
@@ -271,8 +272,11 @@ static const vector_float2 rect[] =
 - (void)flip
 {
     [super flip];
+    if (_pendingFrames == 2) return;
+    _pendingFrames++;
     dispatch_async(dispatch_get_main_queue(), ^{
         [(MTKView *)self.internalView draw];
+        _pendingFrames--;
     });
 }
 

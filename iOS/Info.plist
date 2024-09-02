@@ -58,9 +58,30 @@
 				<string>com.github.liji32.sameboy.isx</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>zip</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.pkware.zip-archive</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>SameBoy</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon60x60@2x.png</string>
+				<string>AppIcon60x60@3x.png</string>
+				<string>AppIcon76x76@2x.png</string>
+				<string>AppIcon83.5x83.5@2x.png</string>
+			</array>
+		</dict>
+	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>com.github.liji32.sameboy.ios</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -71,8 +92,21 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>@VERSION</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>iPhoneOS</string>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>GCSupportedGameControllers</key>
+	<array>
+		<dict>
+			<key>ProfileName</key>
+			<string>ExtendedGamepad</string>
+		</dict>
+	</array>
+	<key>GCSupportsControllerUserInteraction</key>
+	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.games</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -92,6 +126,12 @@
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -161,29 +201,5 @@
 			</dict>
 		</dict>
 	</array>
-	<key>UIDeviceFamily</key>
-	<array>
-		<integer>1</integer>
-		<integer>2</integer>
-	</array>
-    <key>CFBundleSupportedPlatforms</key>
-    <array>
-        <string>iPhoneOS</string>
-    </array>
-    <key>UIRequiredDeviceCapabilities</key>
-    <array>
-        <string>arm64</string>
-    </array>
-    <key>UIRequiresFullScreen</key>
-    <true/>
-    <key>GCSupportedGameControllers</key>
-    <array>
-        <dict>
-            <key>ProfileName</key>
-            <string>ExtendedGamepad</string>
-        </dict>
-    </array>
-    <key>GCSupportsControllerUserInteraction</key>
-    <true/>
 </dict>
 </plist>
