@@ -4,7 +4,7 @@
 #import "GBViewMetal.h"
 #import "GBAudioClient.h"
 #import "GBROMManager.h"
-#import "GBLoadROMTableViewController.h"
+#import "GBLibraryViewController.h"
 #import "GBBackgroundView.h"
 #import "GBHapticManager.h"
 #import "GBMenuViewController.h"
@@ -14,6 +14,7 @@
 #import "GBStatesViewController.h"
 #import "GBCheckableAlertController.h"
 #import "GBPrinterFeedController.h"
+#import "GBCheatsController.h"
 #import "GCExtendedGamepad+AllElements.h"
 #import "GBZipReader.h"
 #import <sys/stat.h>
@@ -674,6 +675,8 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
         if (_romLoaded) {
             GB_reset(&_gb);
             GB_load_battery(&_gb, [GBROMManager sharedManager].batterySaveFile.fileSystemRepresentation);
+            GB_remove_all_cheats(&_gb);
+            GB_load_cheats(&_gb, [GBROMManager sharedManager].cheatsFile.UTF8String, false);
             if (![self loadStateFromFile:[GBROMManager sharedManager].autosaveStateFile]) {
                 // Newly played ROM, pick the best model
                 uint8_t *rom = GB_get_direct_access(&_gb, GB_DIRECT_ACCESS_ROM, NULL, NULL);
@@ -720,13 +723,7 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
 
 - (void)openLibrary
 {
-    UINavigationController *controller = [[UINavigationController alloc] initWithRootViewController:[[GBLoadROMTableViewController alloc] init]];
-    UIBarButtonItem *close = [[UIBarButtonItem alloc] initWithTitle:@"Close"
-                                                             style:UIBarButtonItemStylePlain
-                                                             target:self
-                                                             action:@selector(dismissViewController)];
-    [controller.visibleViewController.navigationItem setLeftBarButtonItem:close];
-    [self presentViewController:controller
+    [self presentViewController:[[GBLibraryViewController alloc] init]
                        animated:true
                      completion:nil];
 }
@@ -818,6 +815,19 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
 - (void)showAbout
 {
     [self presentViewController:[[GBAboutController alloc] init] animated:true completion:nil];
+}
+
+- (void)openCheats
+{
+    UINavigationController *controller = [[UINavigationController alloc] initWithRootViewController:[[GBCheatsController alloc] initWithGameBoy:&_gb]];
+    UIBarButtonItem *close = [[UIBarButtonItem alloc] initWithTitle:@"Close"
+                                                              style:UIBarButtonItemStylePlain
+                                                             target:self
+                                                             action:@selector(dismissViewController)];
+    [controller.visibleViewController.navigationItem setLeftBarButtonItem:close];
+    [self presentViewController:controller
+                       animated:true
+                     completion:nil];
 }
 
 - (void)dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion

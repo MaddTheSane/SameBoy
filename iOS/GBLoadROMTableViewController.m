@@ -1,7 +1,6 @@
 #import "GBLoadROMTableViewController.h"
 #import "GBROMManager.h"
 #import "GBViewController.h"
-#import "GBHubViewController.h"
 #import <CoreServices/CoreServices.h>
 #import <objc/runtime.h>
 
@@ -33,7 +32,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    if (section == 1) return 3;
+    if (section == 1) return 2;
     return [GBROMManager sharedManager].allROMs.count;
 }
 
@@ -43,8 +42,7 @@
         UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
         switch (indexPath.item) {
             case 0: cell.textLabel.text = @"Import ROM files"; break;
-            case 1: cell.textLabel.text = @"Browse Homebrew Hub"; break;
-            case 2: cell.textLabel.text = @"Show Library in Files"; break;
+            case 1: cell.textLabel.text = @"Show Library in Files"; break;
         }
         return cell;
     }
@@ -81,7 +79,7 @@
 
 - (NSString *)title
 {
-    return @"ROM Library";
+    return @"Local Library";
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
@@ -100,7 +98,8 @@
                 NSString *gbUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"gb", NULL);
                 NSString *gbcUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"gbc", NULL);
                 NSString *isxUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"isx", NULL);
-                
+                NSString *zipUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"zip", NULL);
+
                 NSMutableSet *extensions = [NSMutableSet set];
                 [extensions addObjectsFromArray:(__bridge NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbUTI, kUTTagClassFilenameExtension)];
                 [extensions addObjectsFromArray:(__bridge NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbcUTI, kUTTagClassFilenameExtension)];
@@ -121,16 +120,15 @@
                         return;
                     }
                 }
-                
-                [extensions addObject:@"zip"];
-                
+                                
                 [self.presentingViewController dismissViewControllerAnimated:true completion:^{
                     UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"com.github.liji32.sameboy.gb",
                                                                                                                              @"com.github.liji32.sameboy.gbc",
                                                                                                                              @"com.github.liji32.sameboy.isx",
                                                                                                                              gbUTI ?: @"",
                                                                                                                              gbcUTI ?: @"",
-                                                                                                                             isxUTI ?: @""]
+                                                                                                                             isxUTI ?: @"",
+                                                                                                                             zipUTI ?: @""]
                                                                                                                     inMode:UIDocumentPickerModeImport];
                     picker.allowsMultipleSelection = true;
                     if (@available(iOS 13.0, *)) {
@@ -143,11 +141,6 @@
                 return;
             }
             case 1: {
-                [self.navigationController pushViewController:[[GBHubViewController alloc] init]
-                                                     animated:true];
-                return;
-            }
-            case 2: {
                 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"shareddocuments://%@", NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject]]
                                                    options:nil
                                          completionHandler:nil];
