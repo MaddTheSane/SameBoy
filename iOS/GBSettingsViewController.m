@@ -180,7 +180,7 @@ static NSString const *typeLightTemp = @"typeLightTemp";
                     
                     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"shareddocuments://%@", [path stringByReplacingOccurrencesOfString:@" "
                                                                                                                                                                         withString:@"%20"]]]
-                                                       options:nil
+                                                       options:@{}
                                              completionHandler:nil];
 
                     return false;
