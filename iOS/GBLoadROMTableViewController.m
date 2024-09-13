@@ -95,15 +95,15 @@
         switch (indexPath.item) {
             case 0: {
                 UIViewController *parent = self.presentingViewController;
-                NSString *gbUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"gb", NULL);
-                NSString *gbcUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"gbc", NULL);
-                NSString *isxUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"isx", NULL);
-                NSString *zipUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)@"zip", NULL);
+                NSString *gbUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("gb"), NULL);
+                NSString *gbcUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("gbc"), NULL);
+                NSString *isxUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("isx"), NULL);
+                NSString *zipUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("zip"), NULL);
 
                 NSMutableSet *extensions = [NSMutableSet set];
-                [extensions addObjectsFromArray:(__bridge NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbUTI, kUTTagClassFilenameExtension)];
-                [extensions addObjectsFromArray:(__bridge NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbcUTI, kUTTagClassFilenameExtension)];
-                [extensions addObjectsFromArray:(__bridge NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)isxUTI, kUTTagClassFilenameExtension)];
+                [extensions addObjectsFromArray:(__bridge_transfer NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbUTI, kUTTagClassFilenameExtension)];
+                [extensions addObjectsFromArray:(__bridge_transfer NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbcUTI, kUTTagClassFilenameExtension)];
+                [extensions addObjectsFromArray:(__bridge_transfer NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)isxUTI, kUTTagClassFilenameExtension)];
                 
                 if (extensions.count != 3) {
                     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"GBShownUTIWarning"]) {
