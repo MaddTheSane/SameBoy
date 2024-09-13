@@ -273,6 +273,8 @@
 		55A7155E2B45498600A925B2 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BDB2B3813CB00E5AB78 /* CoreMedia.framework */; };
 		55A715602B45499B00A925B2 /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A7155F2B45499B00A925B2 /* CoreHaptics.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55A715622B4549B000A925B2 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A715612B4549B000A925B2 /* UserNotifications.framework */; };
+		55C88B9B2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		55C88B9C2C9428F40088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55CAE25E2B364A33001935EB /* BaseMetal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* BaseMetal.metal */; };
 		55CAE2712B364CC6001935EB /* Scale4x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2632B364CC6001935EB /* Scale4x.metal */; };
 		55CAE2722B364CC6001935EB /* SmoothBilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2642B364CC6001935EB /* SmoothBilinear.metal */; };
@@ -839,6 +841,7 @@
 		55A7155C2B45497800A925B2 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		55A7155F2B45499B00A925B2 /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
 		55A715612B4549B000A925B2 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		55CAE25D2B364A33001935EB /* BaseMetal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = BaseMetal.metal; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.metal; };
 		55CAE2602B364A87001935EB /* MetalShared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalShared.h; sourceTree = "<group>"; };
 		55CAE2612B364B8F001935EB /* BaseFragment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseFragment.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.metal; };
@@ -911,6 +914,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55C88B9B2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */,
 				557A4BE42B3814CF00E5AB78 /* Carbon.framework in Frameworks */,
 				557A4BE22B38145C00E5AB78 /* Metal.framework in Frameworks */,
 				557A4BE02B38144700E5AB78 /* MetalKit.framework in Frameworks */,
@@ -948,6 +952,7 @@
 				55A7155B2B45496300A925B2 /* QuartzCore.framework in Frameworks */,
 				55A715582B45494000A925B2 /* AudioToolbox.framework in Frameworks */,
 				557A4BEA2B38151700E5AB78 /* UIKit.framework in Frameworks */,
+				55C88B9C2C9428F40088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */,
 				55A715592B45494F00A925B2 /* AVFoundation.framework in Frameworks */,
 				557A4BEB2B381A0D00E5AB78 /* Metal.framework in Frameworks */,
 				557A4BEC2B381A1300E5AB78 /* MetalKit.framework in Frameworks */,
@@ -1222,6 +1227,7 @@
 				55A7155A2B45496300A925B2 /* QuartzCore.framework */,
 				55E7FC2D2998EF7E00D554FB /* QuickLookThumbnailing.framework */,
 				557A4BE92B38151700E5AB78 /* UIKit.framework */,
+				55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */,
 				55A715612B4549B000A925B2 /* UserNotifications.framework */,
 			);
 			name = Frameworks;

@@ -1,5 +1,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <CoreAudio/CoreAudio.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <Core/gb.h>
 #import "GBAudioClient.h"
 #import "Document.h"
@@ -2809,9 +2810,13 @@ enum GBWindowResizeAction
 {
     NSMutableSet *set = [NSMutableSet setWithArray:[super readableTypes]];
     for (NSString *type in @[@"gb", @"gbc", @"isx", @"gbs"]) {
-        [set addObject:(__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension,
-                                                                                           (__bridge CFStringRef)type,
-                                                                                           NULL)];
+        if (@available(macOS 11.0, *)) {
+            [set addObject:[UTType typeWithFilenameExtension:type conformingToType:UTTypeData].identifier];
+        } else {
+            [set addObject:(__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension,
+                                                                                               (__bridge CFStringRef)type,
+                                                                                               kUTTypeData)];
+        }
     }
     return [set allObjects];
 }

@@ -2,6 +2,7 @@
 #import "GBROMManager.h"
 #import "GBViewController.h"
 #import <CoreServices/CoreServices.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <objc/runtime.h>
 
 @interface GBLoadROMTableViewController() <UIDocumentPickerDelegate>
@@ -95,54 +96,81 @@
         switch (indexPath.item) {
             case 0: {
                 UIViewController *parent = self.presentingViewController;
-                NSString *gbUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("gb"), NULL);
-                NSString *gbcUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("gbc"), NULL);
-                NSString *isxUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("isx"), NULL);
-                NSString *zipUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("zip"), NULL);
-
-                NSMutableSet *extensions = [NSMutableSet set];
-                [extensions addObjectsFromArray:(__bridge_transfer NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbUTI, kUTTagClassFilenameExtension)];
-                [extensions addObjectsFromArray:(__bridge_transfer NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbcUTI, kUTTagClassFilenameExtension)];
-                [extensions addObjectsFromArray:(__bridge_transfer NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)isxUTI, kUTTagClassFilenameExtension)];
                 
-                if (extensions.count != 3) {
-                    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"GBShownUTIWarning"]) {
-                        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"File Association Conflict"
-                                                                                       message:@"Due to a limitation in iOS, the file picker will allow you to select files not supported by SameBoy. SameBoy will only import GB, GBC and ISX files.\n\nIf you have a multi-system emulator installed, updating it could fix this problem."
-                                                                                preferredStyle:UIAlertControllerStyleAlert];
-                        [alert  addAction:[UIAlertAction actionWithTitle:@"Close"
-                                                                   style:UIAlertActionStyleCancel
-                                                                 handler:^(UIAlertAction *action) {
-                            [[NSUserDefaults standardUserDefaults] setBool:true forKey:@"GBShownUTIWarning"];
-                            [self tableView:tableView didSelectRowAtIndexPath:indexPath];
-                        }]];
-                        [self presentViewController:alert animated:true completion:nil];
-                        return;
-                    }
-                }
-                                
-                [self.presentingViewController dismissViewControllerAnimated:true completion:^{
-                    UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"com.github.liji32.sameboy.gb",
-                                                                                                                             @"com.github.liji32.sameboy.gbc",
-                                                                                                                             @"com.github.liji32.sameboy.isx",
-                                                                                                                             gbUTI ?: @"",
-                                                                                                                             gbcUTI ?: @"",
-                                                                                                                             isxUTI ?: @"",
-                                                                                                                             zipUTI ?: @""]
-                                                                                                                    inMode:UIDocumentPickerModeImport];
-                    picker.allowsMultipleSelection = true;
-                    if (@available(iOS 13.0, *)) {
+                if (@available(iOS 14.0, *)) {
+                    UTType *gbUTI = [UTType typeWithFilenameExtension:@"gb"];
+                    UTType *gbcUTI = [UTType typeWithFilenameExtension:@"gbc"];
+                    UTType *isxUTI = [UTType typeWithFilenameExtension:@"isx"];
+                    
+                    [self.presentingViewController dismissViewControllerAnimated:true completion:^{
+                        UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[[UTType typeWithIdentifier:@"com.github.liji32.sameboy.gb"],
+                                                                                                                                      [UTType typeWithIdentifier:@"com.github.liji32.sameboy.gbc"],
+                                                                                                                                      [UTType typeWithIdentifier:@"com.github.liji32.sameboy.isx"],
+                                                                                                                                      gbUTI,
+                                                                                                                                      gbcUTI,
+                                                                                                                                      isxUTI,
+                                                                                                                                      UTTypeZIP]
+                                                                                                                        ];
+                        picker.allowsMultipleSelection = true;
                         picker.shouldShowFileExtensions = true;
+                        picker.delegate = self;
+                        objc_setAssociatedObject(picker, @selector(delegate), self, OBJC_ASSOCIATION_RETAIN);
+                        [parent presentViewController:picker animated:true completion:nil];
+                    }];
+                    return;
+
+                } else {
+                    // Fallback on earlier versions
+                    NSMutableSet<NSString*> *extensions = [NSMutableSet set];
+
+                    NSString *gbUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("gb"), kUTTypeData);
+                    NSString *gbcUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("gbc"), kUTTypeData);
+                    NSString *isxUTI = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, CFSTR("isx"), kUTTypeData);
+                    NSString *zipUTI = (__bridge NSString *)kUTTypeZipArchive;
+                    
+                    [extensions addObjectsFromArray:(__bridge_transfer NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbUTI, kUTTagClassFilenameExtension)];
+                    [extensions addObjectsFromArray:(__bridge_transfer NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)gbcUTI, kUTTagClassFilenameExtension)];
+                    [extensions addObjectsFromArray:(__bridge_transfer NSArray *)UTTypeCopyAllTagsWithClass((__bridge CFStringRef)isxUTI, kUTTagClassFilenameExtension)];
+                    
+                    if (extensions.count != 3) {
+                        if (![[NSUserDefaults standardUserDefaults] boolForKey:@"GBShownUTIWarning"]) {
+                            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"File Association Conflict"
+                                                                                           message:@"Due to a limitation in iOS, the file picker will allow you to select files not supported by SameBoy. SameBoy will only import GB, GBC and ISX files.\n\nIf you have a multi-system emulator installed, updating it could fix this problem."
+                                                                                    preferredStyle:UIAlertControllerStyleAlert];
+                            [alert  addAction:[UIAlertAction actionWithTitle:@"Close"
+                                                                       style:UIAlertActionStyleCancel
+                                                                     handler:^(UIAlertAction *action) {
+                                [[NSUserDefaults standardUserDefaults] setBool:true forKey:@"GBShownUTIWarning"];
+                                [self tableView:tableView didSelectRowAtIndexPath:indexPath];
+                            }]];
+                            [self presentViewController:alert animated:true completion:nil];
+                            return;
+                        }
                     }
-                    picker.delegate = self;
-                    objc_setAssociatedObject(picker, @selector(delegate), self, OBJC_ASSOCIATION_RETAIN);
-                    [parent presentViewController:picker animated:true completion:nil];
-                }];
-                return;
+                    
+                    [self.presentingViewController dismissViewControllerAnimated:true completion:^{
+                        UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"com.github.liji32.sameboy.gb",
+                                                                                                                                 @"com.github.liji32.sameboy.gbc",
+                                                                                                                                 @"com.github.liji32.sameboy.isx",
+                                                                                                                                 gbUTI ?: @"",
+                                                                                                                                 gbcUTI ?: @"",
+                                                                                                                                 isxUTI ?: @"",
+                                                                                                                                 zipUTI ?: @""]
+                                                                                                                        inMode:UIDocumentPickerModeImport];
+                        picker.allowsMultipleSelection = true;
+                        if (@available(iOS 13.0, *)) {
+                            picker.shouldShowFileExtensions = true;
+                        }
+                        picker.delegate = self;
+                        objc_setAssociatedObject(picker, @selector(delegate), self, OBJC_ASSOCIATION_RETAIN);
+                        [parent presentViewController:picker animated:true completion:nil];
+                    }];
+                    return;
+                }
             }
             case 1: {
                 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"shareddocuments://%@", NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject]]
-                                                   options:nil
+                                                   options:@{}
                                          completionHandler:nil];
                 return;
             }
