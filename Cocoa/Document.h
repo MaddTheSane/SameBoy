@@ -79,15 +79,17 @@ enum model {
 @property IBOutlet GBDebuggerButton *debuggerNextButton;
 @property IBOutlet GBDebuggerButton *debuggerStepButton;
 @property IBOutlet GBDebuggerButton *debuggerFinishButton;
-@property (strong) IBOutlet GBDebuggerButton *debuggerBackstepButton;
+@property IBOutlet GBDebuggerButton *debuggerBackstepButton;
+
+@property IBOutlet NSScrollView *debuggerScrollView;
+@property IBOutlet NSView *debugBar;
 
 
 + (NSImage *) imageFromData:(NSData *)data width:(NSUInteger) width height:(NSUInteger) height scale:(double) scale;
-- (uint8_t) readMemory:(uint16_t) addr;
-- (void) writeMemory:(uint16_t) addr value:(uint8_t)value;
 - (void) performAtomicBlock: (void (^)(void))block;
 - (void) connectLinkCable:(NSMenuItem *)sender;
 - (int)loadStateFile:(const char *)path noErrorOnNotFound:(bool)noErrorOnFileNotFound;
 - (NSString *)captureOutputForBlock: (void (^)(void))block;
+- (NSFont *)debuggerFontOfSize:(unsigned)size;
 @end
 

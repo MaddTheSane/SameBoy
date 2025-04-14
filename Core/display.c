@@ -5,6 +5,70 @@
 #include <math.h>
 #include "gb.h"
 
+const GB_palette_t GB_PALETTE_GREY = {{{0x00, 0x00, 0x00}, {0x55, 0x55, 0x55}, {0xAA, 0xAA, 0xAA}, {0xFF, 0xFF, 0xFF}, {0xFF, 0xFF, 0xFF}}};
+const GB_palette_t GB_PALETTE_DMG  = {{{0x08, 0x18, 0x10}, {0x39, 0x61, 0x39}, {0x84, 0xA5, 0x63}, {0xC6, 0xDE, 0x8C}, {0xD2, 0xE6, 0xA6}}};
+const GB_palette_t GB_PALETTE_MGB  = {{{0x07, 0x10, 0x0E}, {0x3A, 0x4C, 0x3A}, {0x81, 0x8D, 0x66}, {0xC2, 0xCE, 0x93}, {0xCF, 0xDA, 0xAC}}};
+const GB_palette_t GB_PALETTE_GBL  = {{{0x0A, 0x1C, 0x15}, {0x35, 0x78, 0x62}, {0x56, 0xB4, 0x95}, {0x7F, 0xE2, 0xC3}, {0x91, 0xEA, 0xD0}}};
+
+void GB_update_dmg_palette(GB_gameboy_t *gb)
+{
+    const GB_palette_t *palette = gb->dmg_palette ?: &GB_PALETTE_GREY;
+    if (gb->rgb_encode_callback && !GB_is_cgb(gb)) {
+        gb->object_palettes_rgb[4] = gb->object_palettes_rgb[0] = gb->background_palettes_rgb[0] =
+        gb->rgb_encode_callback(gb, palette->colors[3].r, palette->colors[3].g, palette->colors[3].b);
+        gb->object_palettes_rgb[5] = gb->object_palettes_rgb[1] = gb->background_palettes_rgb[1] =
+        gb->rgb_encode_callback(gb, palette->colors[2].r, palette->colors[2].g, palette->colors[2].b);
+        gb->object_palettes_rgb[6] = gb->object_palettes_rgb[2] = gb->background_palettes_rgb[2] =
+        gb->rgb_encode_callback(gb, palette->colors[1].r, palette->colors[1].g, palette->colors[1].b);
+        gb->object_palettes_rgb[7] = gb->object_palettes_rgb[3] = gb->background_palettes_rgb[3] =
+        gb->rgb_encode_callback(gb, palette->colors[0].r, palette->colors[0].g, palette->colors[0].b);
+        
+        // LCD off color
+        gb->background_palettes_rgb[4] =
+        gb->rgb_encode_callback(gb, palette->colors[4].r, palette->colors[4].g, palette->colors[4].b);
+    }
+}
+
+void GB_set_palette(GB_gameboy_t *gb, const GB_palette_t *palette)
+{
+    gb->dmg_palette = palette;
+    GB_update_dmg_palette(gb);
+}
+
+const GB_palette_t *GB_get_palette(GB_gameboy_t *gb)
+{
+    return gb->dmg_palette;
+}
+
+void GB_set_vblank_callback(GB_gameboy_t *gb, GB_vblank_callback_t callback)
+{
+    if (!callback) {
+        GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    }
+    gb->vblank_callback = callback;
+}
+
+void GB_set_rgb_encode_callback(GB_gameboy_t *gb, GB_rgb_encode_callback_t callback)
+{
+    if (!callback) {
+        GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    }
+    
+    gb->rgb_encode_callback = callback;
+    GB_update_dmg_palette(gb);
+    
+    for (unsigned i = 0; i < 32; i++) {
+        GB_palette_changed(gb, true, i * 2);
+        GB_palette_changed(gb, false, i * 2);
+    }
+}
+
+void GB_set_pixels_output(GB_gameboy_t *gb, uint32_t *output)
+{
+    GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    gb->screen = output;
+}
+
 /* FIFO functions */
 
 static inline unsigned fifo_size(GB_fifo_t *fifo)
@@ -530,7 +594,7 @@ static void add_object_from_index(GB_gameboy_t *gb, unsigned index)
         gb->mode2_x_bus = oam_read(gb, index * 4 + 1);
     }
 
-    if (gb->n_visible_objs == 10) return;
+    if (unlikely(gb->n_visible_objs == 10)) return;
     
     /* TODO: It appears that DMA blocks PPU access to OAM, but it needs verification. */
     if (unlikely(GB_is_dma_active(gb) && (gb->halted || gb->stopped))) {
@@ -1845,8 +1909,11 @@ void GB_display_run(GB_gameboy_t *gb, unsigned cycles, bool force)
                     }
                 }
 
-                if ((!GB_is_cgb(gb) || gb->io_registers[GB_IO_WX] == 0) && gb->wx_triggered && !gb->window_is_being_fetched &&
-                    gb->fetcher_state == GB_FETCHER_GET_TILE_T1 && gb->io_registers[GB_IO_WX] == (uint8_t) (gb->position_in_line + 7) && gb->bg_fifo.size == 8) {
+                if (unlikely(gb->io_registers[GB_IO_WX] == (uint8_t) (gb->position_in_line + 7) &&
+                             (!GB_is_cgb(gb) || gb->io_registers[GB_IO_WX] == 0) &&
+                             gb->wx_triggered && !gb->window_is_being_fetched &&
+                             gb->fetcher_state == GB_FETCHER_GET_TILE_T1 &&
+                             gb->bg_fifo.size == 8)) {
                     // Insert a pixel right at the FIFO's end
                     gb->insert_bg_pixel = true;
                 }
@@ -2322,6 +2389,14 @@ uint8_t GB_get_oam_info(GB_gameboy_t *gb, GB_oam_info_t *dest, uint8_t *object_h
         if (GB_is_cgb(gb) && (flags & 0x8)) {
             vram_address += 0x2000;
         }
+        
+        uint8_t dmg_palette = gb->io_registers[palette? GB_IO_OBP1:GB_IO_OBP0];
+        if (dmg_palette == 0xFF) {
+            dmg_palette = 0xFC;
+        }
+        else if (dmg_palette == 0x00) {
+            dmg_palette = 0x03;
+        }
 
         for (unsigned y = 0; y < *object_height; y++) {
             unrolled for (unsigned x = 0; x < 8; x++) {
@@ -2329,7 +2404,7 @@ uint8_t GB_get_oam_info(GB_gameboy_t *gb, GB_oam_info_t *dest, uint8_t *object_h
                                  ((gb->vram[vram_address + 1] >> ((~x)&7)) & 1) << 1 );
                 
                 if (!gb->cgb_mode) {
-                    color = (gb->io_registers[palette? GB_IO_OBP1:GB_IO_OBP0] >> (color << 1)) & 3;
+                    color = (dmg_palette >> (color << 1)) & 3;
                 }
                 dest[i].image[((flags & 0x20)?7-x:x) + ((flags & 0x40)?*object_height - 1 -y:y) * 8] = gb->object_palettes_rgb[palette * 4 + color];
             }
@@ -2365,3 +2440,33 @@ bool GB_is_background_rendering_disabled(GB_gameboy_t *gb)
     return gb->background_disabled;
 }
 
+unsigned GB_get_screen_width(GB_gameboy_t *gb)
+{
+    switch (gb->border_mode) {
+        default:
+        case GB_BORDER_SGB:
+            return GB_is_hle_sgb(gb)? 256 : 160;
+        case GB_BORDER_NEVER:
+            return 160;
+        case GB_BORDER_ALWAYS:
+            return 256;
+    }
+}
+
+unsigned GB_get_screen_height(GB_gameboy_t *gb)
+{
+    switch (gb->border_mode) {
+        default:
+        case GB_BORDER_SGB:
+            return GB_is_hle_sgb(gb)? 224 : 144;
+        case GB_BORDER_NEVER:
+            return 144;
+        case GB_BORDER_ALWAYS:
+            return 224;
+    }
+}
+
+double GB_get_usual_frame_rate(GB_gameboy_t *gb)
+{
+    return GB_get_clock_rate(gb) / (double)LCDC_PERIOD;
+}

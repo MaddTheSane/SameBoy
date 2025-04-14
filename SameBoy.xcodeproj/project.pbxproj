@@ -84,6 +84,9 @@
 		556AFD9B25A54AF1004D2482 /* timing.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7C25A54AF1004D2482 /* timing.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		556AFD9C25A54AF1004D2482 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7D25A54AF1004D2482 /* camera.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		556AFDA225A54AF1004D2482 /* workboy.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD8525A54AF1004D2482 /* workboy.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		55771B9F2DACDA93000C32AF /* FlatCRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55771B9E2DACDA93000C32AF /* FlatCRT.metal */; };
+		55771BA02DACDA93000C32AF /* FlatCRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55771B9E2DACDA93000C32AF /* FlatCRT.metal */; };
+		55771BA32DACDF4D000C32AF /* GBROMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55771BA22DACDF4D000C32AF /* GBROMViewController.m */; };
 		5579AC9025A05E5F00CADDCE /* GBApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579AC8F25A05E5F00CADDCE /* GBApp.m */; };
 		5579AC9225A05E6000CADDCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5579AC9125A05E6000CADDCE /* Assets.xcassets */; };
 		5579AC9825A05E6000CADDCE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579AC9725A05E6000CADDCE /* main.m */; };
@@ -236,8 +239,6 @@
 		55970FAC2B32F20600E3B538 /* License.html in Resources */ = {isa = PBXBuildFile; fileRef = 55970F8F2B32F20500E3B538 /* License.html */; };
 		55970FAD2B32F20600E3B538 /* Cartridge.png in Resources */ = {isa = PBXBuildFile; fileRef = 55970F912B32F20500E3B538 /* Cartridge.png */; };
 		55970FAE2B32F20600E3B538 /* GBSlotButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F922B32F20500E3B538 /* GBSlotButton.m */; };
-		55970FB12B32F20600E3B538 /* GBLoadROMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F962B32F20500E3B538 /* GBLoadROMTableViewController.m */; };
-		55970FB22B32F20600E3B538 /* GBTemperatureSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F972B32F20600E3B538 /* GBTemperatureSlider.m */; };
 		55970FB32B32F40700E3B538 /* gb.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6525A54AF1004D2482 /* gb.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		55970FB42B32F42000E3B538 /* Shaders in Resources */ = {isa = PBXBuildFile; fileRef = 556038C226C0952200CD1984 /* Shaders */; };
 		55970FB52B32F43500E3B538 /* sgb_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC402998F25500D554FB /* sgb_boot.bin */; };
@@ -626,6 +627,9 @@
 		556AFD8725A54AF1004D2482 /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = random.h; sourceTree = "<group>"; };
 		556AFD8825A54AF1004D2482 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
 		556AFD8925A54AF1004D2482 /* rumble.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rumble.h; sourceTree = "<group>"; };
+		55771B9E2DACDA93000C32AF /* FlatCRT.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = FlatCRT.metal; sourceTree = "<group>"; };
+		55771BA12DACDF4D000C32AF /* GBROMViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBROMViewController.h; sourceTree = "<group>"; };
+		55771BA22DACDF4D000C32AF /* GBROMViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBROMViewController.m; sourceTree = "<group>"; };
 		5579AC8B25A05E5F00CADDCE /* SameBoy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SameBoy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5579AC8E25A05E5F00CADDCE /* GBApp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBApp.h; sourceTree = "<group>"; };
 		5579AC8F25A05E5F00CADDCE /* GBApp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBApp.m; sourceTree = "<group>"; };
@@ -817,7 +821,6 @@
 		55970F802B32F20500E3B538 /* GBVerticalLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBVerticalLayout.h; sourceTree = "<group>"; };
 		55970F812B32F20500E3B538 /* jailbreak.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = jailbreak.entitlements; sourceTree = "<group>"; };
 		55970F822B32F20500E3B538 /* GBAboutController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBAboutController.h; sourceTree = "<group>"; };
-		55970F832B32F20500E3B538 /* GBLoadROMTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBLoadROMTableViewController.h; sourceTree = "<group>"; };
 		55970F842B32F20500E3B538 /* GBHapticManagerLegacy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBHapticManagerLegacy.h; sourceTree = "<group>"; };
 		55970F852B32F20500E3B538 /* GBLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBLayout.h; sourceTree = "<group>"; };
 		55970F862B32F20500E3B538 /* GBHorizontalLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBHorizontalLayout.m; sourceTree = "<group>"; };
@@ -828,14 +831,11 @@
 		55970F8B2B32F20500E3B538 /* GBHapticManagerLegacy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBHapticManagerLegacy.m; sourceTree = "<group>"; };
 		55970F8C2B32F20500E3B538 /* GBHapticManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBHapticManager.m; sourceTree = "<group>"; };
 		55970F8D2B32F20500E3B538 /* GBOptionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBOptionViewController.m; sourceTree = "<group>"; };
-		55970F8E2B32F20500E3B538 /* GBTemperatureSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBTemperatureSlider.h; sourceTree = "<group>"; };
 		55970F8F2B32F20500E3B538 /* License.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = License.html; sourceTree = "<group>"; };
 		55970F912B32F20500E3B538 /* Cartridge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Cartridge.png; sourceTree = "<group>"; };
 		55970F922B32F20500E3B538 /* GBSlotButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBSlotButton.m; sourceTree = "<group>"; };
 		55970F942B32F20500E3B538 /* GBHapticManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBHapticManager.h; sourceTree = "<group>"; };
 		55970F952B32F20500E3B538 /* deb-control */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "deb-control"; sourceTree = "<group>"; };
-		55970F962B32F20500E3B538 /* GBLoadROMTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBLoadROMTableViewController.m; sourceTree = "<group>"; };
-		55970F972B32F20600E3B538 /* GBTemperatureSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBTemperatureSlider.m; sourceTree = "<group>"; };
 		55A715572B45494000A925B2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		55A7155A2B45496300A925B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		55A7155C2B45497800A925B2 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
@@ -1392,8 +1392,6 @@
 				55970F862B32F20500E3B538 /* GBHorizontalLayout.m */,
 				55970F852B32F20500E3B538 /* GBLayout.h */,
 				55970F6D2B32F20400E3B538 /* GBLayout.m */,
-				55970F832B32F20500E3B538 /* GBLoadROMTableViewController.h */,
-				55970F962B32F20500E3B538 /* GBLoadROMTableViewController.m */,
 				55970F7D2B32F20400E3B538 /* GBMenuButton.h */,
 				55970F762B32F20400E3B538 /* GBMenuButton.m */,
 				55970F7C2B32F20400E3B538 /* GBMenuViewController.h */,
@@ -1402,14 +1400,14 @@
 				55970F8D2B32F20500E3B538 /* GBOptionViewController.m */,
 				55970F722B32F20400E3B538 /* GBROMManager.h */,
 				55970F712B32F20400E3B538 /* GBROMManager.m */,
+				55771BA12DACDF4D000C32AF /* GBROMViewController.h */,
+				55771BA22DACDF4D000C32AF /* GBROMViewController.m */,
 				55970F692B32F20400E3B538 /* GBSettingsViewController.h */,
 				55970F872B32F20500E3B538 /* GBSettingsViewController.m */,
 				55970F7E2B32F20400E3B538 /* GBSlotButton.h */,
 				55970F922B32F20500E3B538 /* GBSlotButton.m */,
 				55970F882B32F20500E3B538 /* GBStatesViewController.h */,
 				55970F892B32F20500E3B538 /* GBStatesViewController.m */,
-				55970F8E2B32F20500E3B538 /* GBTemperatureSlider.h */,
-				55970F972B32F20600E3B538 /* GBTemperatureSlider.m */,
 				55970F802B32F20500E3B538 /* GBVerticalLayout.h */,
 				55970F6A2B32F20400E3B538 /* GBVerticalLayout.m */,
 				55970F6C2B32F20400E3B538 /* GBView.h */,
@@ -1435,6 +1433,7 @@
 				55CAE2692B364CC6001935EB /* Bilinear.metal */,
 				55CAE26C2B364CC6001935EB /* CRT.metal */,
 				55CAE26B2B364CC6001935EB /* HQ2x.metal */,
+				55771B9E2DACDA93000C32AF /* FlatCRT.metal */,
 				55CAE2662B364CC6001935EB /* LCD.metal */,
 				55CAE2652B364CC6001935EB /* MonoLCD.metal */,
 				55CAE2702B364CC6001935EB /* NearestNeighbor.metal */,
@@ -1891,6 +1890,7 @@
 				55DF029327DAF40900B339A6 /* GBPaletteView.m in Sources */,
 				556AFD9625A54AF1004D2482 /* sm83_cpu.c in Sources */,
 				556AFD9025A54AF1004D2482 /* debugger.c in Sources */,
+				55771B9F2DACDA93000C32AF /* FlatCRT.metal in Sources */,
 				5579ACEA25A064DA00CADDCE /* GBCheatWindowController.m in Sources */,
 				55CAE27D2B364CC6001935EB /* OmniScale.metal in Sources */,
 				558111522C85A82D00B7FD10 /* GBCheatSearchController.m in Sources */,
@@ -2044,9 +2044,9 @@
 				55970FC22B32F46D00E3B538 /* save_state.c in Sources */,
 				55970FC72B32F46D00E3B538 /* camera.c in Sources */,
 				55CAE2852B36590C001935EB /* SmoothBilinear.metal in Sources */,
-				55970FB12B32F20600E3B538 /* GBLoadROMTableViewController.m in Sources */,
 				55970FCF2B32F71400E3B538 /* GBViewBase.m in Sources */,
 				55970F982B32F20600E3B538 /* GBVerticalLayout.m in Sources */,
+				55771BA02DACDA93000C32AF /* FlatCRT.metal in Sources */,
 				55970FA92B32F20600E3B538 /* GBHapticManagerLegacy.m in Sources */,
 				55970FC12B32F46D00E3B538 /* rumble.c in Sources */,
 				55970FBE2B32F46D00E3B538 /* sm83_cpu.c in Sources */,
@@ -2062,6 +2062,7 @@
 				55CAE2842B36590C001935EB /* AAOmniScaleLegacy.metal in Sources */,
 				55970FCA2B32F46D00E3B538 /* rewind.c in Sources */,
 				5581114E2C85A40300B7FD10 /* cheat_search.c in Sources */,
+				55771BA32DACDF4D000C32AF /* GBROMViewController.m in Sources */,
 				55CAE2812B36590C001935EB /* Scale4x.metal in Sources */,
 				55CAE27F2B36590C001935EB /* MonoLCD.metal in Sources */,
 				55970FCB2B32F46D00E3B538 /* display.c in Sources */,
@@ -2077,7 +2078,6 @@
 				55970FA82B32F20600E3B538 /* GBView.m in Sources */,
 				55970F9A2B32F20600E3B538 /* GBLayout.m in Sources */,
 				55CAE2832B36590C001935EB /* OmniScaleLegacy.metal in Sources */,
-				55970FB22B32F20600E3B538 /* GBTemperatureSlider.m in Sources */,
 				55970FB32B32F40700E3B538 /* gb.c in Sources */,
 				55970FBD2B32F46D00E3B538 /* printer.c in Sources */,
 				55970FA62B32F20600E3B538 /* GBSettingsViewController.m in Sources */,
@@ -2355,7 +2355,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.16.6;
+				MARKETING_VERSION = 1.0.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2420,7 +2420,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 0.16.6;
+				MARKETING_VERSION = 1.0.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;

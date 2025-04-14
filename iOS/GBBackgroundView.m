@@ -117,6 +117,12 @@ static GB_key_mask_t angleToKeyMask(double angle)
     self.usesSwipePad = self.usesSwipePad;
 }
 
+- (void)setDefaultScreenLabel
+{
+    _screenLabel.text = @"Tap the Game Boy screen to open the menu and load a ROM from the library.";
+}
+
+
 - (instancetype)initWithLayout:(GBLayout *)layout;
 {
     self = [super initWithImage:nil];
@@ -126,12 +132,12 @@ static GB_key_mask_t angleToKeyMask(double angle)
     _touches = [NSMutableSet set];
     
     _screenLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    _screenLabel.text = @"Tap the Game Boy screen to open the menu and load a ROM from the library.";
     _screenLabel.font = [UIFont systemFontOfSize:20 weight:UIFontWeightMedium];
     _screenLabel.textAlignment = NSTextAlignmentCenter;
     _screenLabel.textColor = [UIColor whiteColor];
     _screenLabel.lineBreakMode = NSLineBreakByWordWrapping;
     _screenLabel.numberOfLines = 0;
+    [self setDefaultScreenLabel];
     [self addSubview:_screenLabel];
     
     _dpadView = [[UIImageView alloc] initWithImage:[_layout.theme imageNamed:@"dpad"]];
@@ -314,6 +320,7 @@ static GB_key_mask_t angleToKeyMask(double angle)
             CGPoint point = [_padTouch locationInView:self];
             double squaredDistance = CGPointSquaredDistance(point, _padSwipeOrigin);
             if (squaredDistance > 16 * 16) {
+                GB_set_use_faux_analog_inputs(_gbView.gb, 0, false);
                 double angle = CGPointAngle(point, _padSwipeOrigin);
                 mask |= angleToKeyMask(angle);
                 if (squaredDistance > 24 * 24) {
@@ -382,6 +389,7 @@ static GB_key_mask_t angleToKeyMask(double angle)
                  fabs(point.y - _layout.dpadLocation.y) <= dpadRadius)
             ) && (fabs(point.x - _layout.dpadLocation.x) >= dpadRadius / 5 ||
                   fabs(point.y - _layout.dpadLocation.y) >= dpadRadius / 5)) {
+            GB_set_use_faux_analog_inputs(_gbView.gb, 0, false);
             dpadHandled = true; // Don't handle the dpad twice
             double angle = CGPointAngle(point, _layout.dpadLocation);
             mask |= angleToKeyMask(angle);
@@ -491,7 +499,7 @@ static GB_key_mask_t angleToKeyMask(double angle)
     
     if (@available(iOS 13.0, *)) {
         self.overrideUserInterfaceStyle = layout.theme.isDark? UIUserInterfaceStyleDark : UIUserInterfaceStyleLight;
-        self.tintColor = layout.theme.brandColor;
+        self.tintColor = layout.theme.buttonColor;
     }
 
     _screenLabel.frame = screenFrame;

@@ -34,6 +34,10 @@ enum pending_command {
     GB_SDL_QUIT_COMMAND,
     GB_SDL_LOAD_STATE_FROM_FILE_COMMAND,
     GB_SDL_CART_SWAP_COMMAND,
+    GB_SDL_DEBUGGER_INTERRUPT_COMMAND,
+#ifdef _WIN32
+    GB_SDL_HIDE_DEBUGGER_COMMAND,
+#endif
 };
 
 #define GB_SDL_DEFAULT_SCALE_MAX 8
@@ -41,6 +45,7 @@ enum pending_command {
 extern enum pending_command pending_command;
 extern unsigned command_parameter;
 extern char *dropped_state_file;
+extern bool screen_manually_resized;
 
 void update_viewport(void);
 void run_gui(bool is_running);
@@ -67,3 +72,7 @@ extern unsigned osd_text_lines;
 void convert_mouse_coordinates(signed *x, signed *y);
 const GB_palette_t *current_dmg_palette(void);
 void update_swap_interval(void);
+
+#ifdef _WIN32
+void configure_window_corners(void);
+#endif

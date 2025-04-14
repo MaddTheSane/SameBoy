@@ -93,12 +93,17 @@ static bool HasHomeBar(void)
     CGColorRef colors[] = {top, bottom};
     CFArrayRef colorsArray = CFArrayCreate(NULL, (const void **)colors, 2, &kCFTypeArrayCallBacks);
     
-    double borderWidth = self.screenRect.size.width / 40;
+    double borderWidth = MIN(self.screenRect.size.width / 40, 16 * _factor);
     CGRect bezelRect = self.screenRect;
     bezelRect.origin.x -= borderWidth;
     bezelRect.origin.y -= borderWidth;
     bezelRect.size.width += borderWidth * 2;
     bezelRect.size.height += borderWidth * 2;
+    
+    if (bezelRect.origin.y + bezelRect.size.height >= self.size.height - _homeBar) {
+        bezelRect.origin.y = -32;
+        bezelRect.size.height = self.size.height + 32;
+    }
     UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:bezelRect cornerRadius:borderWidth];
     CGContextSaveGState(context);
     CGContextSetShadowWithColor(context, (CGSize){0, _factor}, _factor, [UIColor colorWithWhite:1 alpha:0.25].CGColor);
@@ -135,7 +140,7 @@ static bool HasHomeBar(void)
     CFRelease(colorspace);
 }
 
-- (void)drawLogoInVerticalRange:(NSRange)range
+- (void)drawLogoInVerticalRange:(NSRange)range controlPadding:(double)padding
 {
     UIFont *font = [UIFont fontWithName:@"AvenirNext-BoldItalic" size:range.length * 4 / 3];
     
@@ -155,8 +160,8 @@ static bool HasHomeBar(void)
             }];
     
     _logoRect = (CGRect){
-        {(self.size.width - _screenRect.size.width) / 2, rect.origin.y},
-        {_screenRect.size.width, rect.size.height}
+        {(self.size.width - _screenRect.size.width) / 2 + padding, rect.origin.y},
+        {_screenRect.size.width - padding * 2, rect.size.height}
     };
 }
 

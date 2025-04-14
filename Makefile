@@ -13,6 +13,8 @@ ifneq ($(findstring MSYS,$(PLATFORM)),)
 PLATFORM := windows32
 endif
 
+DL_EXT := so
+
 ifeq ($(PLATFORM),windows32)
 _ := $(shell chcp 65001)
 EXESUFFIX:=.exe
@@ -29,6 +31,7 @@ PB12_COMPRESS := build/pb12$(EXESUFFIX)
 ifeq ($(PLATFORM),Darwin)
 DEFAULT := cocoa
 ENABLE_OPENAL ?= 1
+DL_EXT := dylib
 else
 DEFAULT := sdl
 endif
@@ -38,10 +41,10 @@ ifeq ($(PLATFORM),windows32)
 NULL := NUL
 endif
 
+PREFIX ?= /usr/local
 ifneq ($(shell which xdg-open 2> $(NULL))$(FREEDESKTOP),)
 # Running on an FreeDesktop environment, configure for (optional) installation
 DESTDIR ?= 
-PREFIX ?= /usr/local
 DATA_DIR ?= $(PREFIX)/share/sameboy/
 FREEDESKTOP ?= true
 endif
@@ -111,6 +114,8 @@ BIN := build/bin
 OBJ := build/obj
 INC := build/include/sameboy
 LIBDIR := build/lib
+PKGCONF_DIR := $(LIBDIR)/pkgconfig
+PKGCONF_FILE := $(PKGCONF_DIR)/sameboy.pc
 
 BOOTROMS_DIR ?= $(BIN)/BootROMs
 
@@ -129,8 +134,8 @@ endif
 
 # Find libraries with pkg-config if available.
 ifneq (, $(shell which pkg-config 2> $(NULL)))
-# But not on macOS, it's annoying
-ifneq ($(PLATFORM),Darwin)
+# But not on macOS, it's annoying, and not on Haiku, where OpenGL is broken
+ifeq ($(filter Darwin Haiku,$(PLATFORM)),)
 PKG_CONFIG := pkg-config
 endif
 endif
@@ -155,7 +160,7 @@ endif
 
 IOS_MIN := 11.0
 
-IOS_PNGS := $(shell ls iOS/*.png)
+IOS_PNGS := $(shell ls iOS/*.png iOS/*.car)
 # Support out-of-PATH RGBDS
 RGBASM  := $(RGBDS)rgbasm
 RGBLINK := $(RGBDS)rgblink
@@ -181,7 +186,7 @@ endif
 
 # These must come before the -Wno- flags
 WARNINGS += -Werror -Wall -Wno-unknown-warning -Wno-unknown-warning-option -Wno-missing-braces
-WARNINGS += -Wno-nonnull -Wno-unused-result -Wno-multichar -Wno-int-in-bool-context -Wno-format-truncation
+WARNINGS += -Wno-nonnull -Wno-unused-result -Wno-multichar -Wno-int-in-bool-context -Wno-format-truncation -Wno-nullability-completeness
 
 ifeq ($(PLATFORM),Darwin)
 WARNINGS += -Wno-error=pass-failed
@@ -200,6 +205,10 @@ endif
 CFLAGS += $(WARNINGS)
 
 CFLAGS += -std=gnu11 -D_GNU_SOURCE -DGB_VERSION='"$(VERSION)"' -DGB_COPYRIGHT_YEAR='"$(COPYRIGHT_YEAR)"' -I. -D_USE_MATH_DEFINES
+ifneq ($(PLATFORM),windows32)
+CFLAGS += -fPIC
+endif
+
 ifneq (,$(UPDATE_SUPPORT))
 CFLAGS += -DUPDATE_SUPPORT
 endif
@@ -207,6 +216,10 @@ endif
 ifeq (,$(PKG_CONFIG))
 SDL_CFLAGS := $(shell sdl2-config --cflags)
 SDL_LDFLAGS := $(shell sdl2-config --libs) -lpthread
+
+ifeq ($(PLATFORM),Darwin)
+SDL_LDFLAGS += -framework AppKit
+endif
 
 # We cannot detect the presence of OpenAL dev headers,
 # so we must do this manually
@@ -263,16 +276,22 @@ endif
 
 ifeq ($(PLATFORM),windows32)
 CFLAGS += -IWindows -Drandom=rand --target=x86_64-pc-windows
-LDFLAGS += -lmsvcrt -lcomdlg32 -luser32 -lshell32 -lole32 -lSDL2main -Wl,/MANIFESTFILE:NUL --target=x86_64-pc-windows
-SDL_LDFLAGS := -lSDL2
-GL_LDFLAGS := -lopengl32
+LDFLAGS += -lmsvcrt -lkernel32 -Wl,/MANIFESTFILE:NUL --target=x86_64-pc-windows
+SDL_LDFLAGS := -lSDL2 -lcomdlg32 -luser32 -lshell32 -lole32 -ladvapi32 -ldwmapi -lSDL2main
+GL_LDFLAGS := -lopengl32 
 ifneq ($(REDIST_XAUDIO),)
 CFLAGS += -DREDIST_XAUDIO
 LDFLAGS += -lxaudio2_9redist
 sdl: $(BIN)/SDL/xaudio2_9redist.dll
 endif
 else
-LDFLAGS += -lc -lm -ldl
+LDFLAGS += -lc -lm
+# libdl is not available as a standalone library in Haiku or OpenBSD
+ifneq ($(PLATFORM),Haiku)
+ifneq ($(PLATFORM),OpenBSD)
+LDFLAGS += -ldl
+endif
+endif
 endif
 
 ifeq ($(MAKECMDGOALS),_ios)
@@ -306,13 +325,20 @@ endif
 
 CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.10 -isysroot $(SYSROOT) -IAppleCommon -DOSATOMIC_USE_INLINED -DOSSPINLOCK_USE_INLINED
 OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -isysroot $(SYSROOT)
-LDFLAGS += -framework AppKit -mmacosx-version-min=10.10 -isysroot $(SYSROOT)
+LDFLAGS += -mmacosx-version-min=10.10 -isysroot $(SYSROOT)
 GL_LDFLAGS := -framework OpenGL
 endif
 CFLAGS += -Wno-deprecated-declarations
 ifeq ($(PLATFORM),windows32)
 CFLAGS += -Wno-deprecated-declarations # Seems like Microsoft deprecated every single LIBC function
 LDFLAGS += -Wl,/NODEFAULTLIB:libcmt.lib
+
+ifneq ($(USE_MSVCRT_DLL),)
+CFLAGS += -D_NO_CRT_STDIO_INLINE -DUSE_MSVCRT_DLL
+$(BIN)/SDL/sameboy.exe: $(OBJ)/Windows/msvcrt.lib
+$(LIBDIR)/libsameboy.dll: $(OBJ)/Windows/msvcrt.lib
+endif
+
 endif
 endif
 
@@ -339,15 +365,6 @@ LDFLAGS += -mno-outline
 endif
 
 STRIP := strip
-CODESIGN := true
-ifeq ($(PLATFORM),Darwin)
-LDFLAGS += -Wl,-exported_symbols_list,$(NULL)
-STRIP := strip -x
-CODESIGN := codesign -fs -
-endif
-ifeq ($(PLATFORM),windows32)
-LDFLAGS +=  -fuse-ld=lld
-endif
 LDFLAGS += -flto
 CFLAGS += -flto
 LDFLAGS += -Wno-lto-type-mismatch # For GCC's LTO
@@ -358,11 +375,22 @@ endif
 
 METAL_FLAGS += -IShaders -isysroot $(SYSROOT) -ffast-math
 
+CODESIGN := true
+ifeq ($(PLATFORM),Darwin)
+LDFLAGS += -Wl,-exported_symbols_list,$(NULL)
+STRIP := strip -x
+CODESIGN := codesign -fs -
+endif
+
+ifeq ($(PLATFORM),windows32)
+LDFLAGS +=  -fuse-ld=lld
+endif
+
 
 # Define our targets
 
 ifeq ($(PLATFORM),windows32)
-SDL_TARGET := $(BIN)/SDL/sameboy.exe $(BIN)/SDL/sameboy_debugger.exe $(BIN)/SDL/SDL2.dll
+SDL_TARGET := $(BIN)/SDL/sameboy.exe $(BIN)/SDL/SDL2.dll $(BIN)/SDL/sameboy_debugger.txt
 TESTER_TARGET := $(BIN)/tester/sameboy_tester.exe
 else
 SDL_TARGET := $(BIN)/SDL/sameboy
@@ -370,7 +398,6 @@ TESTER_TARGET := $(BIN)/tester/sameboy_tester
 endif
 
 cocoa: $(BIN)/SameBoy.app
-quicklook: $(BIN)/SameBoy.qlgenerator
 xdg-thumbnailer: $(BIN)/XdgThumbnailer/sameboy-thumbnailer
 sdl: $(SDL_TARGET) $(BIN)/SDL/dmg_boot.bin $(BIN)/SDL/mgb_boot.bin $(BIN)/SDL/cgb0_boot.bin $(BIN)/SDL/cgb_boot.bin $(BIN)/SDL/agb_boot.bin $(BIN)/SDL/sgb_boot.bin $(BIN)/SDL/sgb2_boot.bin $(BIN)/SDL/LICENSE $(BIN)/SDL/registers.sym $(BIN)/SDL/background.bmp $(BIN)/SDL/Shaders $(BIN)/SDL/Palettes
 bootroms: $(BIN)/BootROMs/agb_boot.bin $(BIN)/BootROMs/cgb_boot.bin $(BIN)/BootROMs/cgb0_boot.bin $(BIN)/BootROMs/dmg_boot.bin $(BIN)/BootROMs/mgb_boot.bin $(BIN)/BootROMs/sgb_boot.bin $(BIN)/BootROMs/sgb2_boot.bin
@@ -379,9 +406,9 @@ _ios: $(BIN)/SameBoy-iOS.app $(OBJ)/installer
 ios-ipa: $(BIN)/SameBoy-iOS.ipa
 ios-deb: $(BIN)/SameBoy-iOS.deb
 ifeq ($(PLATFORM),windows32)
-lib: lib-unsupported
+lib: $(LIBDIR)/libsameboy.dll
 else
-lib: $(LIBDIR)/libsameboy.o $(LIBDIR)/libsameboy.a
+lib: $(LIBDIR)/libsameboy.o $(LIBDIR)/libsameboy.a $(LIBDIR)/libsameboy.$(DL_EXT)
 endif
 all: sdl tester libretro lib
 ifeq ($(PLATFORM),Darwin)
@@ -441,11 +468,11 @@ endif
 
 $(OBJ)/SDL/%.dep: SDL/%
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(GL_CFLAGS) -MT $(OBJ)/$^.o -M $^ -c -o $@
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(GL_CFLAGS) -MT $(OBJ)/$^.o -M $^ -o $@
 	
 $(OBJ)/OpenDialog/%.dep: OpenDialog/%
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(GL_CFLAGS) -MT $(OBJ)/$^.o -M $^ -c -o $@
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(GL_CFLAGS) -MT $(OBJ)/$^.o -M $^ -o $@
 
 $(OBJ)/Metal/%.dep: Metal/%
 	-@$(MKDIR) -p $(dir $@)
@@ -453,7 +480,7 @@ $(OBJ)/Metal/%.dep: Metal/%
 
 $(OBJ)/%.dep: %
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $(CFLAGS) -MT $(OBJ)/$^.o -M $^ -c -o $@
+	$(CC) $(CFLAGS) -MT $(OBJ)/$^.o -M $^ -o $@
 
 # Compilation rules
 
@@ -566,8 +593,10 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
                     $(BIN)/SameBoy.app/Contents/Resources/sgb_boot.bin \
                     $(BIN)/SameBoy.app/Contents/Resources/sgb2_boot.bin \
                     $(patsubst %.xib,%.nib,$(addprefix $(BIN)/SameBoy.app/Contents/Resources/,$(shell cd Cocoa;ls *.xib))) \
-                    $(BIN)/SameBoy.qlgenerator \
+                    $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator \
                     $(BIN)/SameBoy.app/Contents/Resources/default.metallib \
+					$(BIN)/SameBoy.app/Contents/PlugIns/Thumbnailer.appex \
+					$(BIN)/SameBoy.app/Contents/PlugIns/Previewer.appex \
                     Shaders
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Resources
 	cp Misc/registers.sym $(BIN)/SameBoy.app/Contents/Resources/
@@ -583,11 +612,18 @@ ifeq ($(CONF), release)
 	$(CODESIGN) $@
 endif
 
-$(BIN)/SameBoy.app/Contents/MacOS/SameBoy: $(CORE_OBJECTS) $(COCOA_OBJECTS)
+# We place the dylib inside the Quick Look plugin, because Quick Look plugins run in a very strict sandbox
+
+$(BIN)/SameBoy.app/Contents/MacOS/SameBoy: $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/MacOS/SameBoy.dylib
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $^ -o $@ $(LDFLAGS) $(FAT_FLAGS) -framework OpenGL -framework AudioUnit -framework AVFoundation -framework CoreVideo -framework CoreMedia -framework IOKit -framework PreferencePanes -framework Carbon -framework QuartzCore -framework Security -framework WebKit -weak_framework Metal -weak_framework MetalKit -weak_framework UniformTypeIdentifiers
+	$(CC) -o $@ $(LDFLAGS) $(FAT_FLAGS) -rpath @executable_path/../Library/QuickLook/SameBoy.qlgenerator/ -Wl,-reexport_library,$^
+	
+$(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/MacOS/SameBoy.dylib: $(COCOA_OBJECTS) $(CORE_OBJECTS) $(QUICKLOOK_OBJECTS)
+	-@$(MKDIR) -p $(dir $@)
+	$(CC) $^ -o $@ $(LDFLAGS) $(FAT_FLAGS) -shared -install_name @rpath/Contents/MacOS/SameBoy.dylib -framework OpenGL -framework AudioUnit -framework AVFoundation -framework CoreVideo -framework CoreMedia -framework IOKit -framework PreferencePanes -framework Carbon -framework QuartzCore -framework Security -framework WebKit -weak_framework Metal -weak_framework MetalKit -weak_framework QuickLookThumbnailing -weak_framework QuickLookUI -framework Quicklook -framework AppKit -weak_framework UniformTypeIdentifiers -Wl,-exported_symbols_list,QuickLook/exports.sym -Wl,-exported_symbol,_main
 ifeq ($(CONF), release)
 	$(STRIP) $@
+	$(CODESIGN) $@
 endif
 
 $(BIN)/SameBoy.app/Contents/Resources/%.nib: Cocoa/%.xib
@@ -599,31 +635,55 @@ $(BIN)/SameBoy.app/Contents/Resources/default.metallib: $(METAL_OBJECTS)
 $(BIN)/SameBoy-iOS.app/%.storyboardc: iOS/%.storyboard
 	ibtool --target-device iphone --target-device ipad --minimum-deployment-target $(IOS_MIN) --compile $@ $^ 2>&1 | cat -
 
-# Quick Look generator
+# Quick Look generators
 
-$(BIN)/SameBoy.qlgenerator: $(BIN)/SameBoy.qlgenerator/Contents/MacOS/SameBoyQL \
-                            $(shell ls QuickLook/*.png) \
-                            QuickLook/Info.plist \
-                            $(BIN)/SameBoy.qlgenerator/Contents/Resources/cgb_boot_fast.bin
-	$(MKDIR) -p $(BIN)/SameBoy.qlgenerator/Contents/Resources
-	cp QuickLook/*.png $(BIN)/SameBoy.qlgenerator/Contents/Resources/
-	sed "s/\\\$$(MARKETING_VERSION)/$(VERSION)/;s/@COPYRIGHT_YEAR/$(COPYRIGHT_YEAR)/" < QuickLook/Info.plist > $(BIN)/SameBoy.qlgenerator/Contents/Info.plist
+$(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator: $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/MacOS/SameBoyQL \
+                            									   $(shell ls QuickLook/*.png) \
+										                           QuickLook/Info.plist \
+										                           $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/Resources/cgb_boot_fast.bin
+	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/Resources
+	cp QuickLook/*.png $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/Resources/
+	sed "s/\\\$$(MARKETING_VERSION)/$(VERSION)/;s/@COPYRIGHT_YEAR/$(COPYRIGHT_YEAR)/" < QuickLook/Info.plist > $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/Info.plist
 ifeq ($(CONF), release)
 	$(CODESIGN) $@
 endif
 
-# Currently, SameBoy.app includes two "copies" of each Core .o file once in the app itself and
-# once in the QL Generator. It should probably become a dylib instead.
-$(BIN)/SameBoy.qlgenerator/Contents/MacOS/SameBoyQL: $(CORE_OBJECTS) $(QUICKLOOK_OBJECTS)
+$(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/MacOS/SameBoyQL: $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/MacOS/SameBoy.dylib
 	-@$(MKDIR) -p $(dir $@)
-	$(CC) $^ -o $@ $(LDFLAGS) $(FAT_FLAGS) -Wl,-exported_symbols_list,QuickLook/exports.sym -bundle -framework Cocoa -framework Quicklook
+	$(CC) -o $@ $(LDFLAGS) $(FAT_FLAGS) -bundle -Wl,-reexport_library,$^ -rpath @loader_path/../../
+ifeq ($(CONF), release)
+	$(STRIP) $@
+endif
+
+$(BIN)/SameBoy.app/Contents/PlugIns/Thumbnailer.appex: $(BIN)/SameBoy.app/Contents/PlugIns/Thumbnailer.appex/Contents/MacOS/Thumbnailer \
+   													   QuickLook/Thumbnailer.plist \
+													   QuickLook/plugin.entitlements
+	sed "s/@VERSION/$(VERSION)/;s/@COPYRIGHT_YEAR/$(COPYRIGHT_YEAR)/" < QuickLook/Thumbnailer.plist > $(BIN)/SameBoy.app/Contents/PlugIns/Thumbnailer.appex/Contents/Info.plist
+	$(CODESIGN) --entitlements QuickLook/plugin.entitlements $@
+
+$(BIN)/SameBoy.app/Contents/PlugIns/Thumbnailer.appex/Contents/MacOS/Thumbnailer: $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/MacOS/SameBoy.dylib
+	-@$(MKDIR) -p $(dir $@)
+	$(CC) -o $@ $(LDFLAGS) $(FAT_FLAGS) -e _NSExtensionMain -framework Foundation -Wl,-reexport_library,$^ -rpath @loader_path/../../../../Library/QuickLook/SameBoy.qlgenerator/ 
+ifeq ($(CONF), release)
+	$(STRIP) $@
+endif
+
+$(BIN)/SameBoy.app/Contents/PlugIns/Previewer.appex: $(BIN)/SameBoy.app/Contents/PlugIns/Previewer.appex/Contents/MacOS/Previewer \
+  													 QuickLook/Previewer.plist \
+													 QuickLook/plugin.entitlements
+	sed "s/@VERSION/$(VERSION)/;s/@COPYRIGHT_YEAR/$(COPYRIGHT_YEAR)/" < QuickLook/Previewer.plist > $(BIN)/SameBoy.app/Contents/PlugIns/Previewer.appex/Contents/Info.plist
+	$(CODESIGN) --entitlements QuickLook/plugin.entitlements $@
+
+$(BIN)/SameBoy.app/Contents/PlugIns/Previewer.appex/Contents/MacOS/Previewer: $(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/MacOS/SameBoy.dylib
+	-@$(MKDIR) -p $(dir $@)
+	$(CC) -o $@ $(LDFLAGS) $(FAT_FLAGS) -e _NSExtensionMain -framework Foundation -Wl,-reexport_library,$^ -rpath @loader_path/../../../../Library/QuickLook/SameBoy.qlgenerator/ 
 ifeq ($(CONF), release)
 	$(STRIP) $@
 endif
 
 # cgb_boot_fast.bin is not a standard boot ROM, we don't expect it to exist in the user-provided
 # boot ROM directory.
-$(BIN)/SameBoy.qlgenerator/Contents/Resources/cgb_boot_fast.bin: $(BIN)/BootROMs/cgb_boot_fast.bin
+$(BIN)/SameBoy.app/Contents/Library/QuickLook/SameBoy.qlgenerator/Contents/Resources/cgb_boot_fast.bin: $(BIN)/BootROMs/cgb_boot_fast.bin
 	-@$(MKDIR) -p $(dir $@)
 	cp -f $^ $@
 
@@ -632,6 +692,9 @@ $(BIN)/SameBoy.qlgenerator/Contents/Resources/cgb_boot_fast.bin: $(BIN)/BootROMs
 $(BIN)/XdgThumbnailer/sameboy-thumbnailer: $(CORE_OBJECTS) $(XDG_THUMBNAILER_OBJECTS)
 	-@$(MKDIR) -p $(dir $@)
 	$(CC) $^ -o $@ $(LDFLAGS) $(GIO_LDFLAGS) $(GDK_PIXBUF_LDFLAGS)
+ifeq ($(CONF), release)
+	$(STRIP) $@
+endif
 
 # SDL Port
 
@@ -644,14 +707,18 @@ ifeq ($(CONF), release)
 	$(CODESIGN) $@
 endif
 
-# Windows version builds two, one with a conole and one without it
 $(BIN)/SDL/sameboy.exe: $(CORE_OBJECTS) $(SDL_OBJECTS) $(OBJ)/Windows/resources.o
 	-@$(MKDIR) -p $(dir $@)
 	$(CC) $^ -o $@ $(LDFLAGS) $(SDL_LDFLAGS) $(GL_LDFLAGS) -Wl,/subsystem:windows
-
-$(BIN)/SDL/sameboy_debugger.exe: $(CORE_OBJECTS) $(SDL_OBJECTS) $(OBJ)/Windows/resources.o
-	-@$(MKDIR) -p $(dir $@)
-	$(CC) $^ -o $@ $(LDFLAGS) $(SDL_LDFLAGS) $(GL_LDFLAGS) -Wl,/subsystem:console
+	
+$(BIN)/SDL/sameboy_debugger.txt:
+	echo Looking for sameboy_debugger.exe? > $@
+	echo\>> $@
+	echo Starting with SameBoy v1.0.1, sameboy.exe and sameboy_debugger.exe >> $@
+	echo have been merged into a single executable. You can open a debugger >> $@
+	echo console at any time by pressing  Ctrl+C to interrupt the currently >> $@
+	echo open ROM.  Once you're done debugging,  you can close the debugger >> $@
+	echo console and resume normal execution. >> $@
 
 ifneq ($(USE_WINDRES),)
 $(OBJ)/%.o: %.rc
@@ -682,7 +749,7 @@ ifeq ($(CONF), release)
 	$(CODESIGN) $@
 endif
 
-$(BIN)/tester/sameboy_tester.exe: $(CORE_OBJECTS) $(SDL_OBJECTS)
+$(BIN)/tester/sameboy_tester.exe: $(CORE_OBJECTS)
 	-@$(MKDIR) -p $(dir $@)
 	$(CC) $^ -o $@ $(LDFLAGS) -Wl,/subsystem:console
 
@@ -756,10 +823,18 @@ libretro:
 # Install for Linux, and other FreeDesktop platforms.
 ifneq ($(FREEDESKTOP),)
 install: $(BIN)/XdgThumbnailer/sameboy-thumbnailer sdl $(shell find FreeDesktop) XdgThumbnailer/sameboy.thumbnailer
-	(cd $(BIN)/SDL && find . \! -name sameboy -type f -exec install -Dm 644 -T {} "$(DESTDIR)$(DATA_DIR)/{}" \; )
-	install -Dm 755 -s $(BIN)/SDL/sameboy $(DESTDIR)$(PREFIX)/bin/sameboy
-	install -Dm 755 -s $(BIN)/XdgThumbnailer/sameboy-thumbnailer $(DESTDIR)$(PREFIX)/bin/sameboy-thumbnailer
-	install -Dm 644 XdgThumbnailer/sameboy.thumbnailer $(DESTDIR)$(PREFIX)/share/thumbnailers/sameboy.thumbnailer
+	install -d $(DESTDIR)$(DATA_DIR)/Shaders
+	install -d $(DESTDIR)$(DATA_DIR)/Palettes
+	install -d $(DESTDIR)$(DATA_DIR)/BootROMs
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -d $(DESTDIR)$(PREFIX)/share/thumbnailers
+	install -d $(DESTDIR)$(PREFIX)/share/mime
+	install -d $(DESTDIR)$(PREFIX)/share/applications
+	
+	(cd $(BIN)/SDL && find . \! -name sameboy -type f -exec install -m 644 {} "$(abspath $(DESTDIR))$(DATA_DIR)/{}" \; )
+	install -m 755 $(BIN)/SDL/sameboy $(DESTDIR)$(PREFIX)/bin/sameboy
+	install -m 755 $(BIN)/XdgThumbnailer/sameboy-thumbnailer $(DESTDIR)$(PREFIX)/bin/sameboy-thumbnailer
+	install -m 644 XdgThumbnailer/sameboy.thumbnailer $(DESTDIR)$(PREFIX)/share/thumbnailers/sameboy.thumbnailer
 ifeq ($(DESTDIR),)
 	xdg-mime install --novendor FreeDesktop/sameboy.xml
 	xdg-desktop-menu install --novendor FreeDesktop/sameboy.desktop
@@ -769,17 +844,19 @@ ifeq ($(DESTDIR),)
 		xdg-icon-resource install --novendor --theme hicolor --size $$size --context mimetypes FreeDesktop/ColorCartridge/$${size}x$${size}.png x-gameboy-color-rom; \
 	done
 else
-	install -Dm 644 FreeDesktop/sameboy.xml $(DESTDIR)$(PREFIX)/share/mime/sameboy.xml
-	install -Dm 644 FreeDesktop/sameboy.desktop $(DESTDIR)$(PREFIX)/share/applications/sameboy.desktop
+	install -m 644 FreeDesktop/sameboy.xml $(DESTDIR)$(PREFIX)/share/mime/sameboy.xml
+	install -m 644 FreeDesktop/sameboy.desktop $(DESTDIR)$(PREFIX)/share/applications/sameboy.desktop
 	for size in 16x16 32x32 64x64 128x128 256x256 512x512; do \
-		install -Dm 644 FreeDesktop/AppIcon/$$size.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/$$size/apps/sameboy.png; \
-		install -Dm 644 FreeDesktop/Cartridge/$$size.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/$$size/mimetypes/x-gameboy-rom.png; \
-		install -Dm 644 FreeDesktop/ColorCartridge/$$size.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/$$size/mimetypes/x-gameboy-color-rom.png; \
+		install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/$$size/apps; \
+		install -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/$$size/mimetypes; \
+		install -m 644 FreeDesktop/AppIcon/$$size.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/$$size/apps/sameboy.png; \
+		install -m 644 FreeDesktop/Cartridge/$$size.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/$$size/mimetypes/x-gameboy-rom.png; \
+		install -m 644 FreeDesktop/ColorCartridge/$$size.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/$$size/mimetypes/x-gameboy-color-rom.png; \
 	done
 endif
 endif
 
-ios:
+ios: bootroms
 	@$(MAKE) _ios
 
 $(BIN)/SameBoy-iOS.ipa: ios iOS/sideload.entitlements
@@ -818,7 +895,7 @@ $(OBJ)/debian-binary:
 $(LIBDIR)/libsameboy.o: $(CORE_OBJECTS)
 	-@$(MKDIR) -p $(dir $@)
 	@# This is a somewhat simple hack to force Clang and GCC to build a native object file out of one or many LTO objects
-	echo "static const char __attribute__((used)) x=0;"| $(CC) $(filter-out -flto,$(CFLAGS)) -c -x c - -o $(OBJ)/lto_hack.o
+	echo "static const char __attribute__((used)) x=0;"| $(CC) $(filter-out -flto,$(CFLAGS)) $(FAT_FLAGS) -c -x c - -o $(OBJ)/lto_hack.o
 	@# And this is a somewhat complicated hack to invoke the correct LTO-enabled LD command in a mostly cross-platform nature
 	$(CC) $(FAT_FLAGS) $(CFLAGS) $(LIBFLAGS) $^ $(OBJ)/lto_hack.o -o $@
 	-@rm $(OBJ)/lto_hack.o
@@ -828,14 +905,55 @@ $(LIBDIR)/libsameboy.a: $(LIBDIR)/libsameboy.o
 	-@rm -f $@
 	ar -crs $@ $^
 	
+$(LIBDIR)/libsameboy.$(DL_EXT): $(CORE_OBJECTS)
+	-@$(MKDIR) -p $(dir $@)
+	$(CC) $(LDFLAGS) -shared $(FAT_FLAGS) $(CFLAGS) $^ -o $@
+ifeq ($(CONF), release)
+	$(STRIP) $@
+	$(CODESIGN) $@
+endif
+
+$(PKGCONF_FILE): sameboy.pc.in
+	-@$(MKDIR) -p $(dir $@)
+	-@rm -f $@
+	sed -e 's,@prefix@,$(PREFIX),' \
+		-e 's/@version@/$(VERSION)/' $< > $@
+
+lib-install: lib $(PKGCONF_FILE)
+	install -d $(DESTDIR)$(PREFIX)/lib/pkgconfig
+	install -d $(DESTDIR)$(PREFIX)/include/sameboy
+	install -m 644 $(LIBDIR)/libsameboy.a $(LIBDIR)/libsameboy.$(DL_EXT) $(DESTDIR)$(PREFIX)/lib/
+	install -m 644 $(INC)/* $(DESTDIR)$(PREFIX)/include/sameboy/
+	install -m 644 $(PKGCONF_FILE) $(DESTDIR)$(PREFIX)/lib/pkgconfig
+	
+# Windows dll
+
+# To avoid Windows' sort.exe
+SORT = $(dir $(shell which grep))\sort.exe
+
+$(OBJ)/names: $(CORE_OBJECTS)
+	llvm-nm -gU $(CORE_OBJECTS) -P | grep -Eo "^GB_[^ ]+" | $(SORT) -u > $@
+
+$(OBJ)/exports: $(PUBLIC_HEADERS)
+	grep -Eho "\bGB_[a-zA-Z0-9_]+\b" $^ | $(dir $(shell which grep))\sort.exe -u > $@
+
+$(OBJ)/exports.def: $(OBJ)/exports $(OBJ)/names
+	echo LIBRARY libsameboy > $@
+	echo EXPORTS >> $@
+	comm -12 $^ >> $@
+
+$(LIBDIR)/libsameboy.dll: $(CORE_OBJECTS) | $(OBJ)/exports.def
+	-@$(MKDIR) -p $(dir $@)
+	$(CC) $(LDFLAGS) -Wl,/def:$(OBJ)/exports.def -shared $(CFLAGS) $^ -o $@
+	
+# CPPP doesn't like multibyte characters, so we replace the single quote character before processing so it doesn't complain
 $(INC)/%.h: Core/%.h
 	-@$(MKDIR) -p $(dir $@)
-	-@# CPPP doesn't like multibyte characters, so we replace the single quote character before processing so it doesn't complain
 	sed "s/'/@SINGLE_QUOTE@/g" $^ | cppp $(CPPP_FLAGS) | sed "s/@SINGLE_QUOTE@/'/g" > $@
-
-lib-unsupported:
-	@echo Due to limitations of lld-link, compiling SameBoy as a library on Windows is not supported.
-	@false
+	
+# Generate msvcrt.lib so we can use the always-present msvcrt.dll
+$(OBJ)/Windows/msvcrt.lib: Windows/msvcrt.def
+	lib.exe /MACHINE:X64 /def:$< /out:$@
 	
 # Clean
 clean:

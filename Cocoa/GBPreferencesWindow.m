@@ -339,6 +339,63 @@ static inline NSString *keyEquivalentString(NSMenuItem *item)
     else {
         [_colorPalettePopupButton selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"GBCurrentTheme"] ?: @""];
     }
+    
+    _fontSizeStepper.intValue = [[NSUserDefaults standardUserDefaults] integerForKey:@"GBDebuggerFontSize"];
+    [self updateFonts];
+}
+
+- (IBAction)fontSizeChanged:(id)sender
+{
+    NSString *selectedFont = [[NSUserDefaults standardUserDefaults] stringForKey:@"GBDebuggerFont"];
+    [[NSUserDefaults standardUserDefaults] setInteger:[sender intValue] forKey:@"GBDebuggerFontSize"];
+    [_fontPopupButton setDisplayTitle:[NSString stringWithFormat:@"%@ %upt", selectedFont, (unsigned)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBDebuggerFontSize"]]];
+}
+
+- (IBAction)fontChanged:(id)sender
+{
+    NSString *selectedFont = _fontPopupButton.selectedItem.title;
+    [[NSUserDefaults standardUserDefaults] setObject:selectedFont forKey:@"GBDebuggerFont"];
+    [_fontPopupButton setDisplayTitle:[NSString stringWithFormat:@"%@ %upt", selectedFont, (unsigned)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBDebuggerFontSize"]]];
+
+}
+
+- (void)updateFonts
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSFontManager *fontManager = [NSFontManager sharedFontManager];
+        NSArray *allFamilies = [fontManager availableFontFamilies];
+        NSMutableSet *families = [NSMutableSet set];
+        for (NSString *family in allFamilies) {
+            if ([fontManager fontNamed:family hasTraits:NSFixedPitchFontMask]) {
+                [families addObject:family];
+            }
+        }
+        
+        bool hasSFMono = false;
+        if (@available(macOS 10.15, *)) {
+            hasSFMono = [[NSFont monospacedSystemFontOfSize:12 weight:NSFontWeightRegular].displayName containsString:@"SF"];
+        }
+        
+        if (hasSFMono) {
+            [families addObject:@"SF Mono"];
+        }
+    
+        NSArray *sortedFamilies = [[families allObjects] sortedArrayUsingSelector:@selector(compare:)];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (![families containsObject:[[NSUserDefaults standardUserDefaults] stringForKey:@"GBDebuggerFont"]]) {
+                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"GBDebuggerFont"];
+            }
+            
+            [_fontPopupButton.menu removeAllItems];
+            for (NSString *family in sortedFamilies) {
+                [_fontPopupButton addItemWithTitle:family];
+            }
+            NSString *selectedFont = [[NSUserDefaults standardUserDefaults] stringForKey:@"GBDebuggerFont"];
+            [_fontPopupButton selectItemWithTitle:selectedFont];
+            [_fontPopupButton setDisplayTitle:[NSString stringWithFormat:@"%@ %upt", selectedFont, (unsigned)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBDebuggerFontSize"]]];
+        });
+    });
 }
 
 - (void)dealloc
@@ -463,7 +520,7 @@ static inline NSString *keyEquivalentString(NSMenuItem *item)
             [GB_COLOR_CORRECTION_MODERN_BALANCED] = @"Emulates a modern display. Blue contrast is moderately enhanced at the cost of slight hue inaccuracy.",
             [GB_COLOR_CORRECTION_MODERN_BOOST_CONTRAST] = @"Like Modern – Balanced, but further boosts the contrast of greens and magentas that is lacking on the original hardware.",
             [GB_COLOR_CORRECTION_REDUCE_CONTRAST] = @"Slightly reduce the contrast to better represent the tint and contrast of the original display.",
-            [GB_COLOR_CORRECTION_LOW_CONTRAST] = @"Harshly reduce the contrast to accurately represent the tint and low constrast of the original display.",
+            [GB_COLOR_CORRECTION_LOW_CONTRAST] = @"Harshly reduce the contrast to accurately represent the tint and low contrast of the original display.",
             [GB_COLOR_CORRECTION_MODERN_ACCURATE] = @"Emulates a modern display. Colors have their hues and brightness corrected.",
          }) [self.colorCorrectionPopupButton.selectedItem.tag]
                                    title:self.colorCorrectionPopupButton.selectedItem.title

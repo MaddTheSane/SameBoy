@@ -1276,12 +1276,18 @@ static bool watch(GB_gameboy_t *gb, char *arguments, char *modifiers, const debu
         .inclusive = inclusive,
     };
 
+    const char *flags_string = inline_const(const char *[], {
+        [WATCHPOINT_READ] = "read-only",
+        [WATCHPOINT_WRITE] = "write-only",
+        [WATCHPOINT_READ | WATCHPOINT_WRITE] = "read-write",
+    })[flags];
+    
     GB_log(gb, "Watchpoint %u set at %s", id, debugger_value_to_string(gb, result, true, false));
     if (length) {
-        GB_log(gb, " - %s%s\n", debugger_value_to_string(gb, end, true, true), inclusive? " (inclusive)" : "");
+        GB_log(gb, " - %s%s, %s\n", debugger_value_to_string(gb, end, true, true), inclusive? " (inclusive)" : "", flags_string);
     }
     else {
-        GB_log(gb, "\n");
+        GB_log(gb, ", %s\n", flags_string);
     }
     return true;
 }
@@ -2144,7 +2150,7 @@ static const debugger_command_t commands[] = {
     {"step", 1, step, "Run the next instruction, stepping into function calls"},
     {"finish", 1, finish, "Run until the current function returns"},
 #ifndef DISABLE_REWIND
-    {"backstep", 5, backstep, "Step one instruction backwards, assuming constant inputs"},
+    {"backstep", 5, backstep, "Step one instruction backward, assuming constant inputs"},
     {"bs", 2, }, /* Alias */
 #endif
     {"undo", 1, undo, "Revert the last command"},
@@ -2781,6 +2787,11 @@ void GB_debugger_set_disabled(GB_gameboy_t *gb, bool disabled)
 {
     gb->debug_disable = disabled;
     update_debug_active(gb);
+}
+
+void GB_debugger_set_reload_callback(GB_gameboy_t *gb, GB_debugger_reload_callback_t callback)
+{
+    gb->debugger_reload_callback = callback;
 }
 
 /* Jump-to breakpoints */

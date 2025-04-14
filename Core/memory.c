@@ -735,7 +735,7 @@ static uint8_t read_high_memory(GB_gameboy_t *gb, uint16_t addr)
                 return GB_is_cgb(gb)? gb->io_registers[addr & 0xFF] : 0xFF;
             case GB_IO_PSW:
                 return gb->cgb_mode? gb->io_registers[addr & 0xFF] : 0xFF;
-            case GB_IO_UNKNOWN5:
+            case GB_IO_PGB:
                 return GB_is_cgb(gb)? gb->io_registers[addr & 0xFF] | 0x8F : 0xFF;
             default:
                 if ((addr & 0xFF) >= GB_IO_NR10 && (addr & 0xFF) <= GB_IO_WAV_END) {
@@ -767,6 +767,9 @@ static read_function_t *const read_map[] =
 
 void GB_set_read_memory_callback(GB_gameboy_t *gb, GB_read_memory_callback_t callback)
 {
+    if (!callback) {
+        GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    }
     gb->read_memory_callback = callback;
 }
 
@@ -819,6 +822,8 @@ uint8_t GB_read_memory(GB_gameboy_t *gb, uint16_t addr)
 
 uint8_t GB_safe_read_memory(GB_gameboy_t *gb, uint16_t addr)
 {
+    GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+
     if (unlikely(addr == 0xFF00 + GB_IO_JOYP)) {
         return gb->io_registers[GB_IO_JOYP];
     }
@@ -1104,6 +1109,7 @@ static void write_mbc7_ram(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 gb->mbc7.latch_ready = true;
                 gb->mbc7.x_latch = gb->mbc7.y_latch = 0x8000;
             }
+            break;
         }
         case 1: {
             if (value == 0xAA) {
@@ -1111,6 +1117,7 @@ static void write_mbc7_ram(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 gb->mbc7.x_latch = 0x81D0 + 0x70 * gb->accelerometer_x;
                 gb->mbc7.y_latch = 0x81D0 + 0x70 * gb->accelerometer_y;
             }
+            break;
         }
         case 8: {
             gb->mbc7.eeprom_cs = value & 0x80;
@@ -1210,6 +1217,7 @@ static void write_mbc7_ram(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
                 }
             }
             gb->mbc7.eeprom_clk = value & 0x40;
+            break;
         }
     }
 }
@@ -1410,7 +1418,7 @@ static void write_high_memory(GB_gameboy_t *gb, uint16_t addr, uint8_t value)
             case GB_IO_PSWX:
             case GB_IO_PSWY:
             case GB_IO_PSW:
-            case GB_IO_UNKNOWN5:
+            case GB_IO_PGB:
                 gb->io_registers[addr & 0xFF] = value;
                 return;
             case GB_IO_OPRI:
@@ -1779,6 +1787,9 @@ static write_function_t *const write_map[] =
 
 void GB_set_write_memory_callback(GB_gameboy_t *gb, GB_write_memory_callback_t callback)
 {
+    if (!callback) {
+        GB_ASSERT_NOT_RUNNING_OTHER_THREAD(gb)
+    }
     gb->write_memory_callback = callback;
 }
 

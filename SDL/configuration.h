@@ -143,7 +143,6 @@ typedef struct {
     bool osd;
     
     struct __attribute__((packed, aligned(4))) {
-        
         /* v0.15 */
         bool allow_mouse_controls;
         uint8_t cgb_revision;
@@ -151,10 +150,17 @@ typedef struct {
         char audio_driver[16];
         /* v0.15.2 */
         bool allow_background_controllers;
-        bool gui_pallete_enabled; // Change the GUI palette only once the user changed the DMG palette
+        bool gui_palette_enabled; // Change the GUI palette only once the user changed the DMG palette
         char dmg_palette_name[25];
         hotkey_action_t hotkey_actions[2];
         uint16_t agb_revision;
+        
+        /* v1.0 */
+        bool windows_associations_prompted; // Windows only
+        
+        /* v1.0.1 */
+        bool disable_rounded_corners; // Windows only
+        bool use_faux_analog_inputs;
     };
 } configuration_t;
 

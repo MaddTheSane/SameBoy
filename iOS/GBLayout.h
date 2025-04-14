@@ -15,6 +15,7 @@
 @property (readonly) CGPoint abComboLocation;
 @property (readonly) CGPoint startLocation;
 @property (readonly) CGPoint selectLocation;
+@property (readonly) unsigned cutout;
 
 - (CGRect)viewRectForOrientation:(UIInterfaceOrientation)orientation;
 @end
@@ -36,12 +37,11 @@
 @property (readonly) unsigned factor;
 @property (readonly) unsigned minY;
 @property (readonly) unsigned homeBar;
-@property (readonly) unsigned cutout;
 @property (readonly) bool hasFractionalPixels;
 
 - (void)drawBackground;
 - (void)drawScreenBezels;
-- (void)drawLogoInVerticalRange:(NSRange)range;
+- (void)drawLogoInVerticalRange:(NSRange)range controlPadding:(double)padding;
 - (void)drawLabels;
 - (void)drawThemedLabelsWithBlock:(void (^)(void))block;
 
