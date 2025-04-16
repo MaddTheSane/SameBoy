@@ -302,7 +302,7 @@ static void debuggerReloadCallback(GB_gameboy_t *gb)
     GB_debugger_set_reload_callback(&_gb, debuggerReloadCallback);
     
     GB_gameboy_t *gb = &_gb;
-    __unsafe_unretained Document *weakSelf = self;
+    __weak Document *weakSelf = self;
     
     [self observeStandardDefaultsKey:@"GBColorCorrection" withBlock:^(NSNumber *value) {
         GB_set_color_correction_mode(gb, value.unsignedIntValue);

@@ -747,7 +747,7 @@ static id ValueForItem(NSDictionary *item)
         __weak typeof(self) weakSelf = self;
         id block = ^(){
             [[NSUserDefaults standardUserDefaults] setBool:button.on forKey:item[@"pref"]];
-            unsigned section = [indexPath indexAtPosition:0];
+            NSUInteger section = [indexPath indexAtPosition:0];
             UITableViewHeaderFooterView *view = [weakSelf.tableView footerViewForSection:section];
             view.textLabel.text = [weakSelf tableView:weakSelf.tableView titleForFooterInSection:section];
             [UIView setAnimationsEnabled:false];
