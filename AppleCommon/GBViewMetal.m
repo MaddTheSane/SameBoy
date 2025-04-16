@@ -276,7 +276,7 @@ static const vector_float2 rect[] =
     _pendingFrames++;
     dispatch_async(dispatch_get_main_queue(), ^{
         [(MTKView *)self.internalView draw];
-        _pendingFrames--;
+        self->_pendingFrames--;
     });
 }
 

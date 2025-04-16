@@ -387,13 +387,13 @@ static inline NSString *keyEquivalentString(NSMenuItem *item)
                 [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"GBDebuggerFont"];
             }
             
-            [_fontPopupButton.menu removeAllItems];
+            [self->_fontPopupButton.menu removeAllItems];
             for (NSString *family in sortedFamilies) {
-                [_fontPopupButton addItemWithTitle:family];
+                [self->_fontPopupButton addItemWithTitle:family];
             }
             NSString *selectedFont = [[NSUserDefaults standardUserDefaults] stringForKey:@"GBDebuggerFont"];
-            [_fontPopupButton selectItemWithTitle:selectedFont];
-            [_fontPopupButton setDisplayTitle:[NSString stringWithFormat:@"%@ %upt", selectedFont, (unsigned)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBDebuggerFontSize"]]];
+            [self->_fontPopupButton selectItemWithTitle:selectedFont];
+            [self->_fontPopupButton setDisplayTitle:[NSString stringWithFormat:@"%@ %upt", selectedFont, (unsigned)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBDebuggerFontSize"]]];
         });
     });
 }

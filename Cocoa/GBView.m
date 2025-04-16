@@ -144,7 +144,7 @@ static const uint8_t workboy_vk_to_key[] = {
 {
     [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
     
-    __unsafe_unretained GBView *weakSelf = self;
+    __weak GBView *weakSelf = self;
     [self observeStandardDefaultsKey:@"GBAspectRatioUnkept" withBlock:^(id newValue) {
         [weakSelf setFrame:weakSelf.superview.frame];
     }];

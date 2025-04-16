@@ -442,7 +442,7 @@ static void debuggerReloadCallback(GB_gameboy_t *gb)
         
         if (self->_audioBufferPosition < nFrames) {
             self->_audioBufferNeeded = nFrames;
-            [self->_audioLock waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:(double)(_audioBufferNeeded - _audioBufferPosition) / sampleRate]];
+            [self->_audioLock waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:(double)(self->_audioBufferNeeded - self->_audioBufferPosition) / sampleRate]];
             self->_audioBufferNeeded = 0;
         }
         
@@ -778,7 +778,7 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 - (NSFont *)debuggerFontOfSize:(unsigned)size
 {
     if (!size) {
-        size = [[NSUserDefaults standardUserDefaults] integerForKey:@"GBDebuggerFontSize"];
+        size = (unsigned)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBDebuggerFontSize"];
     }
     
     bool retry = false;
@@ -883,7 +883,7 @@ again:;
     
     self.consoleOutput.textContainerInset = NSMakeSize(4, 4);
     [self.view becomeFirstResponder];
-    self.view.frameBlendingMode = [[NSUserDefaults standardUserDefaults] integerForKey:@"GBFrameBlendingMode"];
+    self.view.frameBlendingMode = (GB_frame_blending_mode_t)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBFrameBlendingMode"];
     CGRect window_frame = self.mainWindow.frame;
     window_frame.size.width  = MAX([[NSUserDefaults standardUserDefaults] integerForKey:@"LastWindowWidth"],
                                   window_frame.size.width);
@@ -979,7 +979,7 @@ again:;
     }];
     
     
-    _currentModel = [[NSUserDefaults standardUserDefaults] integerForKey:@"GBEmulatedModel"];
+    _currentModel = (enum model)[[NSUserDefaults standardUserDefaults] integerForKey:@"GBEmulatedModel"];
     _usesAutoModel = _currentModel == MODEL_AUTO;
     
     [self initCommon];
@@ -2416,7 +2416,7 @@ enum GBWindowResizeAction
                                                                         context:nil
                                                                           hints:nil];
             NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgRef];
-            [imageRep setSize:(NSSize){160, self.feedImageView.image.size.height / 2}];
+            [imageRep setSize:NSMakeSize(160, self.feedImageView.image.size.height / 2)];
             NSData *data = [imageRep representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
             [data writeToURL:savePanel.URL atomically:false];
             [self.printerFeedWindow setIsVisible:false];
@@ -2761,7 +2761,7 @@ enum GBWindowResizeAction
     [_audioSavePanel beginSheetModalForWindow:self.mainWindow completionHandler:^(NSInteger result) {
         if (result == NSModalResponseOK) {
             [self->_audioSavePanel orderOut:self];
-            int error = GB_start_audio_recording(&self->_gb, self->_audioSavePanel.URL.fileSystemRepresentation, self.audioFormatButton.selectedTag);
+            int error = GB_start_audio_recording(&self->_gb, self->_audioSavePanel.URL.fileSystemRepresentation, (GB_audio_format_t)self.audioFormatButton.selectedTag);
             if (error) {
                 NSAlert *alert = [[NSAlert alloc] init];
                 [alert setMessageText:[NSString stringWithFormat:@"Could not start recording: %s", strerror(error)]];
@@ -2797,7 +2797,7 @@ enum GBWindowResizeAction
 
 - (IBAction)toggleAudioChannel:(NSMenuItem *)sender
 {
-    GB_set_channel_muted(&_gb, sender.tag, !GB_is_channel_muted(&_gb, sender.tag));
+    GB_set_channel_muted(&_gb, (GB_channel_t)sender.tag, !GB_is_channel_muted(&_gb, (GB_channel_t)sender.tag));
 }
 
 - (IBAction)cartSwap:(id)sender
