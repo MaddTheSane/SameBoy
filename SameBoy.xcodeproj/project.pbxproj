@@ -87,6 +87,7 @@
 		55771B9F2DACDA93000C32AF /* FlatCRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55771B9E2DACDA93000C32AF /* FlatCRT.metal */; };
 		55771BA02DACDA93000C32AF /* FlatCRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55771B9E2DACDA93000C32AF /* FlatCRT.metal */; };
 		55771BA32DACDF4D000C32AF /* GBROMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55771BA22DACDF4D000C32AF /* GBROMViewController.m */; };
+		55771BAC2DAF890D000C32AF /* GBTitledPopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 55771BAB2DAF890D000C32AF /* GBTitledPopUpButton.m */; };
 		5579AC9025A05E5F00CADDCE /* GBApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579AC8F25A05E5F00CADDCE /* GBApp.m */; };
 		5579AC9225A05E6000CADDCE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5579AC9125A05E6000CADDCE /* Assets.xcassets */; };
 		5579AC9825A05E6000CADDCE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579AC9725A05E6000CADDCE /* main.m */; };
@@ -630,6 +631,8 @@
 		55771B9E2DACDA93000C32AF /* FlatCRT.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = FlatCRT.metal; sourceTree = "<group>"; };
 		55771BA12DACDF4D000C32AF /* GBROMViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBROMViewController.h; sourceTree = "<group>"; };
 		55771BA22DACDF4D000C32AF /* GBROMViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBROMViewController.m; sourceTree = "<group>"; };
+		55771BAA2DAF890D000C32AF /* GBTitledPopUpButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBTitledPopUpButton.h; sourceTree = "<group>"; };
+		55771BAB2DAF890D000C32AF /* GBTitledPopUpButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBTitledPopUpButton.m; sourceTree = "<group>"; };
 		5579AC8B25A05E5F00CADDCE /* SameBoy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SameBoy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5579AC8E25A05E5F00CADDCE /* GBApp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBApp.h; sourceTree = "<group>"; };
 		5579AC8F25A05E5F00CADDCE /* GBApp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBApp.m; sourceTree = "<group>"; };
@@ -1185,6 +1188,8 @@
 				5579ACBF25A064DA00CADDCE /* GBTerminalTextFieldCell.m */,
 				55478B312998898600056C6A /* GBTintedImageCell.h */,
 				55478B302998898600056C6A /* GBTintedImageCell.m */,
+				55771BAA2DAF890D000C32AF /* GBTitledPopUpButton.h */,
+				55771BAB2DAF890D000C32AF /* GBTitledPopUpButton.m */,
 				5579ACD525A064DA00CADDCE /* GBView.h */,
 				5579ACBB25A064DA00CADDCE /* GBView.m */,
 				5579ACB525A064D900CADDCE /* GBViewGL.h */,
@@ -1942,6 +1947,7 @@
 				5579ACE025A064DA00CADDCE /* Document.m in Sources */,
 				55CAE2732B364CC6001935EB /* MonoLCD.metal in Sources */,
 				55FE438F27955B6C007F79E7 /* GBHueSliderCell.m in Sources */,
+				55771BAC2DAF890D000C32AF /* GBTitledPopUpButton.m in Sources */,
 				556038C126C091A100CD1984 /* GBVisualizerView.m in Sources */,
 				55CAE2782B364CC6001935EB /* OmniScaleLegacy.metal in Sources */,
 				556AFD8E25A54AF1004D2482 /* gb.c in Sources */,

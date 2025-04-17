@@ -318,7 +318,10 @@ static void debuggerReloadCallback(GB_gameboy_t *gb)
     
     GB_set_border_mode(&_gb, (GB_border_mode_t) [[NSUserDefaults standardUserDefaults] integerForKey:@"GBBorderMode"]);
     [self observeStandardDefaultsKey:@"GBBorderMode" withBlock:^(NSNumber *value) {
-        weakSelf->_borderModeChanged = true;
+        __strong Document *strongSelf = weakSelf;
+        if (strongSelf) {
+            strongSelf->_borderModeChanged = true;
+        }
     }];
     
     [self observeStandardDefaultsKey:@"GBHighpassFilter" withBlock:^(NSNumber *value) {
@@ -935,47 +938,67 @@ again:;
                                                  name:@"GBColorPaletteChanged"
                                                object:nil];
     
-    __unsafe_unretained Document *weakSelf = self;
+    __weak Document *weakSelf = self;
     [self observeStandardDefaultsKey:@"GBFrameBlendingMode"
                            withBlock:^(NSNumber *value) {
         weakSelf.view.frameBlendingMode = (GB_frame_blending_mode_t)value.unsignedIntValue;
     }];
     
     [self observeStandardDefaultsKey:@"GBDMGModel" withBlock:^(id newValue) {
-        weakSelf->_modelsChanging = true;
-        if (weakSelf->_currentModel == MODEL_DMG) {
-            [weakSelf reset:nil];
+        __strong Document *strongSelf = self;
+        if (!strongSelf) {
+            return;
         }
-        weakSelf->_modelsChanging = false;
+        strongSelf->_modelsChanging = true;
+        if (strongSelf->_currentModel == MODEL_DMG) {
+            [strongSelf reset:nil];
+        }
+        strongSelf->_modelsChanging = false;
     }];
     
     [self observeStandardDefaultsKey:@"GBSGBModel" withBlock:^(id newValue) {
-        weakSelf->_modelsChanging = true;
-        if (weakSelf->_currentModel == MODEL_SGB) {
-            [weakSelf reset:nil];
+        __strong Document *strongSelf = self;
+        if (!strongSelf) {
+            return;
         }
-        weakSelf->_modelsChanging = false;
+        strongSelf->_modelsChanging = true;
+        if (strongSelf->_currentModel == MODEL_SGB) {
+            [strongSelf reset:nil];
+        }
+        strongSelf->_modelsChanging = false;
     }];
     
     [self observeStandardDefaultsKey:@"GBCGBModel" withBlock:^(id newValue) {
-        weakSelf->_modelsChanging = true;
-        if (weakSelf->_currentModel == MODEL_CGB) {
-            [weakSelf reset:nil];
+        __strong Document *strongSelf = self;
+        if (!strongSelf) {
+            return;
         }
-        weakSelf->_modelsChanging = false;
+        strongSelf->_modelsChanging = true;
+        if (strongSelf->_currentModel == MODEL_CGB) {
+            [strongSelf reset:nil];
+        }
+        strongSelf->_modelsChanging = false;
     }];
     
     [self observeStandardDefaultsKey:@"GBAGBModel" withBlock:^(id newValue) {
-        weakSelf->_modelsChanging = true;
-        if (weakSelf->_currentModel == MODEL_AGB) {
-            [weakSelf reset:nil];
+        __strong Document *strongSelf = self;
+        if (!strongSelf) {
+            return;
         }
-        weakSelf->_modelsChanging = false;
+        strongSelf->_modelsChanging = true;
+        if (strongSelf->_currentModel == MODEL_AGB) {
+            [strongSelf reset:nil];
+        }
+        strongSelf->_modelsChanging = false;
     }];
     
     
     [self observeStandardDefaultsKey:@"GBVolume" withBlock:^(id newValue) {
-        weakSelf->_volume = [[NSUserDefaults standardUserDefaults] doubleForKey:@"GBVolume"];
+        __strong Document *strongSelf = self;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf->_volume = [[NSUserDefaults standardUserDefaults] doubleForKey:@"GBVolume"];
     }];
     
     
