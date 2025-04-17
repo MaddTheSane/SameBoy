@@ -47,6 +47,9 @@ static const vector_float2 rect[] =
     MTLTextureDescriptor *texture_descriptor = [[MTLTextureDescriptor alloc] init];
     
     texture_descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+    if (_device.hasUnifiedMemory) {
+        texture_descriptor.storageMode = MTLStorageModeShared;
+    }
     
     texture_descriptor.width = GB_get_screen_width(self.gb);
     texture_descriptor.height = GB_get_screen_height(self.gb);
