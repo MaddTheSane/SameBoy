@@ -1423,7 +1423,7 @@ static bool is_path_writeable(const char *path)
         [(NSMenuItem *)anItem setTitle:_isRecordingAudio? @"Stop Audio Recording" : @"Start Audio Recording…"];
     }
     else if ([anItem action] == @selector(toggleAudioChannel:)) {
-        [(NSMenuItem *)anItem setState:!GB_is_channel_muted(&_gb, [anItem tag])];
+        [(NSMenuItem *)anItem setState:!GB_is_channel_muted(&_gb, (GB_channel_t)[anItem tag])];
     }
     else if ([anItem action] == @selector(increaseWindowSize:)) {
         return [self newRect:NULL forWindow:_mainWindow action:GBWindowResizeActionIncrease];

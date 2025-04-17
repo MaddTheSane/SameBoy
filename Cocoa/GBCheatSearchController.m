@@ -36,7 +36,7 @@
 {
     _dataTypeButton.enabled = true;
     [_document performAtomicBlock:^{
-        GB_cheat_search_reset(_document.gb);
+        GB_cheat_search_reset(self->_document.gb);
     }];
     _resultCount = 0;
     if (_results) {
@@ -55,40 +55,40 @@
             // Action sent by losing focus rather than pressing enter
             if (![sender currentEditor]) return;
         }
-        _dataTypeButton.enabled = false;
-        [_document performAtomicBlock:^{
+        self->_dataTypeButton.enabled = false;
+        [self->_document performAtomicBlock:^{
             __block bool success = false;
-            NSString *error = [_document captureOutputForBlock:^{
-                success = GB_cheat_search_filter(_document.gb, _conditionField.stringValue.UTF8String, _dataTypeButton.selectedTag);
+            NSString *error = [self->_document captureOutputForBlock:^{
+                success = GB_cheat_search_filter(self->_document.gb, self->_conditionField.stringValue.UTF8String, (GB_cheat_search_data_type_t)self->_dataTypeButton.selectedTag);
             }];
             if (!success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [GBWarningPopover popoverWithContents:error onView:_conditionField];
+                    [GBWarningPopover popoverWithContents:error onView:self->_conditionField];
                     NSBeep();
                 });
                 return;
             }
-            _resultCount = GB_cheat_search_result_count(_document.gb);
-            _results = malloc(sizeof(*_results) * _resultCount);
-            GB_cheat_search_get_results(_document.gb, _results);
+            self->_resultCount = GB_cheat_search_result_count(self->_document.gb);
+            self->_results = malloc(sizeof(*_results) * self->_resultCount);
+            GB_cheat_search_get_results(self->_document.gb, self->_results);
         }];
-        if (_resultCount == 0) {
-            _dataTypeButton.enabled = true;
-            _resultsLabel.stringValue = @"No results.";
+        if (self->_resultCount == 0) {
+            self->_dataTypeButton.enabled = true;
+            self->_resultsLabel.stringValue = @"No results.";
         }
         else {
-            _resultsLabel.stringValue = [NSString stringWithFormat:@"%@ result%s",
-                                         [NSNumberFormatter localizedStringFromNumber:@(_resultCount)
+            self->_resultsLabel.stringValue = [NSString stringWithFormat:@"%@ result%s",
+                                               [NSNumberFormatter localizedStringFromNumber:@(self->_resultCount)
                                                                           numberStyle:NSNumberFormatterDecimalStyle],
-                                         _resultCount > 1? "s" : ""];
+                                               self->_resultCount > 1? "s" : ""];
         }
-        [_tableView reloadData];
+        [self->_tableView reloadData];
     });
 }
 
 - (IBAction)conditionChanged:(id)sender
 {
-    unsigned index = [_conditionTypeButton indexOfSelectedItem];
+    NSInteger index = [_conditionTypeButton indexOfSelectedItem];
     _conditionField.enabled = index == 11;
     _operandField.enabled = index >= 1 && index <= 6;
     switch ([_conditionTypeButton indexOfSelectedItem]) {
@@ -142,7 +142,7 @@
             return [NSString stringWithFormat:@"$%02x", _results[row].value];
         default: {
             const uint8_t *data = [self addressForRow:row];
-            GB_cheat_search_data_type_t dataType = _dataTypeButton.selectedTag;
+            GB_cheat_search_data_type_t dataType = (GB_cheat_search_data_type_t)_dataTypeButton.selectedTag;
             uint16_t value = data[0];
             if (!(dataType & GB_CHEAT_SEARCH_DATA_TYPE_16BIT)) {
                 return [NSString stringWithFormat:@"$%02x", value];
@@ -161,8 +161,8 @@
     [_document performAtomicBlock:^{
         __block bool success = false;
         __block uint16_t value;
-        NSString *error = [_document captureOutputForBlock:^{
-            success = !GB_debugger_evaluate(_document.gb, object.UTF8String, &value, NULL);
+        NSString *error = [self->_document captureOutputForBlock:^{
+            success = !GB_debugger_evaluate(self->_document.gb, object.UTF8String, &value, NULL);
         }];
         if (!success) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -172,7 +172,7 @@
             return;
         }
         uint8_t *dest = [self addressForRow:row];
-        GB_cheat_search_data_type_t dataType = _dataTypeButton.selectedTag;
+        GB_cheat_search_data_type_t dataType = (GB_cheat_search_data_type_t)self->_dataTypeButton.selectedTag;
         if (dataType & GB_CHEAT_SEARCH_DATA_TYPE_BE_BIT) {
             value = __builtin_bswap16(value);
         }
@@ -195,29 +195,29 @@
 {
     GB_cheat_search_result_t *result = _results + _tableView.selectedRow;
     uint8_t *data = [self addressForRow:_tableView.selectedRow];
-    GB_cheat_search_data_type_t dataType = _dataTypeButton.selectedTag;
+    GB_cheat_search_data_type_t dataType = (GB_cheat_search_data_type_t)_dataTypeButton.selectedTag;
     size_t rowToSelect = 0;
     GB_get_cheats(_document.gb, &rowToSelect);
     [_document performAtomicBlock:^{
-        GB_add_cheat(_document.gb,
+        GB_add_cheat(self->_document.gb,
                      (dataType & GB_CHEAT_SEARCH_DATA_TYPE_16BIT)? "New Cheat (Part 1)" : "New Cheat",
                      result->addr, result->bank,
                      *data,
                      0, false,
                      true);
         if (dataType & GB_CHEAT_SEARCH_DATA_TYPE_16BIT) {
-            GB_add_cheat(_document.gb,
+            GB_add_cheat(self->_document.gb,
                          (dataType & GB_CHEAT_SEARCH_DATA_TYPE_16BIT)? "New Cheat (Part 2)" : "New Cheat",
                          result->addr + 1, result->bank,
                          data[1],
                          0, false,
                          true);
         }
-        GB_set_cheats_enabled(_document.gb, true);
+        GB_set_cheats_enabled(self->_document.gb, true);
     }];
     [_document.cheatsWindow makeKeyAndOrderFront:nil];
     [_document.cheatWindowController.cheatsTable reloadData];
-    [_document.cheatWindowController.cheatsTable selectRow:rowToSelect byExtendingSelection:false];
+    [_document.cheatWindowController.cheatsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:rowToSelect] byExtendingSelection:false];
     [_document.cheatWindowController.cheatsTable.delegate tableViewSelectionDidChange:nil];
 }
 
