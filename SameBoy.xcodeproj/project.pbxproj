@@ -12,6 +12,8 @@
 		5536C0092B44A42600318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5536C00F2B44A47C00318DA5 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
 		5536C0102B44A94800318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		553C0F452DB0F28C007D7D53 /* GBCenteredTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 553C0F442DB0F28C007D7D53 /* GBCenteredTextCell.m */; };
+		553C0F482DB0F29D007D7D53 /* GBDeleteButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 553C0F472DB0F29D007D7D53 /* GBDeleteButtonCell.m */; };
 		5541C9852C6D575500A61EB9 /* SBThumb.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 55E7FC2C2998EF7E00D554FB /* SBThumb.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		55478AFC299887DF00056C6A /* JOYInput.h in Headers */ = {isa = PBXBuildFile; fileRef = 55478AFA299887DF00056C6A /* JOYInput.h */; };
 		55478AFD299887DF00056C6A /* JOYInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478AFB299887DF00056C6A /* JOYInput.m */; };
@@ -526,6 +528,10 @@
 		5536C0002B44A42500318DA5 /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
 		5536C0052B44A42500318DA5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5536C0062B44A42500318DA5 /* SBQuickLook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SBQuickLook.entitlements; sourceTree = "<group>"; };
+		553C0F432DB0F28C007D7D53 /* GBCenteredTextCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBCenteredTextCell.h; sourceTree = "<group>"; };
+		553C0F442DB0F28C007D7D53 /* GBCenteredTextCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBCenteredTextCell.m; sourceTree = "<group>"; };
+		553C0F462DB0F29D007D7D53 /* GBDeleteButtonCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBDeleteButtonCell.h; sourceTree = "<group>"; };
+		553C0F472DB0F29D007D7D53 /* GBDeleteButtonCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBDeleteButtonCell.m; sourceTree = "<group>"; };
 		55478AFA299887DF00056C6A /* JOYInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JOYInput.h; sourceTree = "<group>"; };
 		55478AFB299887DF00056C6A /* JOYInput.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JOYInput.m; sourceTree = "<group>"; };
 		55478B2A2998894B00056C6A /* GBDebuggerButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBDebuggerButton.h; sourceTree = "<group>"; };
@@ -1133,6 +1139,10 @@
 				5579ACBD25A064DA00CADDCE /* GBBorderView.m */,
 				5579ACB325A064D900CADDCE /* GBButtons.h */,
 				5579ACCD25A064DA00CADDCE /* GBButtons.m */,
+				553C0F432DB0F28C007D7D53 /* GBCenteredTextCell.h */,
+				553C0F442DB0F28C007D7D53 /* GBCenteredTextCell.m */,
+				553C0F462DB0F29D007D7D53 /* GBDeleteButtonCell.h */,
+				553C0F472DB0F29D007D7D53 /* GBDeleteButtonCell.m */,
 				558111502C85A82D00B7FD10 /* GBCheatSearchController.h */,
 				558111512C85A82D00B7FD10 /* GBCheatSearchController.m */,
 				5579ACBC25A064DA00CADDCE /* GBCheatTextFieldCell.h */,
@@ -1913,10 +1923,12 @@
 				55478B36299889E200056C6A /* GBViewBase.m in Sources */,
 				5579ACE325A064DA00CADDCE /* GBBorderView.m in Sources */,
 				5579ACEE25A064DA00CADDCE /* GBSplitView.m in Sources */,
+				553C0F482DB0F29D007D7D53 /* GBDeleteButtonCell.m in Sources */,
 				556AFDA225A54AF1004D2482 /* workboy.c in Sources */,
 				556AFD9925A54AF1004D2482 /* sm83_disassembler.c in Sources */,
 				5581114F2C85A40300B7FD10 /* cheat_search.c in Sources */,
 				556AFD8B25A54AF1004D2482 /* cheats.c in Sources */,
+				553C0F452DB0F28C007D7D53 /* GBCenteredTextCell.m in Sources */,
 				55478B3A2998B40C00056C6A /* NSTextFieldCell+Inset.m in Sources */,
 				556AFD9225A54AF1004D2482 /* random.c in Sources */,
 				5579ACF325A064DA00CADDCE /* GBCompleteByteSlice.m in Sources */,
