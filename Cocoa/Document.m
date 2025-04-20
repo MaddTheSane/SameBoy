@@ -1881,6 +1881,7 @@ enum GBWindowResizeAction
                                                                   bitmapFormat:0
                                                                    bytesPerRow:4 * width
                                                                   bitsPerPixel:32];
+    rep = [rep bitmapImageRepByRetaggingWithColorSpace:[NSColorSpace sRGBColorSpace]];
     memcpy(rep.bitmapData, data.bytes, data.length);
     [ret addRepresentation:rep];
     return ret;
