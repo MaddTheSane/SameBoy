@@ -1,5 +1,6 @@
 #import "GBPanel.h"
 
+#if TARGET_OS_OSX
 @implementation GBPanel
 - (void)becomeKeyWindow
 {
@@ -9,3 +10,7 @@
     [super becomeKeyWindow];
 }
 @end
+#else
+@implementation GBPanel
+@end
+#endif
