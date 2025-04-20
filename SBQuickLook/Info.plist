@@ -21,7 +21,67 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.quicklook.preview</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>$(PRODUCT_MODULE_NAME).PreviewProvider</string>
+		<string>GBPreviewProvider</string>
 	</dict>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Game Boy Game</string>
+			<key>UTTypeIconFile</key>
+			<string>Cartridge</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.github.liji32.sameboy.gb</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>gb</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Game Boy Color Game</string>
+			<key>UTTypeIconFile</key>
+			<string>ColorCartridge</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.github.liji32.sameboy.gbc</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>gbc</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Game Boy ISX File</string>
+			<key>UTTypeIconFile</key>
+			<string>ColorCartridge</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.github.liji32.sameboy.isx</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>isx</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>

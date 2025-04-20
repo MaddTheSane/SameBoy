@@ -86,6 +86,12 @@
 		556AFD9B25A54AF1004D2482 /* timing.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7C25A54AF1004D2482 /* timing.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		556AFD9C25A54AF1004D2482 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7D25A54AF1004D2482 /* camera.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		556AFDA225A54AF1004D2482 /* workboy.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD8525A54AF1004D2482 /* workboy.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
+		557547CC2DB233D300CA27E7 /* GBThumbnailProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 557547CB2DB233D300CA27E7 /* GBThumbnailProvider.m */; };
+		557547CF2DB2341100CA27E7 /* GBPreviewProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 557547CE2DB2341100CA27E7 /* GBPreviewProvider.m */; };
+		557547D02DB2348400CA27E7 /* generator.m in Sources */ = {isa = PBXBuildFile; fileRef = 55E7FBD12998DFF500D554FB /* generator.m */; };
+		557547D12DB2364E00CA27E7 /* GBPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 558111542C85A92700B7FD10 /* GBPanel.m */; };
+		557547D22DB236D300CA27E7 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
+		557547D32DB236E700CA27E7 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
 		55771B9F2DACDA93000C32AF /* FlatCRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55771B9E2DACDA93000C32AF /* FlatCRT.metal */; };
 		55771BA02DACDA93000C32AF /* FlatCRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55771B9E2DACDA93000C32AF /* FlatCRT.metal */; };
 		55771BA32DACDF4D000C32AF /* GBROMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55771BA22DACDF4D000C32AF /* GBROMViewController.m */; };
@@ -133,7 +139,6 @@
 		5581114E2C85A40300B7FD10 /* cheat_search.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581114D2C85A40300B7FD10 /* cheat_search.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		5581114F2C85A40300B7FD10 /* cheat_search.c in Sources */ = {isa = PBXBuildFile; fileRef = 5581114D2C85A40300B7FD10 /* cheat_search.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		558111522C85A82D00B7FD10 /* GBCheatSearchController.m in Sources */ = {isa = PBXBuildFile; fileRef = 558111512C85A82D00B7FD10 /* GBCheatSearchController.m */; };
-		558111552C85A92700B7FD10 /* GBPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 558111542C85A92700B7FD10 /* GBPanel.m */; };
 		5584AE182B329EF400FBAB98 /* NSObject+DefaultsObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE162B329EF400FBAB98 /* NSObject+DefaultsObserver.m */; };
 		5584AE222B32A25600FBAB98 /* GBPreferencePopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1E2B32A25600FBAB98 /* GBPreferencePopUpButton.m */; };
 		5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5584AE1F2B32A25600FBAB98 /* GBPreferencesSlider.m */; };
@@ -527,7 +532,6 @@
 		5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SBQuickLook.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5536C0002B44A42500318DA5 /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
 		5536C0052B44A42500318DA5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5536C0062B44A42500318DA5 /* SBQuickLook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SBQuickLook.entitlements; sourceTree = "<group>"; };
 		553C0F432DB0F28C007D7D53 /* GBCenteredTextCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBCenteredTextCell.h; sourceTree = "<group>"; };
 		553C0F442DB0F28C007D7D53 /* GBCenteredTextCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBCenteredTextCell.m; sourceTree = "<group>"; };
 		553C0F462DB0F29D007D7D53 /* GBDeleteButtonCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBDeleteButtonCell.h; sourceTree = "<group>"; };
@@ -634,6 +638,13 @@
 		556AFD8725A54AF1004D2482 /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = random.h; sourceTree = "<group>"; };
 		556AFD8825A54AF1004D2482 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
 		556AFD8925A54AF1004D2482 /* rumble.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rumble.h; sourceTree = "<group>"; };
+		557547CA2DB233D300CA27E7 /* GBThumbnailProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GBThumbnailProvider.h; path = QuickLook/GBThumbnailProvider.h; sourceTree = SOURCE_ROOT; };
+		557547CB2DB233D300CA27E7 /* GBThumbnailProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GBThumbnailProvider.m; path = QuickLook/GBThumbnailProvider.m; sourceTree = SOURCE_ROOT; };
+		557547CD2DB2341100CA27E7 /* GBPreviewProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GBPreviewProvider.h; path = QuickLook/GBPreviewProvider.h; sourceTree = SOURCE_ROOT; };
+		557547CE2DB2341100CA27E7 /* GBPreviewProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GBPreviewProvider.m; path = QuickLook/GBPreviewProvider.m; sourceTree = SOURCE_ROOT; };
+		557547D42DB4C52E00CA27E7 /* plugin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = plugin.entitlements; sourceTree = "<group>"; };
+		557547D52DB4C52E00CA27E7 /* Previewer.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Previewer.plist; sourceTree = "<group>"; };
+		557547D62DB4C52E00CA27E7 /* Thumbnailer.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Thumbnailer.plist; sourceTree = "<group>"; };
 		55771B9E2DACDA93000C32AF /* FlatCRT.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = FlatCRT.metal; sourceTree = "<group>"; };
 		55771BA12DACDF4D000C32AF /* GBROMViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBROMViewController.h; sourceTree = "<group>"; };
 		55771BA22DACDF4D000C32AF /* GBROMViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBROMViewController.m; sourceTree = "<group>"; };
@@ -892,7 +903,6 @@
 		55E7FC2F2998EF7E00D554FB /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		55E7FC322998EF7E00D554FB /* ThumbnailProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailProvider.swift; sourceTree = "<group>"; };
 		55E7FC342998EF7E00D554FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		55E7FC352998EF7E00D554FB /* SBThumb.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SBThumb.entitlements; sourceTree = "<group>"; };
 		55E7FC402998F25500D554FB /* sgb_boot.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = sgb_boot.bin; path = build/bin/BootROMs/sgb_boot.bin; sourceTree = SOURCE_ROOT; };
 		55E7FC412998F25500D554FB /* dmg_boot.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = dmg_boot.bin; path = build/bin/BootROMs/dmg_boot.bin; sourceTree = SOURCE_ROOT; };
 		55E7FC422998F25500D554FB /* cgb_boot.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = cgb_boot.bin; path = build/bin/BootROMs/cgb_boot.bin; sourceTree = SOURCE_ROOT; };
@@ -923,6 +933,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				557547D22DB236D300CA27E7 /* SameQL.framework in Frameworks */,
 				55C88B9B2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */,
 				557A4BE42B3814CF00E5AB78 /* Carbon.framework in Frameworks */,
 				557A4BE22B38145C00E5AB78 /* Metal.framework in Frameworks */,
@@ -954,6 +965,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				557547D32DB236E700CA27E7 /* SameQL.framework in Frameworks */,
 				55A715622B4549B000A925B2 /* UserNotifications.framework in Frameworks */,
 				55A715602B45499B00A925B2 /* CoreHaptics.framework in Frameworks */,
 				55A7155E2B45498600A925B2 /* CoreMedia.framework in Frameworks */,
@@ -998,9 +1010,10 @@
 		5536BFFD2B44A42500318DA5 /* SBQuickLook */ = {
 			isa = PBXGroup;
 			children = (
-				5536C0002B44A42500318DA5 /* PreviewProvider.swift */,
+				557547CD2DB2341100CA27E7 /* GBPreviewProvider.h */,
+				557547CE2DB2341100CA27E7 /* GBPreviewProvider.m */,
 				5536C0052B44A42500318DA5 /* Info.plist */,
-				5536C0062B44A42500318DA5 /* SBQuickLook.entitlements */,
+				5536C0002B44A42500318DA5 /* PreviewProvider.swift */,
 			);
 			path = SBQuickLook;
 			sourceTree = "<group>";
@@ -1473,6 +1486,9 @@
 				55E7FBCE2998DFF500D554FB /* get_image_for_rom.h */,
 				55E7FBD42998DFF500D554FB /* Info.plist */,
 				55E7FBD22998DFF500D554FB /* main.c */,
+				557547D42DB4C52E00CA27E7 /* plugin.entitlements */,
+				557547D52DB4C52E00CA27E7 /* Previewer.plist */,
+				557547D62DB4C52E00CA27E7 /* Thumbnailer.plist */,
 			);
 			path = QuickLook;
 			sourceTree = "<group>";
@@ -1490,9 +1506,10 @@
 		55E7FC312998EF7E00D554FB /* SBThumb */ = {
 			isa = PBXGroup;
 			children = (
-				55E7FC322998EF7E00D554FB /* ThumbnailProvider.swift */,
+				557547CA2DB233D300CA27E7 /* GBThumbnailProvider.h */,
+				557547CB2DB233D300CA27E7 /* GBThumbnailProvider.m */,
 				55E7FC342998EF7E00D554FB /* Info.plist */,
-				55E7FC352998EF7E00D554FB /* SBThumb.entitlements */,
+				55E7FC322998EF7E00D554FB /* ThumbnailProvider.swift */,
 			);
 			path = SBThumb;
 			sourceTree = "<group>";
@@ -1756,6 +1773,7 @@
 				TargetAttributes = {
 					5536BFFA2B44A42500318DA5 = {
 						CreatedOnToolsVersion = 15.1;
+						LastSwiftMigration = 1630;
 					};
 					5579AC8A25A05E5F00CADDCE = {
 						CreatedOnToolsVersion = 12.3;
@@ -1777,6 +1795,7 @@
 					};
 					55E7FC2B2998EF7E00D554FB = {
 						CreatedOnToolsVersion = 14.2;
+						LastSwiftMigration = 1630;
 					};
 				};
 			};
@@ -1892,6 +1911,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				557547CF2DB2341100CA27E7 /* GBPreviewProvider.m in Sources */,
 				5536C0012B44A42500318DA5 /* PreviewProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1965,7 +1985,6 @@
 				556AFD8E25A54AF1004D2482 /* gb.c in Sources */,
 				5584AE272B32A27000FBAB98 /* GBHexStatusBarRepresenter.m in Sources */,
 				556AFD8D25A54AF1004D2482 /* apu.c in Sources */,
-				558111552C85A92700B7FD10 /* GBPanel.m in Sources */,
 				556AFD9725A54AF1004D2482 /* mbc.c in Sources */,
 				5579ACDF25A064DA00CADDCE /* GBPreferencesWindow.m in Sources */,
 				5584AE232B32A25600FBAB98 /* GBPreferencesSlider.m in Sources */,
@@ -2155,6 +2174,7 @@
 				55E7FC1B2998EB4F00D554FB /* sgb.c in Sources */,
 				55E7FC152998EB4F00D554FB /* timing.c in Sources */,
 				55E7FC132998EB4F00D554FB /* debugger.c in Sources */,
+				557547D02DB2348400CA27E7 /* generator.m in Sources */,
 				55E7FC102998EB4F00D554FB /* mbc.c in Sources */,
 				55E7FC0D2998EB4F00D554FB /* camera.c in Sources */,
 				55E7FC232998EBD500D554FB /* SQLGenerator.m in Sources */,
@@ -2168,6 +2188,7 @@
 				55E7FC122998EB4F00D554FB /* workboy.c in Sources */,
 				55E7FC192998EB4F00D554FB /* random.c in Sources */,
 				55E7FC162998EB4F00D554FB /* printer.c in Sources */,
+				557547D12DB2364E00CA27E7 /* GBPanel.m in Sources */,
 				55E7FC142998EB4F00D554FB /* sm83_cpu.c in Sources */,
 				55E7FC092998EB4F00D554FB /* gb.c in Sources */,
 			);
@@ -2177,6 +2198,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				557547CC2DB233D300CA27E7 /* GBThumbnailProvider.m in Sources */,
 				55E7FC332998EF7E00D554FB /* ThumbnailProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2246,7 +2268,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = SBQuickLook/SBQuickLook.entitlements;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = QuickLook/plugin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2276,6 +2299,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -2283,7 +2308,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = SBQuickLook/SBQuickLook.entitlements;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = QuickLook/plugin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2313,6 +2339,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -2761,7 +2788,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = SBThumb/SBThumb.entitlements;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = QuickLook/plugin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2791,6 +2819,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -2798,7 +2828,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = SBThumb/SBThumb.entitlements;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = QuickLook/plugin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2828,6 +2859,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};

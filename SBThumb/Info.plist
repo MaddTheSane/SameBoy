@@ -19,7 +19,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.quicklook.thumbnail</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>$(PRODUCT_MODULE_NAME).ThumbnailProvider</string>
+		<string>GBThumbnailProvider</string>
 	</dict>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
