@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		5536BFFC2B44A42500318DA5 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2F2998EF7E00D554FB /* Quartz.framework */; platformFilters = (macos, ); };
-		5536C0012B44A42500318DA5 /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5536C0002B44A42500318DA5 /* PreviewProvider.swift */; };
 		5536C0092B44A42600318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5536C00F2B44A47C00318DA5 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
 		5536C0102B44A94800318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -105,6 +104,7 @@
 		557547F72DB4DA2900CA27E7 /* GBPrinterFeedController.m in Sources */ = {isa = PBXBuildFile; fileRef = 557547F62DB4DA2900CA27E7 /* GBPrinterFeedController.m */; };
 		557547FA2DB4DA4400CA27E7 /* GBPaletteEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 557547F92DB4DA4400CA27E7 /* GBPaletteEditor.m */; };
 		557547FD2DB4DA4F00CA27E7 /* GBActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 557547FC2DB4DA4F00CA27E7 /* GBActivityViewController.m */; };
+		557547FE2DB634A700CA27E7 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
 		55771B9F2DACDA93000C32AF /* FlatCRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55771B9E2DACDA93000C32AF /* FlatCRT.metal */; };
 		55771BA02DACDA93000C32AF /* FlatCRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55771B9E2DACDA93000C32AF /* FlatCRT.metal */; };
 		55771BA32DACDF4D000C32AF /* GBROMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55771BA22DACDF4D000C32AF /* GBROMViewController.m */; };
@@ -326,57 +326,31 @@
 		55DF028E27DAF3E700B339A6 /* GBObjectView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55DF028C27DAF3E700B339A6 /* GBObjectView.m */; };
 		55DF029227DAF40900B339A6 /* GBPaletteViewRow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55DF029027DAF40900B339A6 /* GBPaletteViewRow.xib */; };
 		55DF029327DAF40900B339A6 /* GBPaletteView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55DF029127DAF40900B339A6 /* GBPaletteView.m */; };
-		55E7FBD52998DFF500D554FB /* CartridgeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FBCC2998DFF500D554FB /* CartridgeTemplate.png */; };
-		55E7FBD62998DFF500D554FB /* UniversalCartridgeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FBCD2998DFF500D554FB /* UniversalCartridgeTemplate.png */; };
-		55E7FBD72998DFF500D554FB /* ColorCartridgeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FBCF2998DFF500D554FB /* ColorCartridgeTemplate.png */; };
-		55E7FBD92998DFF500D554FB /* generator.m in Sources */ = {isa = PBXBuildFile; fileRef = 55E7FBD12998DFF500D554FB /* generator.m */; };
 		55E7FBDA2998DFF500D554FB /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 55E7FBD22998DFF500D554FB /* main.c */; };
-		55E7FBDB2998DFF500D554FB /* get_image_for_rom.c in Sources */ = {isa = PBXBuildFile; fileRef = 55E7FBD32998DFF500D554FB /* get_image_for_rom.c */; };
 		55E7FBE02998E07B00D554FB /* SameBoyQL.qlgenerator in Copy Files */ = {isa = PBXBuildFile; fileRef = 55E7FBC72998DDBA00D554FB /* SameBoyQL.qlgenerator */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		55E7FBE22998E34400D554FB /* gb.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6525A54AF1004D2482 /* gb.c */; };
-		55E7FBE32998E3B900D554FB /* apu.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6325A54AF1004D2482 /* apu.c */; };
-		55E7FBE42998E3C300D554FB /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7D25A54AF1004D2482 /* camera.c */; };
-		55E7FBE52998E3D000D554FB /* cheats.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5F25A54AF1004D2482 /* cheats.c */; };
-		55E7FBE62998E3DD00D554FB /* debugger.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6925A54AF1004D2482 /* debugger.c */; };
-		55E7FBE72998E3F500D554FB /* display.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5E25A54AF1004D2482 /* display.c */; };
-		55E7FBE82998E40400D554FB /* sgb.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7025A54AF1004D2482 /* sgb.c */; };
-		55E7FBE92998E41300D554FB /* joypad.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6825A54AF1004D2482 /* joypad.c */; };
-		55E7FBEA2998E41E00D554FB /* mbc.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7425A54AF1004D2482 /* mbc.c */; };
-		55E7FBEB2998E42B00D554FB /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6125A54AF1004D2482 /* memory.c */; };
-		55E7FBEC2998E43C00D554FB /* printer.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7225A54AF1004D2482 /* printer.c */; };
-		55E7FBED2998E44500D554FB /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6D25A54AF1004D2482 /* random.c */; };
-		55E7FBEE2998E44D00D554FB /* rewind.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7B25A54AF1004D2482 /* rewind.c */; };
-		55E7FBEF2998E45B00D554FB /* rumble.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6C25A54AF1004D2482 /* rumble.c */; };
-		55E7FBF02998E46300D554FB /* save_state.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7625A54AF1004D2482 /* save_state.c */; };
-		55E7FBF12998E46C00D554FB /* sm83_cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7325A54AF1004D2482 /* sm83_cpu.c */; };
-		55E7FBF22998E47700D554FB /* sm83_disassembler.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7925A54AF1004D2482 /* sm83_disassembler.c */; };
-		55E7FBF32998E48000D554FB /* symbol_hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6E25A54AF1004D2482 /* symbol_hash.c */; };
-		55E7FBF42998E48A00D554FB /* timing.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7C25A54AF1004D2482 /* timing.c */; };
-		55E7FBF52998E49400D554FB /* workboy.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD8525A54AF1004D2482 /* workboy.c */; };
-		55E7FBF72998E74C00D554FB /* cgb_boot_fast.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FBF62998E74C00D554FB /* cgb_boot_fast.bin */; };
 		55E7FC002998EB3000D554FB /* SameQL.h in Headers */ = {isa = PBXBuildFile; fileRef = 55E7FBFF2998EB3000D554FB /* SameQL.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		55E7FC042998EB3000D554FB /* SameQL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		55E7FC092998EB4F00D554FB /* gb.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6525A54AF1004D2482 /* gb.c */; };
-		55E7FC0B2998EB4F00D554FB /* rumble.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6C25A54AF1004D2482 /* rumble.c */; };
-		55E7FC0C2998EB4F00D554FB /* sm83_disassembler.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7925A54AF1004D2482 /* sm83_disassembler.c */; };
-		55E7FC0D2998EB4F00D554FB /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7D25A54AF1004D2482 /* camera.c */; };
-		55E7FC0E2998EB4F00D554FB /* joypad.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6825A54AF1004D2482 /* joypad.c */; };
-		55E7FC0F2998EB4F00D554FB /* apu.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6325A54AF1004D2482 /* apu.c */; };
-		55E7FC102998EB4F00D554FB /* mbc.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7425A54AF1004D2482 /* mbc.c */; };
-		55E7FC112998EB4F00D554FB /* symbol_hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6E25A54AF1004D2482 /* symbol_hash.c */; };
-		55E7FC122998EB4F00D554FB /* workboy.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD8525A54AF1004D2482 /* workboy.c */; };
-		55E7FC132998EB4F00D554FB /* debugger.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6925A54AF1004D2482 /* debugger.c */; };
-		55E7FC142998EB4F00D554FB /* sm83_cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7325A54AF1004D2482 /* sm83_cpu.c */; };
-		55E7FC152998EB4F00D554FB /* timing.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7C25A54AF1004D2482 /* timing.c */; };
-		55E7FC162998EB4F00D554FB /* printer.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7225A54AF1004D2482 /* printer.c */; };
-		55E7FC172998EB4F00D554FB /* rewind.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7B25A54AF1004D2482 /* rewind.c */; };
-		55E7FC182998EB4F00D554FB /* display.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5E25A54AF1004D2482 /* display.c */; };
-		55E7FC192998EB4F00D554FB /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6D25A54AF1004D2482 /* random.c */; };
-		55E7FC1A2998EB4F00D554FB /* get_image_for_rom.c in Sources */ = {isa = PBXBuildFile; fileRef = 55E7FBD32998DFF500D554FB /* get_image_for_rom.c */; };
-		55E7FC1B2998EB4F00D554FB /* sgb.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7025A54AF1004D2482 /* sgb.c */; };
-		55E7FC1C2998EB4F00D554FB /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6125A54AF1004D2482 /* memory.c */; };
-		55E7FC1D2998EB4F00D554FB /* save_state.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7625A54AF1004D2482 /* save_state.c */; };
-		55E7FC1F2998EB4F00D554FB /* cheats.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5F25A54AF1004D2482 /* cheats.c */; };
+		55E7FC092998EB4F00D554FB /* gb.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6525A54AF1004D2482 /* gb.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC0B2998EB4F00D554FB /* rumble.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6C25A54AF1004D2482 /* rumble.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC0C2998EB4F00D554FB /* sm83_disassembler.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7925A54AF1004D2482 /* sm83_disassembler.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC0D2998EB4F00D554FB /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7D25A54AF1004D2482 /* camera.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC0E2998EB4F00D554FB /* joypad.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6825A54AF1004D2482 /* joypad.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC0F2998EB4F00D554FB /* apu.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6325A54AF1004D2482 /* apu.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC102998EB4F00D554FB /* mbc.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7425A54AF1004D2482 /* mbc.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC112998EB4F00D554FB /* symbol_hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6E25A54AF1004D2482 /* symbol_hash.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC122998EB4F00D554FB /* workboy.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD8525A54AF1004D2482 /* workboy.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC132998EB4F00D554FB /* debugger.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6925A54AF1004D2482 /* debugger.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC142998EB4F00D554FB /* sm83_cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7325A54AF1004D2482 /* sm83_cpu.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC152998EB4F00D554FB /* timing.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7C25A54AF1004D2482 /* timing.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC162998EB4F00D554FB /* printer.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7225A54AF1004D2482 /* printer.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC172998EB4F00D554FB /* rewind.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7B25A54AF1004D2482 /* rewind.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC182998EB4F00D554FB /* display.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5E25A54AF1004D2482 /* display.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC192998EB4F00D554FB /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6D25A54AF1004D2482 /* random.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC1A2998EB4F00D554FB /* get_image_for_rom.c in Sources */ = {isa = PBXBuildFile; fileRef = 55E7FBD32998DFF500D554FB /* get_image_for_rom.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC1B2998EB4F00D554FB /* sgb.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7025A54AF1004D2482 /* sgb.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC1C2998EB4F00D554FB /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6125A54AF1004D2482 /* memory.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC1D2998EB4F00D554FB /* save_state.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD7625A54AF1004D2482 /* save_state.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
+		55E7FC1F2998EB4F00D554FB /* cheats.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5F25A54AF1004D2482 /* cheats.c */; settings = {COMPILER_FLAGS = "-fvisibility=hidden"; }; };
 		55E7FC222998EBD500D554FB /* SQLGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 55E7FC202998EBD500D554FB /* SQLGenerator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		55E7FC232998EBD500D554FB /* SQLGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 55E7FC212998EBD500D554FB /* SQLGenerator.m */; };
 		55E7FC242998EC0200D554FB /* CartridgeTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FBCC2998DFF500D554FB /* CartridgeTemplate.png */; };
@@ -385,7 +359,6 @@
 		55E7FC272998EC0200D554FB /* cgb_boot_fast.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FBF62998E74C00D554FB /* cgb_boot_fast.bin */; };
 		55E7FC2E2998EF7E00D554FB /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2D2998EF7E00D554FB /* QuickLookThumbnailing.framework */; };
 		55E7FC302998EF7E00D554FB /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2F2998EF7E00D554FB /* Quartz.framework */; platformFilters = (macos, ); };
-		55E7FC332998EF7E00D554FB /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E7FC322998EF7E00D554FB /* ThumbnailProvider.swift */; };
 		55E7FC3F2998EF9300D554FB /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
 		55E7FC472998F25500D554FB /* sgb_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC402998F25500D554FB /* sgb_boot.bin */; };
 		55E7FC482998F25500D554FB /* dmg_boot.bin in Resources */ = {isa = PBXBuildFile; fileRef = 55E7FC412998F25500D554FB /* dmg_boot.bin */; };
@@ -437,6 +410,13 @@
 			remoteInfo = SBThumb;
 		};
 		556296732B40CA6400048A82 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 55E7FBFC2998EB3000D554FB;
+			remoteInfo = SameQL;
+		};
+		557547FF2DB634AE00CA27E7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5579AC8325A05E5F00CADDCE /* Project object */;
 			proxyType = 1;
@@ -1022,6 +1002,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				557547FE2DB634A700CA27E7 /* SameQL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1546,8 +1527,8 @@
 				55E7FBF62998E74C00D554FB /* cgb_boot_fast.bin */,
 				55E7FBD02998DFF500D554FB /* exports.sym */,
 				55E7FBD12998DFF500D554FB /* generator.m */,
-				55E7FBD32998DFF500D554FB /* get_image_for_rom.c */,
 				55E7FBCE2998DFF500D554FB /* get_image_for_rom.h */,
+				55E7FBD32998DFF500D554FB /* get_image_for_rom.c */,
 				55E7FBD42998DFF500D554FB /* Info.plist */,
 				55E7FBD22998DFF500D554FB /* main.c */,
 				557547D42DB4C52E00CA27E7 /* plugin.entitlements */,
@@ -1783,6 +1764,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				557548002DB634AE00CA27E7 /* PBXTargetDependency */,
 			);
 			name = SameBoyQL;
 			productName = "SameBoy QL";
@@ -1943,10 +1925,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				55E7FBF72998E74C00D554FB /* cgb_boot_fast.bin in Resources */,
-				55E7FBD52998DFF500D554FB /* CartridgeTemplate.png in Resources */,
-				55E7FBD72998DFF500D554FB /* ColorCartridgeTemplate.png in Resources */,
-				55E7FBD62998DFF500D554FB /* UniversalCartridgeTemplate.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1976,7 +1954,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				557547CF2DB2341100CA27E7 /* GBPreviewProvider.m in Sources */,
-				5536C0012B44A42500318DA5 /* PreviewProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2213,29 +2190,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				55E7FBEA2998E41E00D554FB /* mbc.c in Sources */,
-				55E7FBF12998E46C00D554FB /* sm83_cpu.c in Sources */,
-				55E7FBE62998E3DD00D554FB /* debugger.c in Sources */,
-				55E7FBEE2998E44D00D554FB /* rewind.c in Sources */,
-				55E7FBDB2998DFF500D554FB /* get_image_for_rom.c in Sources */,
-				55E7FBEF2998E45B00D554FB /* rumble.c in Sources */,
-				55E7FBE52998E3D000D554FB /* cheats.c in Sources */,
-				55E7FBF32998E48000D554FB /* symbol_hash.c in Sources */,
-				55E7FBE32998E3B900D554FB /* apu.c in Sources */,
 				55E7FBDA2998DFF500D554FB /* main.c in Sources */,
-				55E7FBE22998E34400D554FB /* gb.c in Sources */,
-				55E7FBE82998E40400D554FB /* sgb.c in Sources */,
-				55E7FBF02998E46300D554FB /* save_state.c in Sources */,
-				55E7FBF22998E47700D554FB /* sm83_disassembler.c in Sources */,
-				55E7FBE42998E3C300D554FB /* camera.c in Sources */,
-				55E7FBF52998E49400D554FB /* workboy.c in Sources */,
-				55E7FBEB2998E42B00D554FB /* memory.c in Sources */,
-				55E7FBEC2998E43C00D554FB /* printer.c in Sources */,
-				55E7FBE92998E41300D554FB /* joypad.c in Sources */,
-				55E7FBE72998E3F500D554FB /* display.c in Sources */,
-				55E7FBED2998E44500D554FB /* random.c in Sources */,
-				55E7FBD92998DFF500D554FB /* generator.m in Sources */,
-				55E7FBF42998E48A00D554FB /* timing.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2275,7 +2230,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				557547CC2DB233D300CA27E7 /* GBThumbnailProvider.m in Sources */,
-				55E7FC332998EF7E00D554FB /* ThumbnailProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2311,6 +2265,11 @@
 			isa = PBXTargetDependency;
 			target = 55E7FBFC2998EB3000D554FB /* SameQL */;
 			targetProxy = 556296732B40CA6400048A82 /* PBXContainerItemProxy */;
+		};
+		557548002DB634AE00CA27E7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 55E7FBFC2998EB3000D554FB /* SameQL */;
+			targetProxy = 557547FF2DB634AE00CA27E7 /* PBXContainerItemProxy */;
 		};
 		558DA2D626228BD20019146B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2554,7 +2513,6 @@
 		5579AC9D25A05E6000CADDCE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -2581,7 +2539,6 @@
 		5579AC9E25A05E6000CADDCE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;

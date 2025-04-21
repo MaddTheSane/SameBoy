@@ -51,7 +51,7 @@ OSStatus GBQuickLookRender(CGContextRef cgContext, CFURLRef url, bool showBorder
                                     true,
                                     renderingIntent);
     CGContextSetInterpolationQuality(cgContext, kCGInterpolationNone);
-    NSGraphicsContext *context = [NSGraphicsContext graphicsContextWithGraphicsPort:(void *)cgContext flipped:false];
+    NSGraphicsContext *context = [NSGraphicsContext graphicsContextWithCGContext:cgContext flipped:false];
     [NSGraphicsContext setCurrentContext:context];
     
     
@@ -115,7 +115,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 {
     extern NSString *kQLThumbnailPropertyIconFlavorKey;
     @autoreleasepool {
-        CGContextRef cgContext = QLThumbnailRequestCreateContext(thumbnail, NSMakeSize(1024, 1024), true, (__bridge CFDictionaryRef)(@{kQLThumbnailPropertyIconFlavorKey : @(0)}));
+        CGContextRef cgContext = QLThumbnailRequestCreateContext(thumbnail, NSMakeSize(1024, 1024), true, (__bridge CFDictionaryRef)(@{kQLThumbnailPropertyIconFlavorKey : @0}));
         if (GBQuickLookRender(cgContext, url, true) == noErr) {
             QLThumbnailRequestFlushContext(thumbnail, cgContext);
             CGContextRelease(cgContext);
