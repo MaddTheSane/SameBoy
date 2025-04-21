@@ -40,12 +40,12 @@ typedef NS_ENUM(int, JOYButtonUsage) {
     JOYButtonUsageGeneric0 = 0x10000,
 };
 
-typedef enum {
+typedef NS_ENUM(short, JOYButtonType) {
     JOYButtonTypeNormal,
     JOYButtonTypeAxisEmulated,
     JOYButtonTypeAxes2DEmulated,
     JOYButtonTypeHatEmulated,
-} JOYButtonType;
+};
 
 @interface JOYButton : JOYInput
 + (NSString *)usageToString: (JOYButtonUsage) usage;

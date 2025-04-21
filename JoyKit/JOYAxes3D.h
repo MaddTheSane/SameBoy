@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "JOYInput.h"
 
-typedef enum {
+typedef NS_ENUM(int, JOYAxes3DUsage) {
     JOYAxes3DUsageNone,
     JOYAxes3DUsageAcceleration,
     JOYAxes3DUsageOrientation,
@@ -9,7 +9,7 @@ typedef enum {
     JOYAxes3DUsageNonGenericMax,
     
     JOYAxes3DUsageGeneric0 = 0x10000,
-} JOYAxes3DUsage;
+};
 
 typedef struct {
     double x, y, z;

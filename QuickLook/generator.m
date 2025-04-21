@@ -1,8 +1,8 @@
 #include <QuickLook/QuickLook.h>
+#include "get_image_for_rom.h"
 
 #if TARGET_OS_OSX
 #include <Cocoa/Cocoa.h>
-#include "get_image_for_rom.h"
 
 OSStatus GBQuickLookRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
 {
@@ -127,7 +127,6 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 }
 #else
 #include <UIKit/UIKit.h>
-#include "get_image_for_rom.h"
 
 OSStatus GBQuickLookRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
 {
@@ -208,6 +207,7 @@ OSStatus GBQuickLookRender(CGContextRef cgContext, CFURLRef url, bool showBorder
                 break;
             default:
                 effectiveTemplate = template;
+                break;
         }
         
         CGContextSetInterpolationQuality(cgContext, kCGInterpolationMedium);

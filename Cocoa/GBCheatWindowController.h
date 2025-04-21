@@ -1,5 +1,4 @@
-#import <Foundation/Foundation.h>
-#import <AppKit/AppKit.h>
+#import <Cocoa/Cocoa.h>
 #import "Document.h"
 
 @interface GBCheatWindowController : NSObject <NSTableViewDelegate, NSTableViewDataSource, NSTextFieldDelegate>

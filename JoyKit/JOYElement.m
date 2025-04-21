@@ -38,7 +38,7 @@
     
     ret = [NSMutableArray array];
     NSArray *nones = CFBridgingRelease(IOHIDDeviceCopyMatchingElements(device,
-                                                                       (__bridge CFDictionaryRef)@{@(kIOHIDElementTypeKey): @(kIOHIDElementTypeInput_NULL)},
+                                                                       (__bridge CFDictionaryRef)@{@kIOHIDElementTypeKey: @(kIOHIDElementTypeInput_NULL)},
                                                                        0));
     for (id none in nones) {
         [ret addObject:@(IOHIDElementGetCookie((__bridge IOHIDElementRef)none))];

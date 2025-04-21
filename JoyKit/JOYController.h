@@ -63,6 +63,3 @@ typedef NS_ENUM(short, JOYJoyConType) {
 - (void)breakApart;
 @property (readonly) NSArray<JOYController *> *children;
 @end
-
-
-
