@@ -605,7 +605,6 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Resources/Shaders
 	cp Shaders/*.fsh Shaders/*.metal $(BIN)/SameBoy.app/Contents/Resources/Shaders
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Library/QuickLook/
-	cp -rf $(BIN)/SameBoy.qlgenerator $(BIN)/SameBoy.app/Contents/Library/QuickLook/
 	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --accent-color AccentColor --target-device mac --minimum-deployment-target 10.10 --platform macosx --compile $(BIN)/SameBoy.app/Contents/Resources --output-partial-info-plist $(OBJ)/tmpInfo.plist --app-icon AppIcon Cocoa/Assets.xcassets
 	/usr/libexec/PlistBuddy -x -c "Merge $(OBJ)/tmpInfo.plist" $(BIN)/SameBoy.app/Contents/Info.plist
 ifeq ($(CONF), release)

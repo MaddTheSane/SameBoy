@@ -47,7 +47,7 @@ OSStatus GBQuickLookRender(CGContextRef cgContext, CFURLRef url, bool showBorder
     
     /* Convert the screenshot to a CGImageRef */
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, bitmap, sizeof(bitmap), NULL);
-    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
     CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     
