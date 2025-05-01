@@ -52,7 +52,7 @@
 
 
 @interface Document ()
-@property GBAudioClient *audioClient;
+@property (strong) GBAudioClient *audioClient;
 @end
 
 @implementation Document
