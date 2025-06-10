@@ -382,8 +382,8 @@ static void debuggerReloadCallback(GB_gameboy_t *gb)
     if (self.consoleWindow.visible) {
         double secondUsage = GB_debugger_get_second_cpu_usage(&_gb);
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_cpuView setNeedsDisplay:true];
-            _cpuCounter.stringValue = [NSString stringWithFormat:@"%.2f%%", secondUsage * 100];
+            [self->_cpuView setNeedsDisplay:true];
+            self->_cpuCounter.stringValue = [NSString stringWithFormat:@"%.2f%%", secondUsage * 100];
         });
     }
     

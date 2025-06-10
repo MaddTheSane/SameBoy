@@ -1901,7 +1901,7 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
             size_t frames = (file_size - sizeof(aiff_header_t)) / sizeof(GB_sample_t);
             aiff_header_t header = {
                 .format_chunk = BE32('FORM'),
-                .size = BE32(file_size - 8),
+                .size = BE32((uint32_t)(file_size - 8)),
                 .format = BE32('AIFC'),
                 
                 .fver_chunk = BE32('FVER'),
@@ -1911,7 +1911,7 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
                 .comm_chunk = BE32('COMM'),
                 .comm_size = BE32(0x18),
                 .channels = BE16(2),
-                .samples_per_channel = BE32(frames),
+                .samples_per_channel = BE32((uint32_t)frames),
                 .bit_depth = BE16(16),
 #ifdef GB_BIG_ENDIAN
                 .compression_type = 'NONE',
@@ -1920,7 +1920,7 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
 #endif
                 .compression_name = 0,
                 .ssnd_chunk = BE32('SSND'),
-                .ssnd_size = BE32(frames * sizeof(GB_sample_t) - 8),
+                .ssnd_size = BE32((uint32_t)(frames * sizeof(GB_sample_t) - 8)),
                 .ssnd_offset = 0,
                 .ssnd_block = 0,
             };
@@ -1945,7 +1945,7 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
             size_t frames = (file_size - sizeof(wav_header_t)) / sizeof(GB_sample_t);
             wav_header_t header = {
                 .marker = BE32('RIFF'),
-                .size = LE32(file_size - 8),
+                .size = LE32((uint32_t)(file_size - 8)),
                 .type = BE32('WAVE'),
                 
                 .fmt_chunk = BE32('fmt '),
@@ -1958,7 +1958,7 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
                 .bit_depth = LE16(16),
                 
                 .data_chunk = BE32('data'),
-                .data_size = LE32(frames * sizeof(GB_sample_t)),
+                .data_size = LE32((uint32_t)(frames * sizeof(GB_sample_t))),
             };
             
             fseek(gb->apu_output.output_file, 0, SEEK_SET);
