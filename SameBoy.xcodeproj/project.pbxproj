@@ -296,7 +296,7 @@
 		55A715622B4549B000A925B2 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A715612B4549B000A925B2 /* UserNotifications.framework */; };
 		55C88B9B2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55C88B9C2C9428F40088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		55CAE25E2B364A33001935EB /* BaseMetal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* BaseMetal.metal */; };
+		55CAE25E2B364A33001935EB /* MetalShared.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* MetalShared.metal */; };
 		55CAE2712B364CC6001935EB /* Scale4x.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2632B364CC6001935EB /* Scale4x.metal */; };
 		55CAE2722B364CC6001935EB /* SmoothBilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2642B364CC6001935EB /* SmoothBilinear.metal */; };
 		55CAE2732B364CC6001935EB /* MonoLCD.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2652B364CC6001935EB /* MonoLCD.metal */; };
@@ -315,7 +315,7 @@
 		55CAE2832B36590C001935EB /* OmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */; };
 		55CAE2842B36590C001935EB /* AAOmniScaleLegacy.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */; };
 		55CAE2852B36590C001935EB /* SmoothBilinear.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2642B364CC6001935EB /* SmoothBilinear.metal */; };
-		55CAE2862B36590C001935EB /* BaseMetal.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* BaseMetal.metal */; };
+		55CAE2862B36590C001935EB /* MetalShared.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* MetalShared.metal */; };
 		55CAE2882B36590C001935EB /* CRT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26C2B364CC6001935EB /* CRT.metal */; };
 		55CAE2892B36590C001935EB /* OmniScale.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE26F2B364CC6001935EB /* OmniScale.metal */; };
 		55CAE28A2B36590C001935EB /* NearestNeighbor.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE2702B364CC6001935EB /* NearestNeighbor.metal */; };
@@ -880,7 +880,7 @@
 		55A7155F2B45499B00A925B2 /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
 		55A715612B4549B000A925B2 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
-		55CAE25D2B364A33001935EB /* BaseMetal.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = BaseMetal.metal; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.metal; };
+		55CAE25D2B364A33001935EB /* MetalShared.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = MetalShared.metal; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.metal; };
 		55CAE2602B364A87001935EB /* MetalShared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalShared.h; sourceTree = "<group>"; };
 		55CAE2612B364B8F001935EB /* BaseFragment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseFragment.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.metal; };
 		55CAE2632B364CC6001935EB /* Scale4x.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Scale4x.metal; sourceTree = "<group>"; };
@@ -1499,8 +1499,8 @@
 			isa = PBXGroup;
 			children = (
 				55CAE2602B364A87001935EB /* MetalShared.h */,
+				55CAE25D2B364A33001935EB /* MetalShared.metal */,
 				55CAE2612B364B8F001935EB /* BaseFragment.h */,
-				55CAE25D2B364A33001935EB /* BaseMetal.metal */,
 				55CAE26E2B364CC6001935EB /* AAOmniScaleLegacy.metal */,
 				55CAE2682B364CC6001935EB /* AAScale4x.metal */,
 				55CAE2692B364CC6001935EB /* Bilinear.metal */,
@@ -1976,7 +1976,7 @@
 				5579ACE125A064DA00CADDCE /* GBCheatTextFieldCell.m in Sources */,
 				556AFD9425A54AF1004D2482 /* sgb.c in Sources */,
 				5579ACED25A064DA00CADDCE /* GBMemoryByteArray.m in Sources */,
-				55CAE25E2B364A33001935EB /* BaseMetal.metal in Sources */,
+				55CAE25E2B364A33001935EB /* MetalShared.metal in Sources */,
 				556AFD9325A54AF1004D2482 /* symbol_hash.c in Sources */,
 				5579ACE625A064DA00CADDCE /* GBImageView.m in Sources */,
 				5579ACE925A064DA00CADDCE /* GBOptionalVisualEffectView.m in Sources */,
@@ -2146,7 +2146,7 @@
 				55CAE2812B36590C001935EB /* Scale4x.metal in Sources */,
 				55CAE27F2B36590C001935EB /* MonoLCD.metal in Sources */,
 				55970FCB2B32F46D00E3B538 /* display.c in Sources */,
-				55CAE2862B36590C001935EB /* BaseMetal.metal in Sources */,
+				55CAE2862B36590C001935EB /* MetalShared.metal in Sources */,
 				55970FAA2B32F20600E3B538 /* GBHapticManager.m in Sources */,
 				55970FC32B32F46D00E3B538 /* sgb.c in Sources */,
 				557547F72DB4DA2900CA27E7 /* GBPrinterFeedController.m in Sources */,
