@@ -459,7 +459,7 @@ static inline Class preferredByteArrayClass(void) {
 #endif
 
 - (void)_setSingleSelectedContentsRange:(HFRange)newSelection {
-    HFASSERT(HFRangeIsSubrangeOfRange(newSelection, HFRangeMake(0, [self contentsLength])));
+    if (!HFRangeIsSubrangeOfRange(newSelection, HFRangeMake(0, [self contentsLength]))) return;
     BOOL selectionChanged;
     if ([selectedContentsRanges count] == 1) {
         selectionChanged = ! HFRangeEqualsRange([selectedContentsRanges[0] HFRange], newSelection);

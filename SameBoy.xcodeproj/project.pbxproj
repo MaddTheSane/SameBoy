@@ -65,6 +65,10 @@
 		556296BC2B40EA4A00048A82 /* HFFileReference.h in Headers */ = {isa = PBXBuildFile; fileRef = 556296BA2B40EA4A00048A82 /* HFFileReference.h */; };
 		556296BD2B40EA4A00048A82 /* HFFileReference.m in Sources */ = {isa = PBXBuildFile; fileRef = 556296BB2B40EA4A00048A82 /* HFFileReference.m */; };
 		556296BF2B40EA6900048A82 /* HFPrivilegedHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 556296BE2B40EA6900048A82 /* HFPrivilegedHelper.h */; };
+		556A82A92E1535FC008BB43C /* GBColorTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 556A82A32E1535FC008BB43C /* GBColorTextCell.m */; };
+		556A82AA2E1535FC008BB43C /* GBToolbarFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 556A82A72E1535FC008BB43C /* GBToolbarFieldCell.m */; };
+		556A82AB2E1535FC008BB43C /* SolariumFixer.m in Sources */ = {isa = PBXBuildFile; fileRef = 556A82A82E1535FC008BB43C /* SolariumFixer.m */; };
+		556A82AC2E1535FC008BB43C /* GBDisabledButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 556A82A52E1535FC008BB43C /* GBDisabledButton.m */; };
 		556AFD8A25A54AF1004D2482 /* display.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5E25A54AF1004D2482 /* display.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		556AFD8B25A54AF1004D2482 /* cheats.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5F25A54AF1004D2482 /* cheats.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
 		556AFD8C25A54AF1004D2482 /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD6125A54AF1004D2482 /* memory.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
@@ -585,6 +589,13 @@
 		556296BA2B40EA4A00048A82 /* HFFileReference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HFFileReference.h; sourceTree = "<group>"; };
 		556296BB2B40EA4A00048A82 /* HFFileReference.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HFFileReference.m; sourceTree = "<group>"; };
 		556296BE2B40EA6900048A82 /* HFPrivilegedHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HFPrivilegedHelper.h; sourceTree = "<group>"; };
+		556A82A22E1535FC008BB43C /* GBColorTextCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBColorTextCell.h; sourceTree = "<group>"; };
+		556A82A32E1535FC008BB43C /* GBColorTextCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBColorTextCell.m; sourceTree = "<group>"; };
+		556A82A42E1535FC008BB43C /* GBDisabledButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBDisabledButton.h; sourceTree = "<group>"; };
+		556A82A52E1535FC008BB43C /* GBDisabledButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBDisabledButton.m; sourceTree = "<group>"; };
+		556A82A62E1535FC008BB43C /* GBToolbarFieldCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBToolbarFieldCell.h; sourceTree = "<group>"; };
+		556A82A72E1535FC008BB43C /* GBToolbarFieldCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBToolbarFieldCell.m; sourceTree = "<group>"; };
+		556A82A82E1535FC008BB43C /* SolariumFixer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SolariumFixer.m; sourceTree = "<group>"; };
 		556AFD5C25A54AF1004D2482 /* sm83_cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sm83_cpu.h; sourceTree = "<group>"; };
 		556AFD5D25A54AF1004D2482 /* printer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = printer.h; sourceTree = "<group>"; };
 		556AFD5E25A54AF1004D2482 /* display.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = display.c; sourceTree = "<group>"; };
@@ -1173,18 +1184,22 @@
 				5579ACCD25A064DA00CADDCE /* GBButtons.m */,
 				553C0F432DB0F28C007D7D53 /* GBCenteredTextCell.h */,
 				553C0F442DB0F28C007D7D53 /* GBCenteredTextCell.m */,
-				553C0F462DB0F29D007D7D53 /* GBDeleteButtonCell.h */,
-				553C0F472DB0F29D007D7D53 /* GBDeleteButtonCell.m */,
 				558111502C85A82D00B7FD10 /* GBCheatSearchController.h */,
 				558111512C85A82D00B7FD10 /* GBCheatSearchController.m */,
 				5579ACBC25A064DA00CADDCE /* GBCheatTextFieldCell.h */,
 				5579ACB825A064DA00CADDCE /* GBCheatTextFieldCell.m */,
 				5579ACC725A064DA00CADDCE /* GBCheatWindowController.h */,
 				5579ACCC25A064DA00CADDCE /* GBCheatWindowController.m */,
+				556A82A22E1535FC008BB43C /* GBColorTextCell.h */,
+				556A82A32E1535FC008BB43C /* GBColorTextCell.m */,
 				5579ACB225A064D900CADDCE /* GBCompleteByteSlice.h */,
 				5579ACDB25A064DA00CADDCE /* GBCompleteByteSlice.m */,
 				55478B2A2998894B00056C6A /* GBDebuggerButton.h */,
 				55478B2C2998894B00056C6A /* GBDebuggerButton.m */,
+				553C0F462DB0F29D007D7D53 /* GBDeleteButtonCell.h */,
+				553C0F472DB0F29D007D7D53 /* GBDeleteButtonCell.m */,
+				556A82A42E1535FC008BB43C /* GBDisabledButton.h */,
+				556A82A52E1535FC008BB43C /* GBDisabledButton.m */,
 				5579ACAF25A064D900CADDCE /* GBGLShader.h */,
 				5579ACCF25A064DA00CADDCE /* GBGLShader.m */,
 				5584AE252B32A27000FBAB98 /* GBHexStatusBarRepresenter.h */,
@@ -1206,14 +1221,13 @@
 				5579ACCA25A064DA00CADDCE /* GBOptionalVisualEffectView.m */,
 				556038BD26C091A100CD1984 /* GBOSDView.h */,
 				556038BE26C091A100CD1984 /* GBOSDView.m */,
-				558111532C85A92700B7FD10 /* GBPanel.h */,
-				558111542C85A92700B7FD10 /* GBPanel.m */,
-				557A4BED2B3830FF00E5AB78 /* NSToolbarItem+NoOverflow.m */,
 				55FE438A27955B4B007F79E7 /* GBPaletteEditorController.h */,
 				55FE438B27955B4B007F79E7 /* GBPaletteEditorController.m */,
 				55DF028F27DAF40900B339A6 /* GBPaletteView.h */,
 				55DF029127DAF40900B339A6 /* GBPaletteView.m */,
 				55DF029027DAF40900B339A6 /* GBPaletteViewRow.xib */,
+				558111532C85A92700B7FD10 /* GBPanel.h */,
+				558111542C85A92700B7FD10 /* GBPanel.m */,
 				5584AE1C2B32A25600FBAB98 /* GBPreferenceButton.h */,
 				5584AE202B32A25600FBAB98 /* GBPreferenceButton.m */,
 				5584AE1A2B32A25600FBAB98 /* GBPreferencePopUpButton.h */,
@@ -1232,6 +1246,8 @@
 				55478B302998898600056C6A /* GBTintedImageCell.m */,
 				55771BAA2DAF890D000C32AF /* GBTitledPopUpButton.h */,
 				55771BAB2DAF890D000C32AF /* GBTitledPopUpButton.m */,
+				556A82A62E1535FC008BB43C /* GBToolbarFieldCell.h */,
+				556A82A72E1535FC008BB43C /* GBToolbarFieldCell.m */,
 				5579ACD525A064DA00CADDCE /* GBView.h */,
 				5579ACBB25A064DA00CADDCE /* GBView.m */,
 				5579ACB525A064D900CADDCE /* GBViewGL.h */,
@@ -1251,8 +1267,10 @@
 				5579ACAC25A064D900CADDCE /* NSString+StringForKey.m */,
 				55478B392998B40C00056C6A /* NSTextFieldCell+Inset.h */,
 				55478B382998B40C00056C6A /* NSTextFieldCell+Inset.m */,
+				557A4BED2B3830FF00E5AB78 /* NSToolbarItem+NoOverflow.m */,
 				5579ACA325A0636F00CADDCE /* PopoverView.xib */,
 				5579ACA425A0636F00CADDCE /* Preferences.xib */,
+				556A82A82E1535FC008BB43C /* SolariumFixer.m */,
 			);
 			path = Cocoa;
 			sourceTree = "<group>";
@@ -1983,6 +2001,10 @@
 				55CAE2712B364CC6001935EB /* Scale4x.metal in Sources */,
 				55478B36299889E200056C6A /* GBViewBase.m in Sources */,
 				5579ACE325A064DA00CADDCE /* GBBorderView.m in Sources */,
+				556A82A92E1535FC008BB43C /* GBColorTextCell.m in Sources */,
+				556A82AA2E1535FC008BB43C /* GBToolbarFieldCell.m in Sources */,
+				556A82AB2E1535FC008BB43C /* SolariumFixer.m in Sources */,
+				556A82AC2E1535FC008BB43C /* GBDisabledButton.m in Sources */,
 				5579ACEE25A064DA00CADDCE /* GBSplitView.m in Sources */,
 				553C0F482DB0F29D007D7D53 /* GBDeleteButtonCell.m in Sources */,
 				556AFDA225A54AF1004D2482 /* workboy.c in Sources */,
