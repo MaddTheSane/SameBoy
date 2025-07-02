@@ -2034,7 +2034,7 @@ enum GBWindowResizeAction
     __block uint16_t bank = 0;
     __block bool fail = false;
     NSString *error = [self captureOutputForBlock:^{
-        if (GB_debugger_evaluate(&_gb, [expression UTF8String], &addr, &bank)) {
+        if (GB_debugger_evaluate(&self->_gb, [expression UTF8String], &addr, &bank)) {
             fail = true;
         }
     }];
@@ -2106,7 +2106,7 @@ enum GBWindowResizeAction
     __block uint16_t addr, bank;
     __block bool fail = false;
     NSString *error = [self captureOutputForBlock:^{
-        if (GB_debugger_evaluate(&_gb, [expression UTF8String], &addr, &bank)) {
+        if (GB_debugger_evaluate(&self->_gb, [expression UTF8String], &addr, &bank)) {
             fail = true;
             return;
         }

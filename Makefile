@@ -324,7 +324,7 @@ endif
 
 
 CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.10 -isysroot $(SYSROOT) -IAppleCommon -DOSATOMIC_USE_INLINED -DOSSPINLOCK_USE_INLINED
-OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -isysroot $(SYSROOT)
+OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -Wno-gnu-folding-constant -isysroot $(SYSROOT)
 LDFLAGS += -mmacosx-version-min=10.10 -isysroot $(SYSROOT)
 GL_LDFLAGS := -framework OpenGL
 endif

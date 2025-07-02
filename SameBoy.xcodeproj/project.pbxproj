@@ -300,6 +300,7 @@
 		55A715622B4549B000A925B2 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A715612B4549B000A925B2 /* UserNotifications.framework */; };
 		55BE9A162E15E577006224B3 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55BE9A142E15E296006224B3 /* AppIcon.icon */; };
 		55BE9A172E15E614006224B3 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55BE9A142E15E296006224B3 /* AppIcon.icon */; };
+		55BE9A1A2E15FB30006224B3 /* GBCPUView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55BE9A192E15FB30006224B3 /* GBCPUView.m */; };
 		55C88B9B2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55C88B9C2C9428F40088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55CAE25E2B364A33001935EB /* MetalShared.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* MetalShared.metal */; };
@@ -893,6 +894,8 @@
 		55A7155F2B45499B00A925B2 /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
 		55A715612B4549B000A925B2 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		55BE9A142E15E296006224B3 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		55BE9A182E15FB30006224B3 /* GBCPUView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBCPUView.h; sourceTree = "<group>"; };
+		55BE9A192E15FB30006224B3 /* GBCPUView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBCPUView.m; sourceTree = "<group>"; };
 		55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		55CAE25D2B364A33001935EB /* MetalShared.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = MetalShared.metal; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.metal; };
 		55CAE2602B364A87001935EB /* MetalShared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalShared.h; sourceTree = "<group>"; };
@@ -1200,6 +1203,8 @@
 				5579ACDB25A064DA00CADDCE /* GBCompleteByteSlice.m */,
 				55478B2A2998894B00056C6A /* GBDebuggerButton.h */,
 				55478B2C2998894B00056C6A /* GBDebuggerButton.m */,
+				55BE9A182E15FB30006224B3 /* GBCPUView.h */,
+				55BE9A192E15FB30006224B3 /* GBCPUView.m */,
 				553C0F462DB0F29D007D7D53 /* GBDeleteButtonCell.h */,
 				553C0F472DB0F29D007D7D53 /* GBDeleteButtonCell.m */,
 				556A82A42E1535FC008BB43C /* GBDisabledButton.h */,
@@ -2011,6 +2016,7 @@
 				556A82AA2E1535FC008BB43C /* GBToolbarFieldCell.m in Sources */,
 				556A82AB2E1535FC008BB43C /* SolariumFixer.m in Sources */,
 				556A82AC2E1535FC008BB43C /* GBDisabledButton.m in Sources */,
+				55BE9A1A2E15FB30006224B3 /* GBCPUView.m in Sources */,
 				5579ACEE25A064DA00CADDCE /* GBSplitView.m in Sources */,
 				553C0F482DB0F29D007D7D53 /* GBDeleteButtonCell.m in Sources */,
 				556AFDA225A54AF1004D2482 /* workboy.c in Sources */,
