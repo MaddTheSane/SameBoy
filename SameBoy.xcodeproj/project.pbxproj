@@ -298,6 +298,8 @@
 		55A7155E2B45498600A925B2 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BDB2B3813CB00E5AB78 /* CoreMedia.framework */; };
 		55A715602B45499B00A925B2 /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A7155F2B45499B00A925B2 /* CoreHaptics.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55A715622B4549B000A925B2 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A715612B4549B000A925B2 /* UserNotifications.framework */; };
+		55BE9A162E15E577006224B3 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55BE9A142E15E296006224B3 /* AppIcon.icon */; };
+		55BE9A172E15E614006224B3 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55BE9A142E15E296006224B3 /* AppIcon.icon */; };
 		55C88B9B2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55C88B9C2C9428F40088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55CAE25E2B364A33001935EB /* MetalShared.metal in Sources */ = {isa = PBXBuildFile; fileRef = 55CAE25D2B364A33001935EB /* MetalShared.metal */; };
@@ -890,6 +892,7 @@
 		55A7155C2B45497800A925B2 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		55A7155F2B45499B00A925B2 /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
 		55A715612B4549B000A925B2 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		55BE9A142E15E296006224B3 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		55CAE25D2B364A33001935EB /* MetalShared.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = MetalShared.metal; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.metal; };
 		55CAE2602B364A87001935EB /* MetalShared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalShared.h; sourceTree = "<group>"; };
@@ -1172,6 +1175,7 @@
 				55E7FC402998F25500D554FB /* sgb_boot.bin */,
 				55E7FC462998F25500D554FB /* sgb2_boot.bin */,
 				5579AC9125A05E6000CADDCE /* Assets.xcassets */,
+				55BE9A142E15E296006224B3 /* AppIcon.icon */,
 				5579ACD725A064DA00CADDCE /* BigSurToolbar.h */,
 				5579ACB925A064DA00CADDCE /* Document.h */,
 				5579ACB725A064DA00CADDCE /* Document.m */,
@@ -1911,6 +1915,7 @@
 				556038C326C0952200CD1984 /* Shaders in Resources */,
 				55478B3C2998B6FE00056C6A /* GBS11.xib in Resources */,
 				5579ACAA25A0636F00CADDCE /* MainMenu.xib in Resources */,
+				55BE9A172E15E614006224B3 /* AppIcon.icon in Resources */,
 				55E7FC472998F25500D554FB /* sgb_boot.bin in Resources */,
 				55E7FC492998F25500D554FB /* cgb_boot.bin in Resources */,
 				5579ACA725A0636F00CADDCE /* PopoverView.xib in Resources */,
@@ -1929,6 +1934,7 @@
 				55970FB62B32F43500E3B538 /* cgb0_boot.bin in Resources */,
 				55970FB72B32F43500E3B538 /* cgb_boot.bin in Resources */,
 				55970FBB2B32F43500E3B538 /* mgb_boot.bin in Resources */,
+				55BE9A162E15E577006224B3 /* AppIcon.icon in Resources */,
 				55970FB82B32F43500E3B538 /* sgb2_boot.bin in Resources */,
 				55970FB42B32F42000E3B538 /* Shaders in Resources */,
 				55970FAD2B32F20600E3B538 /* Cartridge.png in Resources */,

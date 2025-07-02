@@ -114,10 +114,6 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>SameBoy</string>
-	<key>CFBundleIconFile</key>
-	<string>AppIcon</string>
-    <key>CFBundleIconName</key>
-	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.github.liji32.sameboy</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -141,7 +137,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>10.10</string>
 	<key>NSCameraUsageDescription</key>
-	<string>SameBoy needs to access your device's camera to emulate the Game Boy Camera</string>
+	<string>SameBoy needs to access your device&apos;s camera to emulate the Game Boy Camera</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2015-@COPYRIGHT_YEAR Lior Halphon</string>
 	<key>NSMainNibFile</key>
