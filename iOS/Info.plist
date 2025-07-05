@@ -35,19 +35,6 @@
     </array>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright © 2015-@COPYRIGHT_YEAR Lior Halphon</string>
-    <key>CFBundleIcons</key>
-    <dict>
-        <key>CFBundlePrimaryIcon</key>
-        <dict>
-            <key>CFBundleIconFiles</key>
-            <array>
-                <string>AppIcon60x60</string>
-                <string>AppIcon76x76</string>
-            </array>
-            <key>CFBundleIconName</key>
-            <string>AppIcon</string>
-        </dict>
-    </dict>
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.games</string>
     <key>LSSupportsOpeningDocumentsInPlace</key>
