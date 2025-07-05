@@ -291,6 +291,10 @@
 		55970FCF2B32F71400E3B538 /* GBViewBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478B35299889E200056C6A /* GBViewBase.m */; };
 		55970FD02B32F71400E3B538 /* GBViewMetal.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD325A064DA00CADDCE /* GBViewMetal.m */; };
 		55970FD12B32F71400E3B538 /* GBAudioClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD425A064DA00CADDCE /* GBAudioClient.m */; };
+		55A4BC082E19166E00D70284 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55A4BC062E19166E00D70284 /* AppIcon.icon */; };
+		55A4BC092E19166E00D70284 /* SharedAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55A4BC072E19166E00D70284 /* SharedAssets.xcassets */; };
+		55A4BC0A2E19166E00D70284 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55A4BC062E19166E00D70284 /* AppIcon.icon */; };
+		55A4BC0B2E19166E00D70284 /* SharedAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55A4BC072E19166E00D70284 /* SharedAssets.xcassets */; };
 		55A715582B45494000A925B2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A715572B45494000A925B2 /* AudioToolbox.framework */; };
 		55A715592B45494F00A925B2 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BDD2B38140800E5AB78 /* AVFoundation.framework */; };
 		55A7155B2B45496300A925B2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A7155A2B45496300A925B2 /* QuartzCore.framework */; };
@@ -298,8 +302,6 @@
 		55A7155E2B45498600A925B2 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 557A4BDB2B3813CB00E5AB78 /* CoreMedia.framework */; };
 		55A715602B45499B00A925B2 /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A7155F2B45499B00A925B2 /* CoreHaptics.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55A715622B4549B000A925B2 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55A715612B4549B000A925B2 /* UserNotifications.framework */; };
-		55BE9A162E15E577006224B3 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55BE9A142E15E296006224B3 /* AppIcon.icon */; };
-		55BE9A172E15E614006224B3 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55BE9A142E15E296006224B3 /* AppIcon.icon */; };
 		55BE9A1A2E15FB30006224B3 /* GBCPUView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55BE9A192E15FB30006224B3 /* GBCPUView.m */; };
 		55C88B9B2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		55C88B9C2C9428F40088FBD6 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -888,12 +890,13 @@
 		55970F922B32F20500E3B538 /* GBSlotButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBSlotButton.m; sourceTree = "<group>"; };
 		55970F942B32F20500E3B538 /* GBHapticManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBHapticManager.h; sourceTree = "<group>"; };
 		55970F952B32F20500E3B538 /* deb-control */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "deb-control"; sourceTree = "<group>"; };
+		55A4BC062E19166E00D70284 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		55A4BC072E19166E00D70284 /* SharedAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = SharedAssets.xcassets; sourceTree = "<group>"; };
 		55A715572B45494000A925B2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		55A7155A2B45496300A925B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		55A7155C2B45497800A925B2 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		55A7155F2B45499B00A925B2 /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
 		55A715612B4549B000A925B2 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
-		55BE9A142E15E296006224B3 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		55BE9A182E15FB30006224B3 /* GBCPUView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBCPUView.h; sourceTree = "<group>"; };
 		55BE9A192E15FB30006224B3 /* GBCPUView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBCPUView.m; sourceTree = "<group>"; };
 		55C88B9A2C9423CC0088FBD6 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
@@ -1057,6 +1060,8 @@
 		55478B33299889A800056C6A /* AppleCommon */ = {
 			isa = PBXGroup;
 			children = (
+				55A4BC062E19166E00D70284 /* AppIcon.icon */,
+				55A4BC072E19166E00D70284 /* SharedAssets.xcassets */,
 				5579ACC025A064DA00CADDCE /* GBAudioClient.h */,
 				5579ACD425A064DA00CADDCE /* GBAudioClient.m */,
 				55478B34299889E200056C6A /* GBViewBase.h */,
@@ -1178,7 +1183,6 @@
 				55E7FC402998F25500D554FB /* sgb_boot.bin */,
 				55E7FC462998F25500D554FB /* sgb2_boot.bin */,
 				5579AC9125A05E6000CADDCE /* Assets.xcassets */,
-				55BE9A142E15E296006224B3 /* AppIcon.icon */,
 				5579ACD725A064DA00CADDCE /* BigSurToolbar.h */,
 				5579ACB925A064DA00CADDCE /* Document.h */,
 				5579ACB725A064DA00CADDCE /* Document.m */,
@@ -1917,10 +1921,11 @@
 				55E7FC4D2998F25500D554FB /* sgb2_boot.bin in Resources */,
 				55DF029227DAF40900B339A6 /* GBPaletteViewRow.xib in Resources */,
 				55E7FC4B2998F25500D554FB /* agb_boot.bin in Resources */,
+				55A4BC0A2E19166E00D70284 /* AppIcon.icon in Resources */,
+				55A4BC0B2E19166E00D70284 /* SharedAssets.xcassets in Resources */,
 				556038C326C0952200CD1984 /* Shaders in Resources */,
 				55478B3C2998B6FE00056C6A /* GBS11.xib in Resources */,
 				5579ACAA25A0636F00CADDCE /* MainMenu.xib in Resources */,
-				55BE9A172E15E614006224B3 /* AppIcon.icon in Resources */,
 				55E7FC472998F25500D554FB /* sgb_boot.bin in Resources */,
 				55E7FC492998F25500D554FB /* cgb_boot.bin in Resources */,
 				5579ACA725A0636F00CADDCE /* PopoverView.xib in Resources */,
@@ -1939,7 +1944,6 @@
 				55970FB62B32F43500E3B538 /* cgb0_boot.bin in Resources */,
 				55970FB72B32F43500E3B538 /* cgb_boot.bin in Resources */,
 				55970FBB2B32F43500E3B538 /* mgb_boot.bin in Resources */,
-				55BE9A162E15E577006224B3 /* AppIcon.icon in Resources */,
 				55970FB82B32F43500E3B538 /* sgb2_boot.bin in Resources */,
 				55970FB42B32F42000E3B538 /* Shaders in Resources */,
 				55970FAD2B32F20600E3B538 /* Cartridge.png in Resources */,
@@ -1947,6 +1951,8 @@
 				55970FA42B32F20600E3B538 /* ColorCartridge.png in Resources */,
 				55970FB52B32F43500E3B538 /* sgb_boot.bin in Resources */,
 				55970FAC2B32F20600E3B538 /* License.html in Resources */,
+				55A4BC082E19166E00D70284 /* AppIcon.icon in Resources */,
+				55A4BC092E19166E00D70284 /* SharedAssets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

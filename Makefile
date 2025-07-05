@@ -538,10 +538,12 @@ $(BIN)/SameBoy-iOS.app: $(BIN)/SameBoy-iOS.app/SameBoy \
                         iOS/Info.plist \
                         $(shell ls iOS/Assets.xcassets/*.imageset/*.json) \
                         $(shell ls iOS/Assets.xcassets/*.imageset/*.png) \
-                        $(shell ls iOS/Assets.xcassets/*.appiconset/*.json) \
-                        $(shell ls iOS/Assets.xcassets/*.appiconset/*.png) \
-                        $(shell ls Cocoa/AppIcon.icon/*.json) \
-                        $(shell ls Cocoa/AppIcon.icon/Assets/*.png) \
+                        $(shell ls AppleCommon/SharedAssets.xcassets/*.imageset/*.json) \
+                        $(shell ls AppleCommon/SharedAssets.xcassets/*.imageset/*.png) \
+                        $(shell ls AppleCommon/SharedAssets.xcassets/*.appiconset/*.json) \
+                        $(shell ls AppleCommon/SharedAssets.xcassets/*.appiconset/*.png) \
+                        $(shell ls AppleCommon/AppIcon.icon/*.json) \
+                        $(shell ls AppleCommon/AppIcon.icon/Assets/*.png) \
                         $(BIN)/SameBoy-iOS.app/dmg_boot.bin \
                         $(BIN)/SameBoy-iOS.app/mgb_boot.bin \
                         $(BIN)/SameBoy-iOS.app/cgb0_boot.bin \
@@ -558,7 +560,7 @@ $(BIN)/SameBoy-iOS.app: $(BIN)/SameBoy-iOS.app/SameBoy \
 	sed "s/@COPYRIGHT_YEAR/$(COPYRIGHT_YEAR)/" < iOS/License.html > $(BIN)/SameBoy-iOS.app/License.html
 	$(MKDIR) -p $(BIN)/SameBoy-iOS.app/Shaders
 	cp Shaders/*.fsh Shaders/*.metal $(BIN)/SameBoy-iOS.app/Shaders
-	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 11.0 --platform iphoneos --compile $(BIN)/SameBoy-iOS.app --output-partial-info-plist $(OBJ)/tmpInfo-iOS.plist --app-icon AppIcon iOS/Assets.xcassets Cocoa/AppIcon.icon
+	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 11.0 --platform iphoneos --compile $(BIN)/SameBoy-iOS.app --output-partial-info-plist $(OBJ)/tmpInfo-iOS.plist --app-icon AppIcon AppleCommon/SharedAssets.xcassets iOS/Assets.xcassets AppleCommon/AppIcon.icon
 	/usr/libexec/PlistBuddy -x -c "Merge $(OBJ)/tmpInfo-iOS.plist" $(BIN)/SameBoy-iOS.app/Info.plist
 	$(CODESIGN) $@
 
@@ -578,13 +580,15 @@ $(OBJ)/installer: iOS/installer.m
 # Cocoa Port
 
 $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
+                    $(shell ls AppleCommon/SharedAssets.xcassets/*.imageset/*.json) \
+                    $(shell ls AppleCommon/SharedAssets.xcassets/*.imageset/*.png) \
+                    $(shell ls AppleCommon/SharedAssets.xcassets/*.appiconset/*.json) \
+                    $(shell ls AppleCommon/SharedAssets.xcassets/*.appiconset/*.png) \
                     $(shell ls Cocoa/Assets.xcassets/*.imageset/*.json) \
                     $(shell ls Cocoa/Assets.xcassets/*.imageset/*.png) \
-                    $(shell ls Cocoa/Assets.xcassets/*.appiconset/*.json) \
-                    $(shell ls Cocoa/Assets.xcassets/*.appiconset/*.png) \
                     $(shell ls Cocoa/Assets.xcassets/*.iconset/*.png) \
-                    $(shell ls Cocoa/AppIcon.icon/*.json) \
-                    $(shell ls Cocoa/AppIcon.icon/Assets/*.png) \
+                    $(shell ls AppleCommon/AppIcon.icon/*.json) \
+                    $(shell ls AppleCommon/AppIcon.icon/Assets/*.png) \
                     Cocoa/Assets.xcassets/AccentColor.colorset/Contents.json \
                     Cocoa/License.html \
                     Cocoa/Info.plist \
@@ -609,7 +613,7 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Resources/Shaders
 	cp Shaders/*.fsh Shaders/*.metal $(BIN)/SameBoy.app/Contents/Resources/Shaders
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Library/QuickLook/
-	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --accent-color AccentColor --target-device mac --minimum-deployment-target 10.10 --platform macosx --compile $(BIN)/SameBoy.app/Contents/Resources --output-partial-info-plist $(OBJ)/tmpInfo.plist --app-icon AppIcon Cocoa/Assets.xcassets Cocoa/AppIcon.icon
+	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --accent-color AccentColor --target-device mac --minimum-deployment-target 10.10 --platform macosx --compile $(BIN)/SameBoy.app/Contents/Resources --output-partial-info-plist $(OBJ)/tmpInfo.plist --app-icon AppIcon AppleCommon/SharedAssets.xcassets Cocoa/Assets.xcassets AppleCommon/AppIcon.icon
 	/usr/libexec/PlistBuddy -x -c "Merge $(OBJ)/tmpInfo.plist" $(BIN)/SameBoy.app/Contents/Info.plist
 ifeq ($(CONF), release)
 	$(CODESIGN) $@
