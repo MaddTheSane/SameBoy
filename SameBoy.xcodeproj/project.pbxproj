@@ -22,6 +22,7 @@
 		55478B36299889E200056C6A /* GBViewBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478B35299889E200056C6A /* GBViewBase.m */; };
 		55478B3A2998B40C00056C6A /* NSTextFieldCell+Inset.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478B382998B40C00056C6A /* NSTextFieldCell+Inset.m */; };
 		55478B3C2998B6FE00056C6A /* GBS11.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55478B3B2998B6FE00056C6A /* GBS11.xib */; };
+		554B015D2E1A465A00D64792 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 554B015C2E1A465A00D64792 /* LaunchScreen.storyboard */; };
 		556038BB26C0918800CD1984 /* GBS.xib in Resources */ = {isa = PBXBuildFile; fileRef = 556038BA26C0918800CD1984 /* GBS.xib */; };
 		556038C026C091A100CD1984 /* GBOSDView.m in Sources */ = {isa = PBXBuildFile; fileRef = 556038BE26C091A100CD1984 /* GBOSDView.m */; };
 		556038C126C091A100CD1984 /* GBVisualizerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 556038BF26C091A100CD1984 /* GBVisualizerView.m */; };
@@ -551,6 +552,7 @@
 		55478B382998B40C00056C6A /* NSTextFieldCell+Inset.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTextFieldCell+Inset.m"; sourceTree = "<group>"; };
 		55478B392998B40C00056C6A /* NSTextFieldCell+Inset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTextFieldCell+Inset.h"; sourceTree = "<group>"; };
 		55478B3B2998B6FE00056C6A /* GBS11.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GBS11.xib; sourceTree = "<group>"; };
+		554B015C2E1A465A00D64792 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		556038BA26C0918800CD1984 /* GBS.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GBS.xib; sourceTree = "<group>"; };
 		556038BC26C091A100CD1984 /* GBVisualizerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBVisualizerView.h; sourceTree = "<group>"; };
 		556038BD26C091A100CD1984 /* GBOSDView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBOSDView.h; sourceTree = "<group>"; };
@@ -1453,6 +1455,7 @@
 		55970F512B32F18400E3B538 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				554B015C2E1A465A00D64792 /* LaunchScreen.storyboard */,
 				55970F702B32F20400E3B538 /* Assets.xcassets */,
 				55970F912B32F20500E3B538 /* Cartridge.png */,
 				55970F7B2B32F20400E3B538 /* ColorCartridge.png */,
@@ -1942,6 +1945,7 @@
 				55970FB92B32F43500E3B538 /* agb_boot.bin in Resources */,
 				55970F9C2B32F20600E3B538 /* Assets.xcassets in Resources */,
 				55970FB62B32F43500E3B538 /* cgb0_boot.bin in Resources */,
+				554B015D2E1A465A00D64792 /* LaunchScreen.storyboard in Resources */,
 				55970FB72B32F43500E3B538 /* cgb_boot.bin in Resources */,
 				55970FBB2B32F43500E3B538 /* mgb_boot.bin in Resources */,
 				55970FB82B32F43500E3B538 /* sgb2_boot.bin in Resources */,
