@@ -292,6 +292,8 @@
 		55970FCF2B32F71400E3B538 /* GBViewBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 55478B35299889E200056C6A /* GBViewBase.m */; };
 		55970FD02B32F71400E3B538 /* GBViewMetal.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD325A064DA00CADDCE /* GBViewMetal.m */; };
 		55970FD12B32F71400E3B538 /* GBAudioClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 5579ACD425A064DA00CADDCE /* GBAudioClient.m */; };
+		55A14E552E1B2F8500520EC6 /* Cartridge64.png in Resources */ = {isa = PBXBuildFile; fileRef = 55A14E532E1B2F8500520EC6 /* Cartridge64.png */; };
+		55A14E562E1B2F8500520EC6 /* ColorCartridge64.png in Resources */ = {isa = PBXBuildFile; fileRef = 55A14E542E1B2F8500520EC6 /* ColorCartridge64.png */; };
 		55A4BC082E19166E00D70284 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55A4BC062E19166E00D70284 /* AppIcon.icon */; };
 		55A4BC092E19166E00D70284 /* SharedAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55A4BC072E19166E00D70284 /* SharedAssets.xcassets */; };
 		55A4BC0A2E19166E00D70284 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 55A4BC062E19166E00D70284 /* AppIcon.icon */; };
@@ -892,6 +894,8 @@
 		55970F922B32F20500E3B538 /* GBSlotButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBSlotButton.m; sourceTree = "<group>"; };
 		55970F942B32F20500E3B538 /* GBHapticManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBHapticManager.h; sourceTree = "<group>"; };
 		55970F952B32F20500E3B538 /* deb-control */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "deb-control"; sourceTree = "<group>"; };
+		55A14E532E1B2F8500520EC6 /* Cartridge64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Cartridge64.png; sourceTree = "<group>"; };
+		55A14E542E1B2F8500520EC6 /* ColorCartridge64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ColorCartridge64.png; sourceTree = "<group>"; };
 		55A4BC062E19166E00D70284 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		55A4BC072E19166E00D70284 /* SharedAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = SharedAssets.xcassets; sourceTree = "<group>"; };
 		55A715572B45494000A925B2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -1062,6 +1066,13 @@
 		55478B33299889A800056C6A /* AppleCommon */ = {
 			isa = PBXGroup;
 			children = (
+				55E7FC442998F25500D554FB /* agb_boot.bin */,
+				55E7FC422998F25500D554FB /* cgb_boot.bin */,
+				55E7FC452998F25500D554FB /* cgb0_boot.bin */,
+				55E7FC412998F25500D554FB /* dmg_boot.bin */,
+				55E7FC432998F25500D554FB /* mgb_boot.bin */,
+				55E7FC402998F25500D554FB /* sgb_boot.bin */,
+				55E7FC462998F25500D554FB /* sgb2_boot.bin */,
 				55A4BC062E19166E00D70284 /* AppIcon.icon */,
 				55A4BC072E19166E00D70284 /* SharedAssets.xcassets */,
 				5579ACC025A064DA00CADDCE /* GBAudioClient.h */,
@@ -1177,13 +1188,6 @@
 		5579AC8D25A05E5F00CADDCE /* Cocoa */ = {
 			isa = PBXGroup;
 			children = (
-				55E7FC442998F25500D554FB /* agb_boot.bin */,
-				55E7FC422998F25500D554FB /* cgb_boot.bin */,
-				55E7FC452998F25500D554FB /* cgb0_boot.bin */,
-				55E7FC412998F25500D554FB /* dmg_boot.bin */,
-				55E7FC432998F25500D554FB /* mgb_boot.bin */,
-				55E7FC402998F25500D554FB /* sgb_boot.bin */,
-				55E7FC462998F25500D554FB /* sgb2_boot.bin */,
 				5579AC9125A05E6000CADDCE /* Assets.xcassets */,
 				5579ACD725A064DA00CADDCE /* BigSurToolbar.h */,
 				5579ACB925A064DA00CADDCE /* Document.h */,
@@ -1458,7 +1462,9 @@
 				554B015C2E1A465A00D64792 /* LaunchScreen.storyboard */,
 				55970F702B32F20400E3B538 /* Assets.xcassets */,
 				55970F912B32F20500E3B538 /* Cartridge.png */,
+				55A14E532E1B2F8500520EC6 /* Cartridge64.png */,
 				55970F7B2B32F20400E3B538 /* ColorCartridge.png */,
+				55A14E542E1B2F8500520EC6 /* ColorCartridge64.png */,
 				55970F952B32F20500E3B538 /* deb-control */,
 				55970F742B32F20400E3B538 /* deb-postinst */,
 				55970F822B32F20500E3B538 /* GBAboutController.h */,
@@ -1948,6 +1954,8 @@
 				554B015D2E1A465A00D64792 /* LaunchScreen.storyboard in Resources */,
 				55970FB72B32F43500E3B538 /* cgb_boot.bin in Resources */,
 				55970FBB2B32F43500E3B538 /* mgb_boot.bin in Resources */,
+				55A14E552E1B2F8500520EC6 /* Cartridge64.png in Resources */,
+				55A14E562E1B2F8500520EC6 /* ColorCartridge64.png in Resources */,
 				55970FB82B32F43500E3B538 /* sgb2_boot.bin in Resources */,
 				55970FB42B32F42000E3B538 /* Shaders in Resources */,
 				55970FAD2B32F20600E3B538 /* Cartridge.png in Resources */,
