@@ -34,7 +34,7 @@
               "value" : true
             }
           ],
-          "image-name" : "PowerLED_55A54008AD1BA589AA210D2629C1DF41_0.png",
+          "image-name" : "PowerLED.png",
           "name" : "PowerLED"
         },
         {
@@ -45,7 +45,7 @@
             ]
           },
           "glass" : false,
-          "image-name" : "Panel_55A54008AD1BA589AA210D2629C1DF41_0.png",
+          "image-name" : "Panel.png",
           "name" : "Panel"
         }
       ],
@@ -78,7 +78,7 @@
             }
           ],
           "glass" : true,
-          "image-name" : "LCD_55A54008AD1BA589AA210D2629C1DF41_0.png",
+          "image-name" : "LCD.png",
           "name" : "LCD"
         },
         {
@@ -94,7 +94,7 @@
             }
           ],
           "glass" : true,
-          "image-name" : "Text_55A54008AD1BA589AA210D2629C1DF41_0.png",
+          "image-name" : "Text.png",
           "name" : "Text"
         }
       ],
