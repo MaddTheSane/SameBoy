@@ -352,7 +352,7 @@ static void debuggerReloadCallback(GB_gameboy_t *gb)
     }];
     
     [self observeStandardDefaultsKey:@"GBTurboCap" withBlock:^(NSNumber *value) {
-        if (!_master) {
+        if (!self->_master) {
             GB_set_turbo_cap(gb, value.doubleValue);
         }
     }];
