@@ -323,7 +323,7 @@ $(error Could not find a macOS SDK)
 endif
 
 
-CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.10 -isysroot $(SYSROOT) -IAppleCommon -DOSATOMIC_USE_INLINED -DOSSPINLOCK_USE_INLINED
+CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.10 -isysroot $(SYSROOT) -IAppleCommon
 OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -Wno-gnu-folding-constant -isysroot $(SYSROOT)
 LDFLAGS += -mmacosx-version-min=10.10 -isysroot $(SYSROOT)
 GL_LDFLAGS := -framework OpenGL
