@@ -101,7 +101,7 @@ static BOOL returnFTruncateError(NSError **error) {
     return YES;
 }
 
-/* Modifies F_NOCACHE for a given file descriptor */
+/*! Modifies `F_NOCACHE` for a given file descriptor */
 static void HFSetFDShouldCache(int fd, BOOL shouldCache) {
     int result = fcntl(fd, F_NOCACHE, !shouldCache);
     if (result == -1) {

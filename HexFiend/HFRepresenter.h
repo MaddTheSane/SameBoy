@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*! @name Accessing the HFController
 */
 //@{
-/*! Returns the HFController for the receiver.  This is set by the controller from the call to \c addRepresenter:. A representer can only be in one controller at a time. */
+/*! Returns the HFController for the receiver.  This is set by the controller from the call to `addRepresenter:`. A representer can only be in one controller at a time. */
 @property (readonly, weak) HFController *controller;
 //@}
 
@@ -77,13 +77,13 @@ NS_ASSUME_NONNULL_BEGIN
     Convenience covers for certain HFController methods
 */
 //@{
-/*! Equivalent to <tt>[[self controller] bytesPerLine]</tt> */
+/*! Equivalent to `[[self controller] bytesPerLine]` */
 @property (readonly) NSUInteger bytesPerLine;
 
-/*! Equivalent to <tt>[[self controller] bytesPerColumn]</tt> */
+/*! Equivalent to `[[self controller] bytesPerColumn]` */
 @property (readonly) NSUInteger bytesPerColumn;
 
-/*! Equivalent to <tt>[[self controller] representer:self changedProperties:properties]</tt> .  You may call this when some internal aspect of the receiver's view (such as its frame) has changed in a way that may globally change some property of the controller, and the controller should recalculate those properties.  For example, the text representers call this with HFControllerDisplayedLineRange when the view grows vertically, because more data may be displayed.
+/*! Equivalent to `[[self controller] representer:self changedProperties:properties]`.  You may call this when some internal aspect of the receiver's view (such as its frame) has changed in a way that may globally change some property of the controller, and the controller should recalculate those properties.  For example, the text representers call this with HFControllerDisplayedLineRange when the view grows vertically, because more data may be displayed.
 */
 - (void)representerChangedProperties:(HFControllerPropertyBits)properties;
 //@}
