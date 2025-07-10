@@ -10,6 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol HFProgressTrackerDelegate;
+
 /*!
 @class HFProgressTracker
 @brief A class that helps handle progress indication and cancellation for long running threaded operations.
@@ -38,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
     NSTimer *progressTimer;
     double lastSetValue;
-    id delegate;
+    __weak id<HFProgressTrackerDelegate> delegate;
 }
 
 /*!
@@ -81,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
   Set and get the delegate, which may implement the optional methods below.
 */
-@property (nullable, nonatomic, weak) id delegate;
+@property (nullable, nonatomic, weak) id<HFProgressTrackerDelegate> delegate;
 
 @end
 
@@ -93,6 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 The HFProgressTrackerDelegate methods are called on the the HFProgressTracker's delegate.  These are always called on the main thread.
 */
 @protocol HFProgressTrackerDelegate <NSObject>
+@optional
 
 /*!
   Once beginTrackingProgress is called, this is called on the delegate at regular intervals to report on the new progress.

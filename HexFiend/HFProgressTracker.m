@@ -12,22 +12,10 @@
 
 @implementation HFProgressTracker
 
-- (void)setMaxProgress:(unsigned long long)max {
-    maxProgress = max;
-}
-
-- (unsigned long long)maxProgress {
-    return maxProgress;
-}
+@synthesize maxProgress;
 
 #if !TARGET_OS_IPHONE
-- (void)setProgressIndicator:(NSProgressIndicator *)indicator {
-    progressIndicator = indicator;
-}
-
-- (NSProgressIndicator *)progressIndicator {
-    return progressIndicator;
-}
+@synthesize progressIndicator;
 #endif
 
 - (void)_updateProgress:(NSTimer *)timer {
@@ -85,13 +73,7 @@
     progressTimer = nil;
 }
 
-- (void)setDelegate:(id)val {
-    delegate = val;
-}
-
-- (id)delegate {
-    return delegate;
-}
+@synthesize delegate;
 
 - (void)noteFinished:(id)sender {
     if (delegate != nil) {   
