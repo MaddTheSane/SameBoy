@@ -36,9 +36,13 @@ else
 DEFAULT := sdl
 endif
 
+
 NULL := /dev/null
 ifeq ($(PLATFORM),windows32)
+ifneq ($(shell echo /dev/null*),/dev/null)
+# Windows shell is not "aware" of /dev/null, use NUL and pray
 NULL := NUL
+endif
 endif
 
 PREFIX ?= /usr/local
@@ -132,6 +136,8 @@ CC := clang
 endif
 endif
 
+IBTOOL ?= ibtool
+
 # Find libraries with pkg-config if available.
 ifneq (, $(shell which pkg-config 2> $(NULL)))
 # But not on macOS, it's annoying, and not on Haiku, where OpenGL is broken
@@ -214,9 +220,10 @@ CFLAGS += -DUPDATE_SUPPORT
 endif
 
 ifeq (,$(PKG_CONFIG))
+ifneq ($(PLATFORM),windows32)
 SDL_CFLAGS := $(shell sdl2-config --cflags)
 SDL_LDFLAGS := $(shell sdl2-config --libs) -lpthread
-
+endif
 ifeq ($(PLATFORM),Darwin)
 SDL_LDFLAGS += -framework AppKit
 endif
@@ -634,13 +641,13 @@ ifeq ($(CONF), release)
 endif
 
 $(BIN)/SameBoy.app/Contents/Resources/%.nib: Cocoa/%.xib
-	ibtool --target-device mac --minimum-deployment-target 10.10 --compile $@ $^ 2>&1 | cat -
+	$(IBTOOL) --target-device mac --minimum-deployment-target 10.10 --compile $@ $^ 2>&1 | cat -
 	
 $(BIN)/SameBoy.app/Contents/Resources/default.metallib: $(METAL_OBJECTS)
 	xcrun -sdk $(METAL_SDK) metal $(METAL_FLAGS) -o $@ $^
 
 $(BIN)/SameBoy-iOS.app/%.storyboardc: iOS/%.storyboard
-	ibtool --target-device iphone --target-device ipad --minimum-deployment-target $(IOS_MIN) --compile $@ $^ 2>&1 | cat -
+	$(IBTOOL) --target-device iphone --target-device ipad --minimum-deployment-target $(IOS_MIN) --compile $@ $^ 2>&1 | cat -
 
 # Quick Look generators
 
@@ -720,11 +727,11 @@ $(BIN)/SDL/sameboy.exe: $(CORE_OBJECTS) $(SDL_OBJECTS) $(OBJ)/Windows/resources.
 	
 $(BIN)/SDL/sameboy_debugger.txt:
 	echo Looking for sameboy_debugger.exe? > $@
-	echo\>> $@
+	echo >> $@
 	echo Starting with SameBoy v1.0.1, sameboy.exe and sameboy_debugger.exe >> $@
 	echo have been merged into a single executable. You can open a debugger >> $@
 	echo console at any time by pressing  Ctrl+C to interrupt the currently >> $@
-	echo open ROM.  Once you're done debugging,  you can close the debugger >> $@
+	echo open ROM.  Once you\'re done debugging,  you can close the debugger >> $@
 	echo console and resume normal execution. >> $@
 
 ifneq ($(USE_WINDRES),)
@@ -737,13 +744,13 @@ $(OBJ)/%.res: %.rc
 	rc /fo $@ /dVERSION=\"$(VERSION)\" /dCOPYRIGHT_YEAR=\"$(COPYRIGHT_YEAR)\" $^ 
 
 %.o: %.res
-	cvtres /OUT:"$@" $^
+	cvtres /MACHINE:X64 /OUT:"$@" $^
 endif
 
 # Copy required DLL files for the Windows port
 $(BIN)/SDL/%.dll:
 	-@$(MKDIR) -p $(dir $@)
-	@$(eval MATCH := $(shell where $$LIB:$(notdir $@)))
+	@$(eval MATCH := $(shell where "$(lib)":$(notdir $@)))
 	cp "$(MATCH)" $@
 
 # Tester
