@@ -343,7 +343,7 @@ static uint32_t color_to_int(NSColor *color)
 #ifndef UPDATE_SUPPORT
         [_preferencesWindow.toolbar removeItemAtIndex:4];
 #endif
-        for (unsigned i = _preferencesWindow.toolbar.items.count; i--;) {
+        for (NSUInteger i = _preferencesWindow.toolbar.items.count; i--;) {
             [_preferencesWindow.toolbar.items[i] _view].imageScaling = NSImageScaleNone;
         }
     }

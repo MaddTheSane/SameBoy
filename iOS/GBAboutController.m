@@ -193,12 +193,12 @@
 
 - (void)openWebsite
 {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://sameboy.github.io"] options:nil completionHandler:nil];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://sameboy.github.io"] options:@{} completionHandler:nil];
 }
 
 - (void)openSponsor
 {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/sponsors/LIJI32"] options:nil completionHandler:nil];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/sponsors/LIJI32"] options:@{} completionHandler:nil];
 }
 
 - (void)showLicense
