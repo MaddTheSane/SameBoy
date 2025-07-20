@@ -1,5 +1,6 @@
 /* Functions and convenience methods for working with HFTypes */
 
+#import <Foundation/Foundation.h>
 #import <HexFiend/HFFrameworkPrefix.h>
 #import <HexFiend/HFTypes.h>
 #import <stdatomic.h>

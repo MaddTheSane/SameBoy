@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol HFPrivilegedHelper
+@protocol HFPrivilegedHelper <NSObject>
 @required
 - (BOOL)openFileAtPath:(const char *)path writable:(BOOL)writable fileDescriptor:(int *)outFD error:(NSError **)error;
 @end

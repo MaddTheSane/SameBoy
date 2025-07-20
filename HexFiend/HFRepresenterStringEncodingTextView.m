@@ -306,9 +306,7 @@ static void generateGlyphs(CTFontRef baseFont, NSMutableArray *fonts, struct HFG
     [coder encodeObject:encoding forKey:@"HFStringEncoding"];
 }
 
-- (HFStringEncoding *)encoding {
-    return encoding;
-}
+@synthesize encoding;
 
 - (void)setEncoding:(HFStringEncoding *)val {
     if (encoding != val) {

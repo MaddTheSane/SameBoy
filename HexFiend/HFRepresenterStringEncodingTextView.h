@@ -21,11 +21,11 @@
     /* Tier 2 data (computed asynchronously on-demand) */
     struct HFGlyphTrie_t glyphTable;
     
-    NSArray *fontCache;
+    NSArray<HFFont *> *fontCache;
     
     /* Background thread */
     NSLock *glyphLoadLock;
-    NSMutableArray *fonts;
+    NSMutableArray<HFFont *> *fonts;
     NSMutableIndexSet *requestedCharacters;
     NSOperationQueue *glyphLoader;
 }

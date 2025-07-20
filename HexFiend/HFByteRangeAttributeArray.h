@@ -5,6 +5,7 @@
 //  Copyright 2009 ridiculous_fish. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
 #import <HexFiend/HFFrameworkPrefix.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -16,10 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /*! Returns the set of attributes at the given index, and the length over which those attributes are valid (if not NULL). */
-- (NSSet *)attributesAtIndex:(unsigned long long)index length:(unsigned long long *_Nullable)length;
+- (NSSet<NSString*> *)attributesAtIndex:(unsigned long long)index length:(unsigned long long *_Nullable)length;
 
 /*! Returns the set of attributes within the given range. */
-- (NSSet *)attributesInRange:(HFRange)range;
+- (NSSet<NSString*> *)attributesInRange:(HFRange)range;
 
 /*! Returns the first range of a given attribute.  If it is not present, returns {ULLONG_MAX, ULLONG_MAX} */
 - (HFRange)rangeOfAttribute:(NSString *)attribute;
@@ -34,13 +35,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeAttribute:(NSString *)attributeName;
 
 /*! Removes the given attributes entirely. */
-- (void)removeAttributes:(NSSet *)attributeName;
+- (void)removeAttributes:(NSSet<NSString*> *)attributeName;
 
 /*! Returns whether the receiver is empty.  This should be a count instead. */
 - (BOOL)isEmpty;
 
 /*! Returns an NSEnumerator of the attributes.  The attributes are returned in order, but there is no way to get the range of each attribute. */
-- (NSEnumerator *)attributeEnumerator;
+- (NSEnumerator<NSString*> *)attributeEnumerator;
 
 /*! Called from HFByteArray to indicate when the bytes have changed, and the attributes need to be fixed up. */
 - (void)byteRange:(HFRange)srcRange wasReplacedByBytesOfLength:(unsigned long long)replacementLength;

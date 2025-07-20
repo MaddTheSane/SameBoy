@@ -3,6 +3,7 @@
 //
 
 #import <TargetConditionals.h>
+#import <Foundation/Foundation.h>
 #ifdef __OBJC__
 #if TARGET_OS_IPHONE
     #import <UIKit/UIKit.h>
