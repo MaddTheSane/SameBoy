@@ -25,15 +25,7 @@
       "hidden" : false,
       "layers" : [
         {
-          "glass-specializations" : [
-            {
-              "value" : true
-            },
-            {
-              "appearance" : "tinted",
-              "value" : true
-            }
-          ],
+          "glass" : true,
           "image-name" : "PowerLED.png",
           "name" : "PowerLED"
         },
