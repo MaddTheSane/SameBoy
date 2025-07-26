@@ -847,9 +847,9 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
 - (void)saveStateToFile:(NSString *)file
 {
     NSString *tempPath = [file stringByAppendingPathExtension:@"tmp"];
-    int error = GB_save_state(&_gb, tempPath.UTF8String);
+    int error = GB_save_state(&_gb, tempPath.fileSystemRepresentation);
     if (!error) {
-        rename(tempPath.UTF8String, file.UTF8String);
+        rename(tempPath.fileSystemRepresentation, file.fileSystemRepresentation);
         NSData *data = [NSData dataWithBytes:_gbView.previousBuffer
                                       length:GB_get_screen_width(&_gb) *
                         GB_get_screen_height(&_gb) *
@@ -1381,7 +1381,9 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
     
     if (GB_rom_supports_alarms(&_gb)) {
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-        [center requestAuthorizationWithOptions:UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert completionHandler:nil];
+        [center requestAuthorizationWithOptions:UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            //Do nothing
+        }];
     }
 }
 
