@@ -243,6 +243,7 @@
 		558DA31826228C990019146B /* JOYAxes2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 558DA30226228C990019146B /* JOYAxes2D.h */; };
 		558DA31E26228CB20019146B /* libJoyKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 558DA2E526228C880019146B /* libJoyKit.a */; };
 		558DA32626228D770019146B /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 558DA32526228D770019146B /* AudioUnit.framework */; };
+		55919D4C2E36114800A6C487 /* GCExtendedGamepad+AllElements.m in Sources */ = {isa = PBXBuildFile; fileRef = 55919D4B2E36114800A6C487 /* GCExtendedGamepad+AllElements.m */; };
 		55970F982B32F20600E3B538 /* GBVerticalLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F6A2B32F20400E3B538 /* GBVerticalLayout.m */; };
 		55970F992B32F20600E3B538 /* GBBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F6B2B32F20400E3B538 /* GBBackgroundView.m */; };
 		55970F9A2B32F20600E3B538 /* GBLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 55970F6D2B32F20400E3B538 /* GBLayout.m */; };
@@ -852,7 +853,9 @@
 		558DA30126228C990019146B /* JOYFullReportElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JOYFullReportElement.h; sourceTree = "<group>"; };
 		558DA30226228C990019146B /* JOYAxes2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JOYAxes2D.h; sourceTree = "<group>"; };
 		558DA32526228D770019146B /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
-		55970F502B32F18400E3B538 /* SameBoy-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SameBoy-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		55919D4A2E36114800A6C487 /* GCExtendedGamepad+AllElements.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "GCExtendedGamepad+AllElements.h"; sourceTree = "<group>"; };
+		55919D4B2E36114800A6C487 /* GCExtendedGamepad+AllElements.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "GCExtendedGamepad+AllElements.m"; sourceTree = "<group>"; };
+		55970F502B32F18400E3B538 /* SameBoy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SameBoy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55970F692B32F20400E3B538 /* GBSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBSettingsViewController.h; sourceTree = "<group>"; };
 		55970F6A2B32F20400E3B538 /* GBVerticalLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBVerticalLayout.m; sourceTree = "<group>"; };
 		55970F6B2B32F20400E3B538 /* GBBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GBBackgroundView.m; sourceTree = "<group>"; };
@@ -1179,7 +1182,7 @@
 				55E7FBC72998DDBA00D554FB /* SameBoyQL.qlgenerator */,
 				55E7FBFD2998EB3000D554FB /* SameQL.framework */,
 				55E7FC2C2998EF7E00D554FB /* SBThumb.appex */,
-				55970F502B32F18400E3B538 /* SameBoy-iOS.app */,
+				55970F502B32F18400E3B538 /* SameBoy.app */,
 				5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */,
 			);
 			name = Products;
@@ -1479,6 +1482,8 @@
 				557547E72DB4D9BB00CA27E7 /* GBCheckableAlertController.m */,
 				557547E82DB4D9BB00CA27E7 /* GBColorWell.h */,
 				557547E92DB4D9BB00CA27E7 /* GBColorWell.m */,
+				55919D4A2E36114800A6C487 /* GCExtendedGamepad+AllElements.h */,
+				55919D4B2E36114800A6C487 /* GCExtendedGamepad+AllElements.m */,
 				55970F942B32F20500E3B538 /* GBHapticManager.h */,
 				55970F8C2B32F20500E3B538 /* GBHapticManager.m */,
 				55970F842B32F20500E3B538 /* GBHapticManagerLegacy.h */,
@@ -1790,7 +1795,7 @@
 			);
 			name = "SameBoy-iOS";
 			productName = "SameBoy-iOS";
-			productReference = 55970F502B32F18400E3B538 /* SameBoy-iOS.app */;
+			productReference = 55970F502B32F18400E3B538 /* SameBoy.app */;
 			productType = "com.apple.product-type.application";
 		};
 		55E7FBC62998DDBA00D554FB /* SameBoyQL */ = {
@@ -2191,6 +2196,7 @@
 				55970F992B32F20600E3B538 /* GBBackgroundView.m in Sources */,
 				55CAE28B2B36590C001935EB /* HQ2x.metal in Sources */,
 				557547F42DB4DA1E00CA27E7 /* GBPalettePicker.m in Sources */,
+				55919D4C2E36114800A6C487 /* GCExtendedGamepad+AllElements.m in Sources */,
 				55970FD12B32F71400E3B538 /* GBAudioClient.m in Sources */,
 				55CAE2842B36590C001935EB /* AAOmniScaleLegacy.metal in Sources */,
 				55970FCA2B32F46D00E3B538 /* rewind.c in Sources */,
@@ -2686,7 +2692,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/Shaders";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.ios;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SameBoy;
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2715,7 +2721,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/Shaders";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.ios;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = SameBoy;
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2803,6 +2809,7 @@
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -2842,6 +2849,7 @@
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
