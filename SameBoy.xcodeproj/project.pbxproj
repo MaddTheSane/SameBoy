@@ -541,6 +541,7 @@
 		553C0F442DB0F28C007D7D53 /* GBCenteredTextCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBCenteredTextCell.m; sourceTree = "<group>"; };
 		553C0F462DB0F29D007D7D53 /* GBDeleteButtonCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBDeleteButtonCell.h; sourceTree = "<group>"; };
 		553C0F472DB0F29D007D7D53 /* GBDeleteButtonCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBDeleteButtonCell.m; sourceTree = "<group>"; };
+		553EF1972E39ED5E00E22332 /* Info Xcode.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info Xcode.plist"; sourceTree = "<group>"; };
 		55478AFA299887DF00056C6A /* JOYInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JOYInput.h; sourceTree = "<group>"; };
 		55478AFB299887DF00056C6A /* JOYInput.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JOYInput.m; sourceTree = "<group>"; };
 		55478B2A2998894B00056C6A /* GBDebuggerButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GBDebuggerButton.h; sourceTree = "<group>"; };
@@ -1532,6 +1533,7 @@
 				55970F782B32F20400E3B538 /* GBViewController.m */,
 				557547DD2DB4D94E00CA27E7 /* GBZipReader.h */,
 				557547DE2DB4D94E00CA27E7 /* GBZipReader.m */,
+				553EF1972E39ED5E00E22332 /* Info Xcode.plist */,
 				55970F6F2B32F20400E3B538 /* Info.plist */,
 				55970F812B32F20500E3B538 /* jailbreak.entitlements */,
 				55970F8F2B32F20500E3B538 /* License.html */,
@@ -2680,10 +2682,21 @@
 					"$(inherited)",
 					"GB_DISABLE_DEBUGGER=1",
 				);
+				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
-				INFOPLIST_FILE = iOS/Info.plist;
+				INFOPLIST_FILE = "iOS/Info Xcode.plist";
+				INFOPLIST_KEY_GCSupportsControllerUserInteraction = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "SameBoy needs to access your device's camera to emulate the Game Boy Camera";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2015-2025 Lior Halphon";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "SameBoy needs access to save Game Boy Printer images to your photo library";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arm64;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2709,10 +2722,21 @@
 					"$(inherited)",
 					"GB_DISABLE_DEBUGGER=1",
 				);
+				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
-				INFOPLIST_FILE = iOS/Info.plist;
+				INFOPLIST_FILE = "iOS/Info Xcode.plist";
+				INFOPLIST_KEY_GCSupportsControllerUserInteraction = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "SameBoy needs to access your device's camera to emulate the Game Boy Camera";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2015-2025 Lior Halphon";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "SameBoy needs access to save Game Boy Printer images to your photo library";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arm64;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
