@@ -97,11 +97,6 @@
 			<string>ExtendedGamepad</string>
 		</dict>
 	</array>
-	<key>UIDeviceFamily</key>
-	<array>
-		<integer>1</integer>
-		<integer>2</integer>
-	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UTExportedTypeDeclarations</key>
