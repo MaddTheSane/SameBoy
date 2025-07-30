@@ -10,7 +10,6 @@
 		5536BFFC2B44A42500318DA5 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2F2998EF7E00D554FB /* Quartz.framework */; platformFilters = (macos, ); };
 		5536C0092B44A42600318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5536C00F2B44A47C00318DA5 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
-		5536C0102B44A94800318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		553C0F452DB0F28C007D7D53 /* GBCenteredTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 553C0F442DB0F28C007D7D53 /* GBCenteredTextCell.m */; };
 		553C0F482DB0F29D007D7D53 /* GBDeleteButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 553C0F472DB0F29D007D7D53 /* GBDeleteButtonCell.m */; };
 		5541C9852C6D575500A61EB9 /* SBThumb.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 55E7FC2C2998EF7E00D554FB /* SBThumb.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -27,7 +26,6 @@
 		556038C026C091A100CD1984 /* GBOSDView.m in Sources */ = {isa = PBXBuildFile; fileRef = 556038BE26C091A100CD1984 /* GBOSDView.m */; };
 		556038C126C091A100CD1984 /* GBVisualizerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 556038BF26C091A100CD1984 /* GBVisualizerView.m */; };
 		556038C326C0952200CD1984 /* Shaders in Resources */ = {isa = PBXBuildFile; fileRef = 556038C226C0952200CD1984 /* Shaders */; };
-		5562966D2B40C9EA00048A82 /* SBThumb.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 55E7FC2C2998EF7E00D554FB /* SBThumb.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		556296722B40CA6400048A82 /* SameQL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5562967A2B40E47A00048A82 /* HFNSStringEncoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 556296762B40E47A00048A82 /* HFNSStringEncoding.h */; };
 		5562967B2B40E47A00048A82 /* HFStringEncoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 556296772B40E47A00048A82 /* HFStringEncoding.h */; };
@@ -480,8 +478,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				5536C0102B44A94800318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */,
-				5562966D2B40C9EA00048A82 /* SBThumb.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
