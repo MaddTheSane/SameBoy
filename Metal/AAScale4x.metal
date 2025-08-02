@@ -8,7 +8,7 @@
 #include <metal_stdlib>
 #include "MetalShared.h"
 
-#include "AAScale4x.fsh"
+#include "../Shaders/AAScale4x.fsh"
 
 #define fragment_shader fragment_shader_AAScale4x
 #include "BaseFragment.h"

@@ -2586,7 +2586,6 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/Shaders";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2612,7 +2611,6 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/Shaders";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2699,7 +2697,6 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/Shaders";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.ios;
 				PRODUCT_NAME = SameBoy;
 				SDKROOT = iphoneos;
@@ -2739,7 +2736,6 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/Shaders";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy.ios;
 				PRODUCT_NAME = SameBoy;
 				SDKROOT = iphoneos;

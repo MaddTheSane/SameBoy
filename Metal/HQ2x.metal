@@ -8,7 +8,7 @@
 #include <metal_stdlib>
 #include "MetalShared.h"
 
-#include "HQ2x.fsh"
+#include "../Shaders/HQ2x.fsh"
 
 #define fragment_shader fragment_shader_HQ2x
 #include "BaseFragment.h"

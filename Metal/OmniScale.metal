@@ -8,7 +8,7 @@
 #include <metal_stdlib>
 #include "MetalShared.h"
 
-#include "OmniScale.fsh"
+#include "../Shaders/OmniScale.fsh"
 
 #define fragment_shader fragment_shader_OmniScale
 #include "BaseFragment.h"

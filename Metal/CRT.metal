@@ -8,7 +8,7 @@
 #include <metal_stdlib>
 #include "MetalShared.h"
 
-#include "CRT.fsh"
+#include "../Shaders/CRT.fsh"
 
 #define fragment_shader fragment_shader_CRT
 #include "BaseFragment.h"

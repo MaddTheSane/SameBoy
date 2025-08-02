@@ -8,7 +8,7 @@
 #include <metal_stdlib>
 #include "MetalShared.h"
 
-#include "AAOmniScaleLegacy.fsh"
+#include "../Shaders/AAOmniScaleLegacy.fsh"
 
 #define fragment_shader fragment_shader_AAOmniScaleLegacy
 #include "BaseFragment.h"

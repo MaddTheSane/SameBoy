@@ -8,7 +8,7 @@
 #include <metal_stdlib>
 #include "MetalShared.h"
 
-#include "NearestNeighbor.fsh"
+#include "../Shaders/NearestNeighbor.fsh"
 
 #define fragment_shader fragment_shader_NearestNeighbor
 #include "BaseFragment.h"

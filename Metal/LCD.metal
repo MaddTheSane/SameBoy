@@ -8,7 +8,7 @@
 #include <metal_stdlib>
 #include "MetalShared.h"
 
-#include "LCD.fsh"
+#include "../Shaders/LCD.fsh"
 
 #define fragment_shader fragment_shader_LCD
 #include "BaseFragment.h"
