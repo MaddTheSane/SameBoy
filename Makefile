@@ -599,6 +599,7 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
                     Cocoa/Assets.xcassets/AccentColor.colorset/Contents.json \
                     Cocoa/License.html \
                     Cocoa/Info.plist \
+                    Cocoa/SameBoy.entitlements \
                     Misc/registers.sym \
                     $(BIN)/SameBoy.app/Contents/Resources/dmg_boot.bin \
                     $(BIN)/SameBoy.app/Contents/Resources/mgb_boot.bin \
@@ -622,9 +623,7 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Library/QuickLook/
 	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --accent-color AccentColor --target-device mac --minimum-deployment-target 10.10 --platform macosx --compile $(BIN)/SameBoy.app/Contents/Resources --output-partial-info-plist $(OBJ)/tmpInfo.plist --app-icon AppIcon AppleCommon/SharedAssets.xcassets Cocoa/Assets.xcassets AppleCommon/AppIcon.icon
 	/usr/libexec/PlistBuddy -x -c "Merge $(OBJ)/tmpInfo.plist" $(BIN)/SameBoy.app/Contents/Info.plist
-ifeq ($(CONF), release)
-	$(CODESIGN) $@
-endif
+	$(CODESIGN) $@ --entitlements Cocoa/SameBoy.entitlements
 
 # We place the dylib inside the Quick Look plugin, because Quick Look plugins run in a very strict sandbox
 
