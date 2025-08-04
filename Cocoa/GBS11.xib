@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24093.7" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24112" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24093.7"/>
+        <deployment version="110000" identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24112"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -119,9 +119,9 @@
         </customView>
     </objects>
     <resources>
-        <image name="backward.end.alt.fill" catalog="system" width="24" height="13"/>
-        <image name="backward.end.fill" catalog="system" width="15" height="13"/>
-        <image name="forward.end.alt.fill" catalog="system" width="24" height="13"/>
+        <image name="backward.end.alt.fill" catalog="system" width="24" height="12"/>
+        <image name="backward.end.fill" catalog="system" width="15" height="12"/>
+        <image name="forward.end.alt.fill" catalog="system" width="24" height="12"/>
         <image name="pause.fill" catalog="system" width="11" height="13"/>
         <image name="play.fill" catalog="system" width="12" height="13"/>
     </resources>
