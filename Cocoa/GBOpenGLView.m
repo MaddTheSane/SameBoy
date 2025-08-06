@@ -28,8 +28,8 @@
 
 - (instancetype)initWithFrame:(NSRect)frameRect pixelFormat:(NSOpenGLPixelFormat *)format
 {
-    __weak GBOpenGLView *weakSelf = self;
     self = [super initWithFrame:frameRect pixelFormat:format];
+    __weak GBOpenGLView *weakSelf = self;
     [self observeStandardDefaultsKey:@"GBFilter" withBlock:^(id newValue) {
         weakSelf.shader = nil;
         [weakSelf setNeedsDisplay:true];

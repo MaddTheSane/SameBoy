@@ -861,7 +861,7 @@ static id ValueForItem(NSDictionary *item)
         id block = ^(){
             [[NSUserDefaults standardUserDefaults] setDouble:slider.value forKey:item[@"pref"]];
             if (type == typeTurboSlider) {
-                unsigned section = [indexPath indexAtPosition:0];
+                NSUInteger section = [indexPath indexAtPosition:0];
                 UITableViewHeaderFooterView *view = [weakSelf.tableView footerViewForSection:section];
                 view.textLabel.text = [weakSelf tableView:weakSelf.tableView titleForFooterInSection:section];
                 [UIView setAnimationsEnabled:false];
