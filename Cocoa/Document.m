@@ -18,6 +18,24 @@
 #import "GBHexStatusBarRepresenter.h"
 #import "NSObject+DefaultsObserver.h"
 
+void *AllocationAt(uintptr_t x)
+{
+    size_t malloc_size(const void *ptr);
+    uintptr_t t = x & ~7;
+    for (unsigned i = 0; i < 128; i++) {
+        size_t size = malloc_size((void *)t);
+        if (!size) {
+            t -= 8;
+            continue;
+        }
+        if (x < t + size) {
+            return (void *)t;
+        }
+        return NULL;
+    }
+    return NULL;
+}
+
 #define likely(x)   GB_likely(x)
 #define unlikely(x) GB_unlikely(x)
 
@@ -352,7 +370,8 @@ static void debuggerReloadCallback(GB_gameboy_t *gb)
     }];
     
     [self observeStandardDefaultsKey:@"GBTurboCap" withBlock:^(NSNumber *value) {
-        if (!self->_master) {
+    	__strong Document *strongSelf = weakSelf;
+        if (!strongSelf->_master) {
             GB_set_turbo_cap(gb, value.doubleValue);
         }
     }];
