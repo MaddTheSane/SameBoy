@@ -159,6 +159,8 @@ API_AVAILABLE(ios(13.0))
     
     NSString *_lastSavedROM;
     NSDate *_saveDate;
+    
+    unsigned _autosaveCountdown;
 }
 
 static void loadBootROM(GB_gameboy_t *gb, GB_boot_rom_t type)
@@ -225,6 +227,10 @@ static uint8_t cameraGetPixel(GB_gameboy_t *gb, uint8_t x, uint8_t y)
 static void rumbleCallback(GB_gameboy_t *gb, double amp)
 {
     GBViewController *self = (__bridge GBViewController *)GB_get_user_data(gb);
+    double strength = [[NSUserDefaults standardUserDefaults] doubleForKey:@"GBRumbleStrength"];
+    if (strength != 1) {
+        amp = pow(amp, strength) * strength;
+    }
     [self rumbleChanged:amp];
 }
 
@@ -757,6 +763,28 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
                     _runModeFromController = false;
                 }
             }
+            break;
+        case GBSaveState1:
+            if (_romLoaded) {
+                [_backgroundView saveSwipeFromController:true];
+            }
+            break;
+        case GBLoadState1:
+            if (_romLoaded) {
+                [_backgroundView loadSwipeFromController:true];
+            }
+            break;
+        case GBReset:
+            if (_romLoaded) {
+                [self stop];
+                _skipAutoLoad = true;
+                GB_reset(&_gb);
+                [self start];
+            }
+            break;
+        case GBOpenMenu:
+            self.window.backgroundColor = nil;
+            [self presentViewController:[GBMenuViewController menu] animated:true completion:nil];
             break;
         default: break;
     }
@@ -1435,6 +1463,8 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
         return;
     }
     [self preRun];
+    const unsigned autosaveFrequency = 60 * 60;
+    _autosaveCountdown = autosaveFrequency;
     while (_running) {
         if (_rewind) {
             _rewind = false;
@@ -1464,6 +1494,11 @@ static void rumbleCallback(GB_gameboy_t *gb, double amp)
         }
         if (_runMode != GBRunModePaused) {
             GB_run(&_gb);
+            if (!_autosaveCountdown) {
+                _autosaveCountdown = autosaveFrequency;
+                [self preformAutosave];
+            }
+
         }
     }
     [self postRun];
@@ -1509,6 +1544,12 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
     return ret;
 }
 
+- (void)preformAutosave
+{
+    GB_save_battery(&_gb, [GBROMManager sharedManager].batterySaveFile.fileSystemRepresentation);
+    [self saveStateToFile:[GBROMManager sharedManager].autosaveStateFile];
+}
+
 - (void)postRun
 {
     [_audioLock lock];
@@ -1519,8 +1560,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
     _audioClient = nil;
 
     if (!_swappingROM) {
-        GB_save_battery(&_gb, [GBROMManager sharedManager].batterySaveFile.fileSystemRepresentation);
-        [self saveStateToFile:[GBROMManager sharedManager].autosaveStateFile];
+        [self preformAutosave];
 
         NSDate *date;
         [[NSURL fileURLWithPath:[GBROMManager sharedManager].autosaveStateFile] getResourceValue:&date
@@ -1659,6 +1699,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
         _rapidBCount++;
         GB_set_key_state(&_gb, GB_KEY_B, !(_rapidBCount & 2));
     }
+    _autosaveCountdown--;
     if (_rapidA || _rapidB) {
         if (_runMode == GBRunModeRewind || _runMode == GBRunModePaused) {
             self.runMode = GBRunModeNormal;
