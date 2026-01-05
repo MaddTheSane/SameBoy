@@ -9,7 +9,7 @@
 
 #import <Core/gb.h>
 
-typedef enum {
+typedef enum GB_frame_blending_mode_e {
     GB_FRAME_BLENDING_MODE_DISABLED,
     GB_FRAME_BLENDING_MODE_SIMPLE,
     GB_FRAME_BLENDING_MODE_ACCURATE,

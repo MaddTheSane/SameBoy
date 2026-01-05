@@ -319,7 +319,7 @@ METAL_SDK := iphoneos
 else
 ifeq ($(PLATFORM),Darwin)
 SYSROOT := $(shell xcodebuild -sdk macosx -version Path 2> $(NULL))
-METAL_FLAGS := -target air64-apple-macos10.11
+METAL_FLAGS := -target air64-apple-macos10.13
 METAL_SDK := macosx
 ifeq ($(SYSROOT),)
 SYSROOT := /Library/Developer/CommandLineTools/SDKs/$(shell ls /Library/Developer/CommandLineTools/SDKs/ | grep "[0-9]\." | tail -n 1)
@@ -329,9 +329,9 @@ $(error Could not find a macOS SDK)
 endif
 
 
-CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.10 -isysroot $(SYSROOT) -IAppleCommon
+CFLAGS += -F/Library/Frameworks -mmacosx-version-min=10.13 -isysroot $(SYSROOT) -IAppleCommon
 OCFLAGS += -x objective-c -fobjc-arc -Wno-deprecated-declarations -Wno-gnu-folding-constant -isysroot $(SYSROOT)
-LDFLAGS += -mmacosx-version-min=10.10 -isysroot $(SYSROOT)
+LDFLAGS += -mmacosx-version-min=10.13 -isysroot $(SYSROOT)
 GL_LDFLAGS := -framework OpenGL
 endif
 CFLAGS += -Wno-deprecated-declarations
@@ -621,7 +621,7 @@ $(BIN)/SameBoy.app: $(BIN)/SameBoy.app/Contents/MacOS/SameBoy \
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Resources/Shaders
 	cp Shaders/*.fsh Shaders/*.metal $(BIN)/SameBoy.app/Contents/Resources/Shaders
 	$(MKDIR) -p $(BIN)/SameBoy.app/Contents/Library/QuickLook/
-	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --accent-color AccentColor --target-device mac --minimum-deployment-target 10.10 --platform macosx --compile $(BIN)/SameBoy.app/Contents/Resources --output-partial-info-plist $(OBJ)/tmpInfo.plist --app-icon AppIcon AppleCommon/SharedAssets.xcassets Cocoa/Assets.xcassets AppleCommon/AppIcon.icon
+	actool --output-format human-readable-text --notices --warnings --enable-on-demand-resources NO --development-region en --accent-color AccentColor --target-device mac --minimum-deployment-target 10.13 --platform macosx --compile $(BIN)/SameBoy.app/Contents/Resources --output-partial-info-plist $(OBJ)/tmpInfo.plist --app-icon AppIcon AppleCommon/SharedAssets.xcassets Cocoa/Assets.xcassets AppleCommon/AppIcon.icon
 	/usr/libexec/PlistBuddy -x -c "Merge $(OBJ)/tmpInfo.plist" $(BIN)/SameBoy.app/Contents/Info.plist
 	$(CODESIGN) $@ --entitlements Cocoa/SameBoy.entitlements
 
@@ -640,7 +640,7 @@ ifeq ($(CONF), release)
 endif
 
 $(BIN)/SameBoy.app/Contents/Resources/%.nib: Cocoa/%.xib
-	$(IBTOOL) --target-device mac --minimum-deployment-target 10.10 --compile $@ $^ 2>&1 | cat -
+	$(IBTOOL) --target-device mac --minimum-deployment-target 10.13 --compile $@ $^ 2>&1 | cat -
 	
 $(BIN)/SameBoy.app/Contents/Resources/default.metallib: $(METAL_OBJECTS)
 	xcrun -sdk $(METAL_SDK) metal $(METAL_FLAGS) -o $@ $^

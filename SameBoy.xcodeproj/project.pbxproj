@@ -2586,6 +2586,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LLVM_LTO = YES_THIN;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2611,6 +2612,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LLVM_LTO = YES_THIN;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.liji32.sameboy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
