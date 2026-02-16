@@ -2000,7 +2000,12 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
                         
                         
                         _cameraSession = [AVCaptureSession new];
-                        _cameraSession.sessionPreset = AVCaptureSessionPreset352x288;
+                        if ([device supportsAVCaptureSessionPreset:AVCaptureSessionPreset352x288]) {
+                            _cameraSession.sessionPreset = AVCaptureSessionPreset352x288;
+                        }
+                        else if ([device supportsAVCaptureSessionPreset:AVCaptureSessionPresetMedium]) {
+                            _cameraSession.sessionPreset = AVCaptureSessionPresetMedium;
+                        }
                         
                         [_cameraSession addInput: input];
                         [_cameraSession addOutput: _cameraOutput];
@@ -2012,6 +2017,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
                 @catch (NSException *exception) {
                     /* I have not tested camera support on many devices, so we catch exceptions just in case. */
                     GB_camera_updated(&_gb);
+                    _cameraSession = nil;
                 }
             });
         }
