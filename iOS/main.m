@@ -6,7 +6,7 @@
 
 static double MigrateTurboSpeed(void)
 {
-    unsigned old = [[NSUserDefaults standardUserDefaults] integerForKey:@"GBTurboSpeed"];
+    NSInteger old = [[NSUserDefaults standardUserDefaults] integerForKey:@"GBTurboSpeed"];
     if (old == 1) return 0;
     return old;
 }
