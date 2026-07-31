@@ -17,6 +17,7 @@
 #import "GBPaletteView.h"
 #import "GBHexStatusBarRepresenter.h"
 #import "NSObject+DefaultsObserver.h"
+#import <pthread/sched.h>
 
 #define likely(x)   GB_likely(x)
 #define unlikely(x) GB_unlikely(x)
@@ -822,12 +823,14 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 
 - (void)batteryTimerExpired
 {
-    if (_dirtyBattery && !GB_get_battery_dirty(&_gb)) {
-        GB_save_battery(&_gb, self.savURL.fileSystemRepresentation);
-    }
-    
-    _dirtyBattery = GB_get_battery_dirty(&_gb);
-    GB_clear_battery_dirty(&_gb);
+    [self performAtomicBlock:^{
+        if (_dirtyBattery && !GB_get_battery_dirty(&_gb)) {
+            GB_save_battery(&_gb, self.savURL.fileSystemRepresentation);
+        }
+        
+        _dirtyBattery = GB_get_battery_dirty(&_gb);
+        GB_clear_battery_dirty(&_gb);
+    }];
 }
 
 - (NSFont *)debuggerFontOfSize:(unsigned)size
@@ -1920,7 +1923,7 @@ enum GBWindowResizeAction
 
 - (void)performAtomicBlock: (void (^)(void))block
 {
-    while (!GB_is_inited(&_gb));
+    while (!GB_is_inited(&_gb)) sched_yield();
     bool isRunning = _running && !GB_debugger_is_stopped(&_gb);
     if (_master) {
         isRunning |= _master->_running;
@@ -1941,7 +1944,7 @@ enum GBWindowResizeAction
     }
     
     _pendingAtomicBlock = block;
-    while (_pendingAtomicBlock);
+    while (_pendingAtomicBlock) sched_yield();
 }
 
 - (NSString *)captureOutputForBlock: (void (^)(void))block
