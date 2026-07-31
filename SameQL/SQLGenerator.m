@@ -57,7 +57,7 @@ OSStatus SQLRender(CGContextRef cgContext, CFURLRef url, bool showBorder)
     /* Convert the screenshot to a CGImageRef */
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, bitmap, sizeof(bitmap), NULL);
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
-    const CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
+    const CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault | (CGBitmapInfo)(kCGImageAlphaNoneSkipLast);
     const CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     
     CGImageRef iref = CGImageCreate(160,

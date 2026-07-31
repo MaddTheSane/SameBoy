@@ -824,12 +824,12 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
 - (void)batteryTimerExpired
 {
     [self performAtomicBlock:^{
-        if (_dirtyBattery && !GB_get_battery_dirty(&_gb)) {
-            GB_save_battery(&_gb, self.savURL.fileSystemRepresentation);
+        if (self->_dirtyBattery && !GB_get_battery_dirty(&self->_gb)) {
+            GB_save_battery(&self->_gb, self.savURL.fileSystemRepresentation);
         }
         
-        _dirtyBattery = GB_get_battery_dirty(&_gb);
-        GB_clear_battery_dirty(&_gb);
+        self->_dirtyBattery = GB_get_battery_dirty(&self->_gb);
+        GB_clear_battery_dirty(&self->_gb);
     }];
 }
 
