@@ -3031,6 +3031,24 @@ enum GBWindowResizeAction
     [self updateChangeCount:NSChangeDone];
 }
 
+#if 0
+- (BOOL)writeToURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError *__autoreleasing  _Nullable *)outError
+{
+    if ([typeName isEqualToString:@"Game Boy Cartridge"]) {
+        if (![[NSFileManager defaultManager] copyItemAtURL:self.fileURL toURL:url error:outError]) {
+            return false;
+        }
+        url = self.romURL;
+        if (!url) {
+            return false;
+        }
+    }
+    size_t size;
+    uint8_t *data = GB_get_direct_access(&_gb, GB_DIRECT_ACCESS_ROM, &size, NULL);
+    return [[NSData dataWithBytesNoCopy:data length:size freeWhenDone:false] writeToURL:url options:NSDataWritingAtomic error:outError];
+}
+#endif
+
 - (BOOL)writeToFile:(NSString *)path ofType:(NSString *)type
 {
     if ([type isEqualToString:@"Game Boy Cartridge"]) {
