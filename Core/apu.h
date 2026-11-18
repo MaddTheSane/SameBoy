@@ -160,6 +160,11 @@ typedef struct
     bool lfsr_stepped_in_narrow;
     bool lfsr_bit_7_before_step; // Used by some corruptions?
     bool noise_started_with_dac_disabled; // TODO: Background counting behaves slightly different this way?
+    bool noise_feedback_latch; // DMG JOTO, clocked opposite the shift stages
+    /* DMG pulse frequency gates survive length/sweep expiry until DAC or APU off. */
+    bool square_clock_active[2];
+    /* DMG DUWO/DOME hold the duty bit independently of the envelope volume. */
+    bool square_duty_output[2];
 } GB_apu_t;
 
 typedef enum {
@@ -173,6 +178,7 @@ typedef enum {
     GB_AUDIO_FORMAT_RAW, // Native endian
     GB_AUDIO_FORMAT_AIFF, // Native endian
     GB_AUDIO_FORMAT_WAV,
+    GB_AUDIO_FORMAT_VGM,
 } GB_audio_format_t;
 
 typedef struct {
@@ -197,6 +203,11 @@ typedef struct {
     
     GB_band_limited_t band_limited[GB_N_CHANNELS];
     double dac_discharge[GB_N_CHANNELS];
+    struct {
+        uint8_t multiplier[GB_N_CHANNELS];
+        uint8_t enabled;
+    } dac_delay[GB_BAND_LIMITED_WIDTH / 2];
+    uint8_t dac_delay_pos;
     bool channel_muted[GB_N_CHANNELS];
     bool edge_triggered[GB_N_CHANNELS];
 
@@ -212,6 +223,10 @@ typedef struct {
     FILE *output_file;
     GB_audio_format_t output_format;
     int output_error;
+    uint32_t vgm_pending_samples;
+    uint32_t vgm_total_samples;
+    uint64_t vgm_sample_fraction;
+    uint32_t vgm_clock_rate;
     
     /* Not output related, but it's temp state so I'll put it here */
     bool square_sweep_disable_stepping;
@@ -241,4 +256,6 @@ internal void GB_apu_div_secondary_event(GB_gameboy_t *gb);
 internal void GB_apu_delayed_envelope_tick(GB_gameboy_t *gb);
 internal void GB_apu_init(GB_gameboy_t *gb);
 internal void GB_apu_run(GB_gameboy_t *gb, bool force);
+internal void GB_apu_vgm_advance(GB_gameboy_t *gb, uint8_t cycles);
+internal void GB_apu_vgm_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value);
 #endif

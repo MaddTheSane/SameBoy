@@ -235,10 +235,12 @@ enum {
 static const typeof(GB_IO_PGB) __attribute__((deprecated("Use GB_IO_PGB instead"))) GB_IO_UNKNOWN5 = GB_IO_PGB;
 
 typedef enum {
-    GB_LOG_BOLD = 1,
+    GB_LOG_BOLD             = 1,
     GB_LOG_DASHED_UNDERLINE = 2,
-    GB_LOG_UNDERLINE = 4,
-    GB_LOG_UNDERLINE_MASK =  GB_LOG_DASHED_UNDERLINE | GB_LOG_UNDERLINE
+    GB_LOG_UNDERLINE        = 4,
+    GB_LOG_UNDERLINE_MASK   =  GB_LOG_DASHED_UNDERLINE | GB_LOG_UNDERLINE,
+    GB_LOG_ERROR            = 8,    // This log line represents an error message for the currently executing API
+    GB_LOG_WARNING          = 0x10, // This log line represents an warning message for the currently executing API
 } GB_log_attributes_t;
 
 typedef enum {
@@ -390,11 +392,13 @@ struct GB_gameboy_internal_s {
         uint8_t extra_oam[0xFF00 - 0xFEA0];
         uint32_t ram_size; // Different between CGB and DMG
                
-        int32_t ir_sensor;
+        int32_t ir_warmup;
         bool effective_ir_input;
         uint16_t address_bus;
         uint8_t data_bus; // cart data bus (MAIN)
         uint32_t data_bus_decay_countdown;
+               
+        int32_t ir_decay;
     )
 
     /* DMA and HDMA */
@@ -694,6 +698,7 @@ struct GB_gameboy_internal_s {
         bool illegal_inputs_allowed;
         bool no_bouncing_emulation;
         bool joypad_is_stable;
+        bool inputs_changed;
 
         /* Timing */
         uint64_t last_sync;

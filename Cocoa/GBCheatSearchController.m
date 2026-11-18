@@ -69,6 +69,7 @@
                 return;
             }
             self->_resultCount = GB_cheat_search_result_count(self->_document.gb);
+            free(self->_results);
             self->_results = malloc(sizeof(*_results) * self->_resultCount);
             GB_cheat_search_get_results(self->_document.gb, self->_results);
         }];

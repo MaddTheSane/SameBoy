@@ -191,7 +191,7 @@ static uint8_t agb_bias_for_channel(GB_gameboy_t *gb, GB_channel_t index)
     }
 }
 
-static void update_sample(GB_gameboy_t *gb, GB_channel_t index, int8_t value, unsigned cycles_offset)
+static void update_sample_internal(GB_gameboy_t *gb, GB_channel_t index, int8_t value, unsigned cycles_offset, bool force_update)
 {
     if (gb->model > GB_MODEL_CGB_E) {
         /* On the AGB, because no analog mixing is done, the behavior of NR51 is a bit different.
@@ -236,7 +236,7 @@ static void update_sample(GB_gameboy_t *gb, GB_channel_t index, int8_t value, un
         return;
     }
     
-    if (value == 0 && gb->apu.samples[index] == 0) return;
+    if (!force_update && value == 0 && gb->apu.samples[index] == 0) return;
     
     if (!GB_apu_is_DAC_enabled(gb, index)) {
         value = gb->apu.samples[index];
@@ -267,6 +267,11 @@ static void update_sample(GB_gameboy_t *gb, GB_channel_t index, int8_t value, un
                                 (((gb->apu_output.sample_fraction + sample_fraction_multiply(gb, cycles_offset)) >> 8) * GB_BAND_LIMITED_PHASES) >> 20);
         }
     }
+}
+
+static void update_sample(GB_gameboy_t *gb, GB_channel_t index, int8_t value, unsigned cycles_offset)
+{
+    update_sample_internal(gb, index, value, cycles_offset, false);
 }
 
 static double smooth(double x)
@@ -316,6 +321,10 @@ static signed interference(GB_gameboy_t *gb)
 static void render(GB_gameboy_t *gb)
 {
     GB_sample_t output = {0, 0};
+    uint8_t enabled_dacs = 0;
+    /* TODO: only measured on one DMG (CPU revision unconfirmed);
+       DAC timing is assumed shared by all pre-CGB models. */
+    bool delay_dac = !GB_is_cgb(gb) && gb->apu_output.max_cycles_per_sample != 1;
 
     unrolled for (unsigned i = 0; i < GB_N_CHANNELS; i++) {
         double multiplier = CH_STEP;
@@ -342,11 +351,27 @@ static void render(GB_gameboy_t *gb)
             }
         }
         
+        enabled_dacs |= GB_apu_is_DAC_enabled(gb, i) << i;
+
+        if (delay_dac) {
+            /* DAC gain is applied after synthesis. Match the filter's midpoint
+               delay so enabling a DAC cannot precede its digital waveform. */
+            uint8_t delayed = gb->apu_output.dac_delay[gb->apu_output.dac_delay_pos].multiplier[i];
+            gb->apu_output.dac_delay[gb->apu_output.dac_delay_pos].multiplier[i] = multiplier;
+            multiplier = delayed;
+        }
         GB_sample_t channel_output;
         band_limited_read(&gb->apu_output.band_limited[i], &channel_output, multiplier);
 
         output.left += channel_output.left;
         output.right += channel_output.right;
+    }
+    if (delay_dac) {
+        uint8_t delayed = gb->apu_output.dac_delay[gb->apu_output.dac_delay_pos].enabled;
+        gb->apu_output.dac_delay[gb->apu_output.dac_delay_pos].enabled = enabled_dacs;
+        enabled_dacs = delayed;
+        gb->apu_output.dac_delay_pos =
+            (gb->apu_output.dac_delay_pos + 1) % (GB_BAND_LIMITED_WIDTH / 2);
     }
     gb->apu_output.cycles_since_render = 0;
     if (unlikely(gb->apu_output.sample_fraction < (1 << 28))) {
@@ -358,44 +383,52 @@ static void render(GB_gameboy_t *gb)
     
     if (gb->sgb && gb->sgb->intro_animation < GB_SGB_INTRO_ANIMATION_LENGTH) return;
 
-    GB_sample_t filtered_output = gb->apu_output.highpass_mode?
-        (GB_sample_t) {output.left  - (int16_t)gb->apu_output.highpass_diff.left,
-                       output.right - (int16_t)gb->apu_output.highpass_diff.right} :
-        output;
+    GB_sample_t filtered_output = {0, 0};
+    /* On pre-CGB models, the last DAC disconnects the mixer without waiting for discharge.
+       Apply the same synthesis delay to connection and gain, then hold the
+       coupling capacitor while disconnected.
+       TODO: only measured on one DMG (CPU revision unconfirmed);
+       assumed shared by all pre-CGB models. */
+    if (GB_is_cgb(gb) || enabled_dacs) {
+        filtered_output = gb->apu_output.highpass_mode?
+            (GB_sample_t) {output.left  - (int16_t)gb->apu_output.highpass_diff.left,
+                           output.right - (int16_t)gb->apu_output.highpass_diff.right} :
+            output;
 
-    switch (gb->apu_output.highpass_mode) {
-        case GB_HIGHPASS_OFF:
-            gb->apu_output.highpass_diff = (GB_double_sample_t) {0, 0};
-            break;
-        case GB_HIGHPASS_ACCURATE:
-            gb->apu_output.highpass_diff = (GB_double_sample_t) {
-                output.left  - (output.left  - gb->apu_output.highpass_diff.left)  * gb->apu_output.highpass_rate,
-                output.right - (output.right - gb->apu_output.highpass_diff.right) * gb->apu_output.highpass_rate
-            };
-            break;
-        case GB_HIGHPASS_REMOVE_DC_OFFSET: {
-            unsigned mask = gb->io_registers[GB_IO_NR51];
-            unsigned left_volume = 0;
-            unsigned right_volume = 0;
-            unrolled for (unsigned i = GB_N_CHANNELS; i--;) {
-                if (GB_apu_is_DAC_enabled(gb, i)) {
-                    if (mask & 1) {
-                        left_volume += ((gb->io_registers[GB_IO_NR50] & 7) + 1) * CH_STEP * 0xF;
+        switch (gb->apu_output.highpass_mode) {
+            case GB_HIGHPASS_OFF:
+                gb->apu_output.highpass_diff = (GB_double_sample_t) {0, 0};
+                break;
+            case GB_HIGHPASS_ACCURATE:
+                gb->apu_output.highpass_diff = (GB_double_sample_t) {
+                    output.left  - (output.left  - gb->apu_output.highpass_diff.left)  * gb->apu_output.highpass_rate,
+                    output.right - (output.right - gb->apu_output.highpass_diff.right) * gb->apu_output.highpass_rate
+                };
+                break;
+            case GB_HIGHPASS_REMOVE_DC_OFFSET: {
+                unsigned mask = gb->io_registers[GB_IO_NR51];
+                unsigned left_volume = 0;
+                unsigned right_volume = 0;
+                unrolled for (unsigned i = GB_N_CHANNELS; i--;) {
+                    if (enabled_dacs & (1 << i)) {
+                        if (mask & 1) {
+                            left_volume += ((gb->io_registers[GB_IO_NR50] & 7) + 1) * CH_STEP * 0xF;
+                        }
+                        if (mask & 0x10) {
+                            right_volume += (((gb->io_registers[GB_IO_NR50] >> 4) & 7) + 1) * CH_STEP * 0xF;
+                        }
                     }
-                    if (mask & 0x10) {
-                        right_volume += (((gb->io_registers[GB_IO_NR50] >> 4) & 7) + 1) * CH_STEP * 0xF;
-                    }
+                    mask >>= 1;
                 }
-                mask >>= 1;
+                gb->apu_output.highpass_diff = (GB_double_sample_t) {
+                    left_volume  * (1 - gb->apu_output.highpass_rate) + gb->apu_output.highpass_diff.left * gb->apu_output.highpass_rate,
+                    right_volume * (1 - gb->apu_output.highpass_rate) + gb->apu_output.highpass_diff.right * gb->apu_output.highpass_rate
+                };
+
+            case GB_HIGHPASS_MAX:;
             }
-            gb->apu_output.highpass_diff = (GB_double_sample_t) {
-                left_volume  * (1 - gb->apu_output.highpass_rate) + gb->apu_output.highpass_diff.left * gb->apu_output.highpass_rate,
-                right_volume * (1 - gb->apu_output.highpass_rate) + gb->apu_output.highpass_diff.right * gb->apu_output.highpass_rate
-            };
 
-        case GB_HIGHPASS_MAX:;
         }
-
     }
     
     
@@ -411,7 +444,7 @@ static void render(GB_gameboy_t *gb)
     }
     assert(gb->apu_output.sample_callback);
     gb->apu_output.sample_callback(gb, &filtered_output);
-    if (unlikely(gb->apu_output.output_file)) {
+    if (unlikely(gb->apu_output.output_file && gb->apu_output.output_format != GB_AUDIO_FORMAT_VGM)) {
 #ifdef GB_BIG_ENDIAN
         if (gb->apu_output.output_format == GB_AUDIO_FORMAT_WAV) {
             filtered_output.left = LE16(filtered_output.left);
@@ -436,8 +469,14 @@ static void update_square_sample(GB_gameboy_t *gb, GB_channel_t index, unsigned 
     }
 
     uint8_t duty = gb->io_registers[index == GB_SQUARE_1? GB_IO_NR11 :GB_IO_NR21] >> 6;
+    /* DUWO/DOME sample duty on the frequency clock, not envelope writes or
+       retriggers. Volume still changes immediately against the retained bit.
+       TODO: only measured on one DMG (CPU revision unconfirmed);
+       assumed shared by all pre-CGB models. */
+    bool output = !GB_is_cgb(gb) ? gb->apu.square_duty_output[index] :
+                  duties[gb->apu.square_channels[index].current_sample_index + duty * 8];
     update_sample(gb, index,
-                  duties[gb->apu.square_channels[index].current_sample_index + duty * 8]?
+                  output?
                   gb->apu.square_channels[index].current_volume : 0,
                   cycles);
 }
@@ -793,11 +832,15 @@ static void update_lfsr(GB_gameboy_t *gb, unsigned cycles_offset)
     }
 }
 
-static void step_lfsr(GB_gameboy_t *gb, unsigned cycles_offset)
+static bool lfsr_feedback(GB_gameboy_t *gb)
+{
+    return (gb->apu.noise_channel.lfsr ^ (gb->apu.noise_channel.lfsr >> 1) ^ 1) & 1;
+}
+
+static void shift_lfsr_with_feedback(GB_gameboy_t *gb, unsigned cycles_offset, bool new_high_bit)
 {
     gb->apu.lfsr_bit_7_before_step = gb->apu.noise_channel.lfsr & 0x80;
     unsigned high_bit_mask = gb->apu.noise_channel.narrow ? 0x4040 : 0x4000;
-    bool new_high_bit = (gb->apu.noise_channel.lfsr ^ (gb->apu.noise_channel.lfsr >> 1) ^ 1) & 1;
     gb->apu.noise_channel.lfsr >>= 1;
     
     if (new_high_bit) {
@@ -810,6 +853,33 @@ static void step_lfsr(GB_gameboy_t *gb, unsigned cycles_offset)
     
     update_lfsr(gb, cycles_offset);
     gb->apu.lfsr_stepped_in_narrow = gb->apu.noise_channel.narrow;
+}
+
+static void step_lfsr(GB_gameboy_t *gb, unsigned cycles_offset)
+{
+    /* Some NR43 corruptions model partial/subcycle shifts, rather than a normal
+       clock edge. Retain their instantaneous-feedback approximation. */
+    shift_lfsr_with_feedback(gb, cycles_offset, lfsr_feedback(gb));
+}
+
+static void clock_lfsr(GB_gameboy_t *gb, unsigned cycles_offset)
+{
+    /* TODO: only measured on one DMG (CPU revision unconfirmed); feedback latching,
+       including its reset and NR43 edges, is assumed shared by all pre-CGB models. */
+    shift_lfsr_with_feedback(gb, cycles_offset,
+                            !GB_is_cgb(gb) ? gb->apu.noise_feedback_latch : lfsr_feedback(gb));
+}
+
+static uint8_t read_wave_sample_bus(GB_gameboy_t *gb)
+{
+    /* Model the inactive DMG wave bus as pulled high. The held sample changes
+       on a sample clock, not immediately on length expiry or retrigger.
+       Preserve the existing pending-read behavior if its gate has stopped. */
+    if (!GB_is_cgb(gb) && !gb->apu.is_active[GB_WAVE] &&
+        gb->apu.wave_channel.enable && gb->apu.wave_channel.pulsed) {
+        return 0xFF;
+    }
+    return gb->io_registers[GB_IO_WAV_START + (gb->address_bus & 0xF)];
 }
 
 void GB_apu_run(GB_gameboy_t *gb, bool force)
@@ -876,8 +946,7 @@ restart:;
         while (cycles_left) {
             cycles_left--;
             if (--gb->apu.wave_channel.bugged_read_countdown == 0) {
-                    gb->apu.wave_channel.current_sample_byte =
-                gb->io_registers[GB_IO_WAV_START + (gb->address_bus & 0xF)];
+                gb->apu.wave_channel.current_sample_byte = read_wave_sample_bus(gb);
                 if (gb->apu.is_active[GB_WAVE]) {
                     update_wave_sample(gb, 0);
                 }
@@ -946,7 +1015,11 @@ restart:;
         }
 
         unrolled for (unsigned i = GB_SQUARE_1; i <= GB_SQUARE_2; i++) {
-            if (gb->apu.is_active[i]) {
+            /* On pre-CGB models, length/sweep expiry gates output, not the frequency
+               clock. GEXU/BUTA keep the duty sequencer running until DAC off.
+               TODO: only measured on one DMG (CPU revision unconfirmed);
+               assumed shared by all pre-CGB models. */
+            if (gb->apu.is_active[i] || (!GB_is_cgb(gb) && gb->apu.square_clock_active[i])) {
                 uint16_t cycles_left = cycles;
                 if (unlikely(gb->apu.square_channels[i].delay)) {
                     if (gb->apu.square_channels[i].delay < cycles_left) {
@@ -961,14 +1034,17 @@ restart:;
                     gb->apu.square_channels[i].sample_countdown = (gb->apu.square_channels[i].sample_length ^ 0x7FF) * 2 + 1;
                     gb->apu.square_channels[i].current_sample_index++;
                     gb->apu.square_channels[i].current_sample_index &= 0x7;
+                    uint8_t duty = gb->io_registers[i == GB_SQUARE_1? GB_IO_NR11 :GB_IO_NR21] >> 6;
+                    gb->apu.square_duty_output[i] = duties[gb->apu.square_channels[i].current_sample_index + duty * 8];
                     gb->apu.square_channels[i].sample_surpressed = false;
                     if (cycles_left == 0 && gb->apu.samples[i] == 0) {
                         gb->apu.pcm_mask[0] &= i == GB_SQUARE_1? 0xF0 : 0x0F;
                     }
                     gb->apu.square_channels[i].did_tick = true;
-                    update_square_sample(gb, i, cycles - cycles_left);
+                    if (gb->apu.is_active[i]) {
+                        update_square_sample(gb, i, cycles - cycles_left);
+                    }
 
-                    uint8_t duty = gb->io_registers[i == GB_SQUARE_1? GB_IO_NR11 :GB_IO_NR21] >> 6;
                     uint8_t edge_sample_index = inline_const(uint8_t[], {7, 7, 5, 1})[duty];
                     if (gb->apu.square_channels[i].current_sample_index == edge_sample_index) {
                         gb->apu_output.edge_triggered[i] = true;
@@ -1008,8 +1084,7 @@ restart:;
                 cycles_left -= gb->apu.wave_channel.sample_countdown + 1;
                 gb->apu.wave_channel.sample_countdown = gb->apu.wave_channel.sample_length ^ 0x7FF;
                 if (cycles_left) {
-                    gb->apu.wave_channel.current_sample_byte =
-                    gb->io_registers[GB_IO_WAV_START + (gb->address_bus & 0xF)];
+                    gb->apu.wave_channel.current_sample_byte = read_wave_sample_bus(gb);
                 }
                 else {
                     gb->apu.wave_channel.bugged_read_countdown = 1;
@@ -1042,12 +1117,19 @@ restart:;
                 gb->apu.noise_channel.did_step_counter = true;
                 bool new_bit = gb->apu.noise_channel.counter & mask;
 
+                /* DMG's JOTO feedback latch clocks on the falling edge; the
+                   shift stages clock on the rising edge. Reset clears both, so
+                   a rising edge before the first falling edge shifts in zero. */
+                if (!GB_is_cgb(gb) && old_bit && !new_bit && gb->apu.is_active[GB_NOISE]) {
+                    gb->apu.noise_feedback_latch = lfsr_feedback(gb);
+                }
+
                 /* Step LFSR */
                 if (new_bit && !old_bit && gb->apu.is_active[GB_NOISE]) {
                     if (cycles_left == 0 && gb->apu.samples[GB_NOISE] == 0 && !gb->cgb_double_speed) {
                         gb->apu.pcm_mask[1] &= 0x0F;
                     }
-                    step_lfsr(gb, cycles - cycles_left);
+                    clock_lfsr(gb, cycles - cycles_left);
                 }
             }
             if (cycles_left) {
@@ -1210,6 +1292,9 @@ static noinline void nr10_write_glitch(GB_gameboy_t *gb, uint8_t value)
 
 static void prepare_noise_start(GB_gameboy_t *gb)
 {
+    if (!GB_is_cgb(gb)) {
+        gb->apu.noise_feedback_latch = false;
+    }
     /*
      TODO: When restarting a channel right after starting it, before it has the chance to tick the counter, things
      behave differently. Only certain behaviors of this edge case are emulated.
@@ -1391,6 +1476,13 @@ static void nr43_write(GB_gameboy_t *gb, uint8_t new)
     bool glitch_bit = (effective_counter >> (glitch_value >> 4)) & 1;
     bool new_bit = (effective_counter >> (new >> 4)) & 1;
     bool force_glitch = false;
+
+    /* The selector follows old -> glitch -> new (including the pre-CGB-D FF
+       write). Capture feedback in clock order around the existing mutations.
+       Subcycle corruption/extra-step paths below remain approximations. */
+    if (!GB_is_cgb(gb) && old_bit && !glitch_bit) {
+        gb->apu.noise_feedback_latch = lfsr_feedback(gb);
+    }
 
     if (gb->model == GB_MODEL_CGB_D) {
         if (new_bit && glitch_bit && old_bit) {
@@ -1649,7 +1741,7 @@ static void nr43_write(GB_gameboy_t *gb, uint8_t new)
                 }
             }
             else {
-                step_lfsr(gb, 0);
+                clock_lfsr(gb, 0);
             }
         }
     }
@@ -1657,7 +1749,7 @@ static void nr43_write(GB_gameboy_t *gb, uint8_t new)
         if (gb->model <= GB_MODEL_CGB_C) {
             bool previous_narrow = gb->apu.noise_channel.narrow;
             gb->apu.noise_channel.narrow = true;
-            step_lfsr(gb, 0);
+            clock_lfsr(gb, 0);
             gb->apu.noise_channel.narrow = previous_narrow;
             if ((new & 0xf0) <= 0x20 && glitch_bit && !(effective_counter & 8)) { // No clue why that specific bit is tested
                 // Non-deterministic, not fully tested for revision differences and wide mode
@@ -1676,6 +1768,9 @@ static void nr43_write(GB_gameboy_t *gb, uint8_t new)
             // Step twice?
             step_lfsr(gb, 0);
         }
+    }
+    if (!GB_is_cgb(gb) && glitch_bit && !new_bit) {
+        gb->apu.noise_feedback_latch = lfsr_feedback(gb);
     }
 }
 
@@ -1700,6 +1795,15 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
         reg = GB_IO_WAV_START + gb->apu.wave_channel.current_sample_index / 2;
     }
 
+    bool reconnect_dac = false;
+    if (!GB_is_cgb(gb) &&
+        (reg == GB_IO_NR12 || reg == GB_IO_NR22 || reg == GB_IO_NR30 || reg == GB_IO_NR42)) {
+        reconnect_dac = true;
+        unrolled for (unsigned i = 0; i < GB_N_CHANNELS; i++) {
+            reconnect_dac &= !GB_apu_is_DAC_enabled(gb, i);
+        }
+    }
+
     /* Todo: this can and should be rewritten with a function table. */
     switch (reg) {
         /* Globals */
@@ -1709,9 +1813,9 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
             /* These registers affect the output of all 4 channels (but not the output of the PCM registers).*/
             /* We call update_samples with the current value so the APU output is updated with the new outputs */
             for (unsigned i = GB_N_CHANNELS; i--;) {
-                int8_t sample = gb->apu.samples[i];
-                gb->apu.samples[i] = 0x10; // Invalidate to force update
-                update_sample(gb, i, sample, 0);
+                /* A disabled DAC retains its sample during discharge. Do not
+                   overwrite that value to invalidate the mixer output. */
+                update_sample_internal(gb, i, gb->apu.samples[i], 0, true);
             }
             break;
         case GB_IO_NR52: {
@@ -1781,6 +1885,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                 /* This disables the DAC */
                 gb->io_registers[reg] = value;
                 gb->apu.is_active[index] = false;
+                gb->apu.square_clock_active[index] = false;
                 update_sample(gb, index, 0, 0);
             }
             else if (gb->apu.is_active[index]) {
@@ -1831,6 +1936,7 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                 gb->apu.square_channels[index].sample_countdown = (gb->apu.square_channels[index].sample_length ^ 0x7FF) * 2 + 1;
             }
             if (value & 0x80) {
+                gb->apu.square_clock_active[index] = (gb->io_registers[index == GB_SQUARE_1 ? GB_IO_NR12 : GB_IO_NR22] & 0xF8) != 0;
                 /* Current sample index remains unchanged when restarting channels 1 or 2. It is only reset by
                    turning the APU off. */
                 gb->apu.square_channels[index].envelope_clock.locked = false;
@@ -1983,11 +2089,11 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                     unsigned offset = ((gb->apu.wave_channel.current_sample_index + 1) >> 1) & 0xF;
 
                     /* This glitch varies between models and even specific instances:
-                       DMG-B:     Most of them behave as emulated. A few behave differently.
-                       SGB:       As far as I know, all tested instances behave as emulated.
+                       DMG-B:     Both plain block copy and source-byte corruption have been observed.
                        MGB, SGB2: Most instances behave non-deterministically, a few behave as emulated.
                      
-                       For DMG-B emulation I emulate the most common behavior, which blargg's tests expect (not my own DMG-B, which fails it)
+                       The majority variant was measured on DMG and confirmed on MGB.
+                       Assume the remaining pre-CGB models share it; individual units may differ.
                        For MGB emulation, I emulate my Game Boy Light, which happens to be deterministic.
 
                       Additionally, I believe DMGs, including those we behave differently than emulated,
@@ -1996,6 +2102,15 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                         gb->io_registers[GB_IO_WAV_START] = gb->io_registers[GB_IO_WAV_START + offset];
                     }
                     else {
+                        /* Retriggering also changes the first source byte, before copying the block.
+                           Physical RAM readbacks cover all eight input combinations and all three
+                           nonzero source blocks. Equal-time NOP and delayed DAC-off controls retain
+                           this behavior. The operands follow the existing read address/timing model;
+                           this does not claim an internal SRAM mechanism or apply to every instance. */
+                        uint8_t a = gb->io_registers[GB_IO_WAV_START];
+                        uint8_t b = gb->io_registers[GB_IO_WAV_START + (offset & ~3)];
+                        uint8_t c = gb->io_registers[GB_IO_WAV_START + offset];
+                        gb->io_registers[GB_IO_WAV_START + (offset & ~3)] = (a & b) | (a & c) | (b & c);
                         memcpy(gb->io_registers + GB_IO_WAV_START,
                                gb->io_registers + GB_IO_WAV_START + (offset & ~3),
                                4);
@@ -2053,6 +2168,11 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
                     if (gb->apu.noise_channel.counter_countdown <= 2) {
                         gb->apu.noise_channel.counter++;
                     }
+                    gb->apu.noise_background_counter_active = false;
+                }
+                /* DMG retains its phase but stops counting even after length
+                   expiry. Only a trigger, not DAC enable, restarts this gate. */
+                if (!GB_is_cgb(gb)) {
                     gb->apu.noise_background_counter_active = false;
                 }
 
@@ -2159,6 +2279,17 @@ void GB_apu_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
         }
     }
     gb->io_registers[reg] = value;
+    if (reconnect_dac) {
+        /* Reconnect the full DAC level to the held coupling capacitor. Starting
+           an attack ramp against its old charge creates a false negative pulse.
+           TODO: only measured on one DMG (CPU revision unconfirmed);
+           assumed shared by all pre-CGB models. */
+        unrolled for (unsigned i = 0; i < GB_N_CHANNELS; i++) {
+            if (GB_apu_is_DAC_enabled(gb, i)) {
+                gb->apu_output.dac_discharge[i] = 1;
+            }
+        }
+    }
 }
 
 void GB_set_sample_rate(GB_gameboy_t *gb, unsigned sample_rate)
@@ -2238,7 +2369,7 @@ typedef struct __attribute__((packed)) {
     uint16_t compression_name; // = 0
     
     uint32_t ssnd_chunk; // = BE32('SSND')
-    uint32_t ssnd_size; // = BE32(length of samples - 8)
+    uint32_t ssnd_size; // = BE32(length of samples + 8)
     uint32_t ssnd_offset; // = 0
     uint32_t ssnd_block; // = 0
 } aiff_header_t;
@@ -2249,22 +2380,152 @@ typedef struct __attribute__((packed)) {
     uint32_t type; // = BE32('WAVE')
     
     uint32_t fmt_chunk; // = BE32('fmt ')
-    uint32_t fmt_size; // = LE16(16)
+    uint32_t fmt_size; // = LE32(16)
     uint16_t format; // = LE16(1)
     uint16_t channels; // = LE16(2)
     uint32_t sample_rate; // = LE32(sample_rate)
     uint32_t byte_rate; // = LE32(sample_rate * 4)
-    uint16_t frame_size;  // = LE32(4)
+    uint16_t frame_size;  // = LE16(4)
     uint16_t bit_depth; // = LE16(16)
     
     uint32_t data_chunk; // = BE32('data')
     uint32_t data_size; // = LE32(length of samples)
 } wav_header_t;
 
+#define VGM_HEADER_SIZE 0xC0
+#define VGM_DATA_OFFSET (VGM_HEADER_SIZE - 0x34)
+#define VGM_SAMPLE_RATE 44100
+
+static void vgm_set_le32(uint8_t *header, size_t offset, uint32_t value)
+{
+    value = LE32(value);
+    memcpy(header + offset, &value, sizeof(value));
+}
+
+static void vgm_get_header(GB_gameboy_t *gb, uint8_t header[VGM_HEADER_SIZE], uint32_t eof_offset)
+{
+    memset(header, 0, VGM_HEADER_SIZE);
+    header[0] = 'V';
+    header[1] = 'g';
+    header[2] = 'm';
+    header[3] = ' ';
+    vgm_set_le32(header, 0x04, eof_offset);
+    vgm_set_le32(header, 0x08, 0x00000161);
+    vgm_set_le32(header, 0x18, gb->apu_output.vgm_total_samples);
+    vgm_set_le32(header, 0x34, VGM_DATA_OFFSET);
+    vgm_set_le32(header, 0x80, gb->apu_output.vgm_clock_rate | (GB_is_cgb(gb) ? 0x80000000u : 0));
+}
+
+static bool vgm_write_data(GB_gameboy_t *gb, const void *data, size_t size)
+{
+    if (!gb->apu_output.output_file) return false;
+    if (fwrite(data, size, 1, gb->apu_output.output_file) != 1) {
+        gb->apu_output.output_error = errno ?: EIO;
+        fclose(gb->apu_output.output_file);
+        gb->apu_output.output_file = NULL;
+        return false;
+    }
+    return true;
+}
+
+static bool vgm_flush_wait(GB_gameboy_t *gb)
+{
+    while (gb->apu_output.vgm_pending_samples) {
+        if (gb->apu_output.vgm_pending_samples <= 16) {
+            uint8_t command = 0x70 + gb->apu_output.vgm_pending_samples - 1;
+            gb->apu_output.vgm_pending_samples = 0;
+            if (!vgm_write_data(gb, &command, sizeof(command))) return false;
+        }
+        else {
+            uint16_t samples = MIN(gb->apu_output.vgm_pending_samples, 0xFFFF);
+            uint8_t command[] = {0x61, samples & 0xFF, samples >> 8};
+            gb->apu_output.vgm_pending_samples -= samples;
+            if (!vgm_write_data(gb, command, sizeof(command))) return false;
+        }
+    }
+    return true;
+}
+
+static bool vgm_write_register(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
+{
+    if (!vgm_flush_wait(gb)) return false;
+    uint8_t command[] = {0xB3, reg - GB_IO_NR10, value};
+    return vgm_write_data(gb, command, sizeof(command));
+}
+
+static uint8_t vgm_get_trigger_register(GB_gameboy_t *gb, uint8_t reg, GB_channel_t channel)
+{
+    uint8_t value = gb->io_registers[reg] & 0x7F;
+    if (gb->apu.is_active[channel]) {
+        value |= 0x80;
+    }
+    return value;
+}
+
+static bool vgm_write_apu_snapshot(GB_gameboy_t *gb)
+{
+    if (!vgm_write_register(gb, GB_IO_NR52, gb->apu.global_enable ? 0x80 : 0)) return false;
+
+    /* Wave RAM is preserved even when the APU is disabled. */
+    for (unsigned i = GB_IO_WAV_START; i <= GB_IO_WAV_END; i++) {
+        if (!vgm_write_register(gb, i, gb->io_registers[i])) return false;
+    }
+
+    if (!gb->apu.global_enable) return true;
+
+    static const uint8_t registers[] = {
+        GB_IO_NR50, GB_IO_NR51,
+        GB_IO_NR10, GB_IO_NR11, GB_IO_NR12, GB_IO_NR13,
+        GB_IO_NR21, GB_IO_NR22, GB_IO_NR23,
+        GB_IO_NR30, GB_IO_NR31, GB_IO_NR32, GB_IO_NR33,
+        GB_IO_NR41, GB_IO_NR42, GB_IO_NR43,
+    };
+
+    for (unsigned i = 0; i < sizeof(registers) / sizeof(registers[0]); i++) {
+        if (!vgm_write_register(gb, registers[i], gb->io_registers[registers[i]])) return false;
+    }
+
+    if (!vgm_write_register(gb, GB_IO_NR14,
+                            vgm_get_trigger_register(gb, GB_IO_NR14, GB_SQUARE_1))) return false;
+    if (!vgm_write_register(gb, GB_IO_NR24,
+                            vgm_get_trigger_register(gb, GB_IO_NR24, GB_SQUARE_2))) return false;
+    if (!vgm_write_register(gb, GB_IO_NR34,
+                            vgm_get_trigger_register(gb, GB_IO_NR34, GB_WAVE))) return false;
+    if (!vgm_write_register(gb, GB_IO_NR44,
+                            vgm_get_trigger_register(gb, GB_IO_NR44, GB_NOISE))) return false;
+
+    return true;
+}
+
+static void noinline vgm_advance(GB_gameboy_t *gb, uint8_t cycles)
+{
+    uint64_t clock_rate = (uint64_t)gb->apu_output.vgm_clock_rate * 2;
+    if (!clock_rate) return;
+    uint64_t sample_fraction = gb->apu_output.vgm_sample_fraction + (uint64_t)cycles * VGM_SAMPLE_RATE;
+    uint32_t samples = sample_fraction / clock_rate;
+    gb->apu_output.vgm_sample_fraction = sample_fraction % clock_rate;
+    gb->apu_output.vgm_pending_samples += samples;
+    gb->apu_output.vgm_total_samples += samples;
+}
+
+void GB_apu_vgm_advance(GB_gameboy_t *gb, uint8_t cycles)
+{
+    if (likely(!gb->apu_output.output_file)) return;
+    if (likely(gb->apu_output.output_format != GB_AUDIO_FORMAT_VGM)) return;
+    vgm_advance(gb, cycles);
+}
+
+void GB_apu_vgm_write(GB_gameboy_t *gb, uint8_t reg, uint8_t value)
+{
+    if (unlikely(gb->apu_output.output_file && gb->apu_output.output_format == GB_AUDIO_FORMAT_VGM)) {
+        vgm_write_register(gb, reg, value);
+    }
+}
+
 
 int GB_start_audio_recording(GB_gameboy_t *gb, const char *path, GB_audio_format_t format)
 {
-    if (gb->apu_output.sample_rate == 0) {
+    if (format != GB_AUDIO_FORMAT_VGM && gb->apu_output.sample_rate == 0) {
         return EINVAL;
     }
     
@@ -2278,6 +2539,30 @@ int GB_start_audio_recording(GB_gameboy_t *gb, const char *path, GB_audio_format
     switch (format) {
         case GB_AUDIO_FORMAT_RAW:
             return 0;
+        case GB_AUDIO_FORMAT_VGM: {
+            gb->apu_output.vgm_pending_samples = 0;
+            gb->apu_output.vgm_total_samples = 0;
+            gb->apu_output.vgm_sample_fraction = 0;
+            gb->apu_output.vgm_clock_rate = GB_get_clock_rate(gb) ?: CPU_FREQUENCY;
+            uint8_t header[VGM_HEADER_SIZE];
+            vgm_get_header(gb, header, 0);
+            if (fwrite(header, sizeof(header), 1, gb->apu_output.output_file) != 1) {
+                int ret = errno ?: EIO;
+                fclose(gb->apu_output.output_file);
+                gb->apu_output.output_file = NULL;
+                return ret;
+            }
+            if (!vgm_write_apu_snapshot(gb)) {
+                int ret = gb->apu_output.output_error ?: EIO;
+                if (gb->apu_output.output_file) {
+                    fclose(gb->apu_output.output_file);
+                    gb->apu_output.output_file = NULL;
+                }
+                gb->apu_output.output_error = 0;
+                return ret;
+            }
+            return 0;
+        }
         case GB_AUDIO_FORMAT_AIFF: {
             aiff_header_t header = {0,};
             if (fwrite(&header, sizeof(header), 1, gb->apu_output.output_file) != 1) {
@@ -2315,6 +2600,23 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
     switch (gb->apu_output.output_format) {
         case GB_AUDIO_FORMAT_RAW:
             break;
+        case GB_AUDIO_FORMAT_VGM: {
+            if (!vgm_flush_wait(gb)) break;
+            uint8_t end_command = 0x66;
+            if (!vgm_write_data(gb, &end_command, sizeof(end_command))) break;
+            long file_size = ftell(gb->apu_output.output_file);
+            if (file_size < 0) {
+                gb->apu_output.output_error = errno ?: EIO;
+                break;
+            }
+            uint8_t header[VGM_HEADER_SIZE];
+            vgm_get_header(gb, header, file_size - 4);
+            if (fseek(gb->apu_output.output_file, 0, SEEK_SET) != 0 ||
+                fwrite(header, sizeof(header), 1, gb->apu_output.output_file) != 1) {
+                gb->apu_output.output_error = errno ?: EIO;
+            }
+            break;
+        }
         case GB_AUDIO_FORMAT_AIFF: {
             size_t file_size = ftell(gb->apu_output.output_file);
             size_t frames = (file_size - sizeof(aiff_header_t)) / sizeof(GB_sample_t);
@@ -2339,7 +2641,7 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
 #endif
                 .compression_name = 0,
                 .ssnd_chunk = BE32('SSND'),
-                .ssnd_size = BE32((uint32_t)(frames * sizeof(GB_sample_t) - 8)),
+                .ssnd_size = BE32((uint32_t)(frames * sizeof(GB_sample_t) + 8)),
                 .ssnd_offset = 0,
                 .ssnd_block = 0,
             };
@@ -2368,12 +2670,12 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
                 .type = BE32('WAVE'),
                 
                 .fmt_chunk = BE32('fmt '),
-                .fmt_size = LE16(16),
+                .fmt_size = LE32(16),
                 .format = LE16(1),
                 .channels = LE16(2),
                 .sample_rate = LE32(gb->apu_output.sample_rate),
                 .byte_rate = LE32(gb->apu_output.sample_rate * 4),
-                .frame_size = LE32(4),
+                .frame_size = LE16(4),
                 .bit_depth = LE16(16),
                 
                 .data_chunk = BE32('data'),
@@ -2387,8 +2689,12 @@ int GB_stop_audio_recording(GB_gameboy_t *gb)
             break;
         }
     }
-    fclose(gb->apu_output.output_file);
-    gb->apu_output.output_file = NULL;
+    if (gb->apu_output.output_file) {
+        if (fclose(gb->apu_output.output_file) != 0 && !gb->apu_output.output_error) {
+            gb->apu_output.output_error = errno ?: EIO;
+        }
+        gb->apu_output.output_file = NULL;
+    }
     
     int ret  = gb->apu_output.output_error;
     gb->apu_output.output_error = 0;

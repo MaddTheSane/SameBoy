@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		550269C030AD9DA400E7297A /* Pixelated.metal in Sources */ = {isa = PBXBuildFile; fileRef = 550269BF30AD9DA400E7297A /* Pixelated.metal */; };
+		550269C130AD9DA400E7297A /* Pixelated.metal in Sources */ = {isa = PBXBuildFile; fileRef = 550269BF30AD9DA400E7297A /* Pixelated.metal */; };
+		550269C430AD9DF100E7297A /* GBLazyObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 550269C330AD9DF100E7297A /* GBLazyObject.m */; };
 		5536BFFC2B44A42500318DA5 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FC2F2998EF7E00D554FB /* Quartz.framework */; platformFilters = (macos, ); };
 		5536C0092B44A42600318DA5 /* SBQuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5536C00F2B44A47C00318DA5 /* SameQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55E7FBFD2998EB3000D554FB /* SameQL.framework */; };
@@ -65,7 +68,6 @@
 		556296BD2B40EA4A00048A82 /* HFFileReference.m in Sources */ = {isa = PBXBuildFile; fileRef = 556296BB2B40EA4A00048A82 /* HFFileReference.m */; };
 		556296BF2B40EA6900048A82 /* HFPrivilegedHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 556296BE2B40EA6900048A82 /* HFPrivilegedHelper.h */; };
 		556A82A92E1535FC008BB43C /* GBColorTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 556A82A32E1535FC008BB43C /* GBColorTextCell.m */; };
-		556A82AA2E1535FC008BB43C /* GBToolbarFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 556A82A72E1535FC008BB43C /* GBToolbarFieldCell.m */; };
 		556A82AB2E1535FC008BB43C /* SolariumFixer.m in Sources */ = {isa = PBXBuildFile; fileRef = 556A82A82E1535FC008BB43C /* SolariumFixer.m */; };
 		556A82AC2E1535FC008BB43C /* GBDisabledButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 556A82A52E1535FC008BB43C /* GBDisabledButton.m */; };
 		556AFD8A25A54AF1004D2482 /* display.c in Sources */ = {isa = PBXBuildFile; fileRef = 556AFD5E25A54AF1004D2482 /* display.c */; settings = {COMPILER_FLAGS = "-DGB_INTERNAL"; }; };
@@ -529,6 +531,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		550269BF30AD9DA400E7297A /* Pixelated.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Pixelated.metal; sourceTree = "<group>"; };
+		550269C230AD9DF100E7297A /* GBLazyObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBLazyObject.h; sourceTree = "<group>"; };
+		550269C330AD9DF100E7297A /* GBLazyObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBLazyObject.m; sourceTree = "<group>"; };
 		5536BFFB2B44A42500318DA5 /* SBQuickLook.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SBQuickLook.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5536C0002B44A42500318DA5 /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
 		5536C0052B44A42500318DA5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -599,8 +604,6 @@
 		556A82A32E1535FC008BB43C /* GBColorTextCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBColorTextCell.m; sourceTree = "<group>"; };
 		556A82A42E1535FC008BB43C /* GBDisabledButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBDisabledButton.h; sourceTree = "<group>"; };
 		556A82A52E1535FC008BB43C /* GBDisabledButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBDisabledButton.m; sourceTree = "<group>"; };
-		556A82A62E1535FC008BB43C /* GBToolbarFieldCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GBToolbarFieldCell.h; sourceTree = "<group>"; };
-		556A82A72E1535FC008BB43C /* GBToolbarFieldCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GBToolbarFieldCell.m; sourceTree = "<group>"; };
 		556A82A82E1535FC008BB43C /* SolariumFixer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SolariumFixer.m; sourceTree = "<group>"; };
 		556AFD5C25A54AF1004D2482 /* sm83_cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sm83_cpu.h; sourceTree = "<group>"; };
 		556AFD5D25A54AF1004D2482 /* printer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = printer.h; sourceTree = "<group>"; };
@@ -1262,8 +1265,6 @@
 				55478B302998898600056C6A /* GBTintedImageCell.m */,
 				55771BAA2DAF890D000C32AF /* GBTitledPopUpButton.h */,
 				55771BAB2DAF890D000C32AF /* GBTitledPopUpButton.m */,
-				556A82A62E1535FC008BB43C /* GBToolbarFieldCell.h */,
-				556A82A72E1535FC008BB43C /* GBToolbarFieldCell.m */,
 				5579ACD525A064DA00CADDCE /* GBView.h */,
 				5579ACBB25A064DA00CADDCE /* GBView.m */,
 				5579ACB525A064D900CADDCE /* GBViewGL.h */,
@@ -1484,6 +1485,8 @@
 				55970F862B32F20500E3B538 /* GBHorizontalLayout.m */,
 				55970F852B32F20500E3B538 /* GBLayout.h */,
 				55970F6D2B32F20400E3B538 /* GBLayout.m */,
+				550269C230AD9DF100E7297A /* GBLazyObject.h */,
+				550269C330AD9DF100E7297A /* GBLazyObject.m */,
 				557547EF2DB4DA1200CA27E7 /* GBLibraryViewController.h */,
 				557547F02DB4DA1200CA27E7 /* GBLibraryViewController.m */,
 				55970F7D2B32F20400E3B538 /* GBMenuButton.h */,
@@ -1550,6 +1553,7 @@
 				55CAE2702B364CC6001935EB /* NearestNeighbor.metal */,
 				55CAE26F2B364CC6001935EB /* OmniScale.metal */,
 				55CAE26A2B364CC6001935EB /* OmniScaleLegacy.metal */,
+				550269BF30AD9DA400E7297A /* Pixelated.metal */,
 				55CAE2632B364CC6001935EB /* Scale4x.metal */,
 				55CAE2642B364CC6001935EB /* SmoothBilinear.metal */,
 			);
@@ -2029,13 +2033,13 @@
 				55478B36299889E200056C6A /* GBViewBase.m in Sources */,
 				5579ACE325A064DA00CADDCE /* GBBorderView.m in Sources */,
 				556A82A92E1535FC008BB43C /* GBColorTextCell.m in Sources */,
-				556A82AA2E1535FC008BB43C /* GBToolbarFieldCell.m in Sources */,
 				556A82AB2E1535FC008BB43C /* SolariumFixer.m in Sources */,
 				556A82AC2E1535FC008BB43C /* GBDisabledButton.m in Sources */,
 				55BE9A1A2E15FB30006224B3 /* GBCPUView.m in Sources */,
 				5579ACEE25A064DA00CADDCE /* GBSplitView.m in Sources */,
 				553C0F482DB0F29D007D7D53 /* GBDeleteButtonCell.m in Sources */,
 				556AFDA225A54AF1004D2482 /* workboy.c in Sources */,
+				550269C030AD9DA400E7297A /* Pixelated.metal in Sources */,
 				556AFD9925A54AF1004D2482 /* sm83_disassembler.c in Sources */,
 				5581114F2C85A40300B7FD10 /* cheat_search.c in Sources */,
 				556AFD8B25A54AF1004D2482 /* cheats.c in Sources */,
@@ -2185,6 +2189,7 @@
 				55970FBF2B32F46D00E3B538 /* workboy.c in Sources */,
 				55970FBC2B32F46D00E3B538 /* mbc.c in Sources */,
 				55970FAB2B32F20600E3B538 /* GBOptionViewController.m in Sources */,
+				550269C130AD9DA400E7297A /* Pixelated.metal in Sources */,
 				55970FD02B32F71400E3B538 /* GBViewMetal.m in Sources */,
 				55970F992B32F20600E3B538 /* GBBackgroundView.m in Sources */,
 				55CAE28B2B36590C001935EB /* HQ2x.metal in Sources */,
@@ -2212,6 +2217,7 @@
 				55CAE2832B36590C001935EB /* OmniScaleLegacy.metal in Sources */,
 				55970FB32B32F40700E3B538 /* gb.c in Sources */,
 				557547FA2DB4DA4400CA27E7 /* GBPaletteEditor.m in Sources */,
+				550269C430AD9DF100E7297A /* GBLazyObject.m in Sources */,
 				557547EA2DB4D9BB00CA27E7 /* GBCheckableAlertController.m in Sources */,
 				557547EB2DB4D9BB00CA27E7 /* GBColorWell.m in Sources */,
 				55970FBD2B32F46D00E3B538 /* printer.c in Sources */,

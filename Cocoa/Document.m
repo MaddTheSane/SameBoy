@@ -491,7 +491,7 @@ static void debuggerReloadCallback(GB_gameboy_t *gb)
         
         if (self->_audioBufferPosition < nFrames) {
             // Not enough audio
-            memset(buffer, 0, (nFrames - self->_audioBufferPosition) * sizeof(*buffer));
+            memset(buffer + self->_audioBufferPosition, 0, (nFrames - self->_audioBufferPosition) * sizeof(*buffer));
             memcpy(buffer, self->_audioBuffer, self->_audioBufferPosition * sizeof(*buffer));
             // Do not reset the audio position to avoid more underflows
         }
@@ -601,7 +601,14 @@ static unsigned *multiplication_table_for_frequency(unsigned frequency)
     _audioClient = nil;
     self.view.mouseHidingEnabled = false;
     GB_save_battery(&_gb, self.savURL.fileSystemRepresentation);
-    GB_save_cheats(&_gb, self.chtURL.fileSystemRepresentation);
+    size_t cheatCount;
+    GB_get_cheats(&_gb, &cheatCount);
+    if (cheatCount) {
+        GB_save_cheats(&_gb, self.chtURL.fileSystemRepresentation);
+    }
+    else if (self.chtURL) {
+        [[NSFileManager defaultManager] removeItemAtURL:self.chtURL error:nil];
+    }
     unsigned time_to_alarm = GB_time_to_alarm(&_gb);
     
     if (time_to_alarm) {
@@ -1518,6 +1525,9 @@ static bool is_path_writeable(const char *path)
     else if ([anItem action] == @selector(saveDocumentAs:)) {
         return _romModified && !self.isCartContainer;
     }
+    else if ([anItem action] == @selector(switchVRAMTab:)) {
+        return _vramWindow.isKeyWindow;
+    }
     
     return [super validateUserInterfaceItem:anItem];
 }
@@ -2179,7 +2189,7 @@ enum GBWindowResizeAction
         case GBMemoryExternalRAM: {
             size_t ram_size;
             GB_get_direct_access(&_gb, GB_DIRECT_ACCESS_CART_RAM, &ram_size, NULL);
-            n_banks = (ram_size + 0x1FFF) / 0x2000;
+            n_banks = MAX(1, (ram_size + 0x1FFF) / 0x2000);
             break;
         }
         case GBMemoryRAM:
@@ -2479,6 +2489,8 @@ enum GBWindowResizeAction
          topMargin:(unsigned) topMargin bottomMargin: (unsigned) bottomMargin
           exposure:(unsigned) exposure
 {
+    if (!height && !topMargin && !bottomMargin) return;
+
     uint32_t paddedImage[160 * (topMargin + height + bottomMargin)];
     memset(paddedImage, 0xFF, sizeof(paddedImage));
     memcpy(paddedImage + (160 * topMargin), imageBytes, 160 * height * sizeof(imageBytes[0]));
@@ -2921,6 +2933,9 @@ enum GBWindowResizeAction
         case GB_AUDIO_FORMAT_WAV:
             _audioSavePanel.allowedFileTypes = @[@"wav"];
             break;
+        case GB_AUDIO_FORMAT_VGM:
+            _audioSavePanel.allowedFileTypes = @[@"vgm"];
+            break;
     }
 }
 
@@ -3074,6 +3089,13 @@ enum GBWindowResizeAction
         }
     }
     return [set allObjects];
+}
+
+- (IBAction)switchVRAMTab:(id)sender
+{
+    [_vramTabs setSelectedSegment:[sender tag]];
+    [_vramTabs sendAction:_vramTabs.action
+                       to:_vramTabs.target];
 }
 
 @end
