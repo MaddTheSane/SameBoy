@@ -956,7 +956,7 @@ CGContextRef HFGraphicsGetCurrentContext(void) {
 #if TARGET_OS_IPHONE
     ctx = UIGraphicsGetCurrentContext();
 #else
-    ctx = [NSGraphicsContext currentContext].graphicsPort;
+    ctx = [NSGraphicsContext currentContext].CGContext;
 #endif
     return ctx;
 }
